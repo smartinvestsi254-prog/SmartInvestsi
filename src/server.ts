@@ -37,7 +37,15 @@ app.set("trust proxy", 1);
 // initialize MongoDB collections (async safe)
 import { initializeCollections } from './lib/mongodb';
 initializeCollections().catch((err) => {
+<<<<<<< HEAD
   console.error('MongoDB initialization error:', err);
+=======
+  // Log error only in non-production or with debug enabled
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_ENABLED === 'true') {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.warn(`[MongoDB Init Warning] Collection initialization failed: ${errorMsg}`);
+  }
+>>>>>>> ffee94f (Next commit)
 });
 
 // Initialize feature services
@@ -54,10 +62,33 @@ const walletService = new WalletService();
 const notificationService = new NotificationService();
 const autoInvestService = new AutoInvestService();
 
+<<<<<<< HEAD
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
+=======
+const ALLOWED_ORIGINS = (() => {
+  const envOrigins = (process.env.ALLOWED_ORIGINS || "").trim();
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  
+  if (!envOrigins) {
+    if (nodeEnv === 'production') {
+      throw new Error('CRITICAL: ALLOWED_ORIGINS must be set in .env for production');
+    }
+    // Development defaults
+    if (process.env.DEBUG_ENABLED === 'true') {
+      console.warn('⚠️ WARNING: ALLOWED_ORIGINS not configured — using development defaults');
+    }
+    return ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:3000'];
+  }
+  
+  return envOrigins
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+})();
+>>>>>>> ffee94f (Next commit)
 
 app.use(
   helmet({
@@ -69,9 +100,26 @@ app.use(
 app.use(
   cors({
     origin: (origin, cb) => {
+<<<<<<< HEAD
       if (!origin) return cb(null, true);
       if (ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
       return cb(new Error("CORS not allowed"), false);
+=======
+      // Allow requests without origin (like mobile apps)
+      if (!origin) return cb(null, true);
+      
+      // Check if origin is in allowlist
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return cb(null, true);
+      }
+      
+      // Log blocked origins in development
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_ENABLED === 'true') {
+        console.warn(`[CORS] Blocked request from origin: ${origin}`);
+      }
+      
+      return cb(new Error("CORS policy violation"), false);
+>>>>>>> ffee94f (Next commit)
     },
     credentials: true,
   })
@@ -97,9 +145,17 @@ const JWT_SECRET = (() => {
   const secret = process.env.JWT_SECRET;
   const nodeEnv = process.env.NODE_ENV || 'development';
   
+<<<<<<< HEAD
   // In production, REQUIRE JWT_SECRET to be set and valid
   if (nodeEnv === 'production' || process.env.ENFORCE_STRICT_JWT === 'true') {
     if (!secret) {
+=======
+  // In production, REQUIRE JWT_SECRET to be (only if debug enabled)
+  if (!secret) {
+    if (process.env.DEBUG_ENABLED === 'true') {
+      console.warn('⚠️ WARNING: JWT_SECRET not set in .env — using insecure fallback (DEV ONLY)');
+    }
+>>>>>>> ffee94f (Next commit)
       throw new Error('CRITICAL: JWT_SECRET must be set in .env for production');
     }
     if (secret === 'INSECURE-DEV-SECRET-CHANGE-ME' || secret.length < 32) {
