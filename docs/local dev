@@ -1,0 +1,32 @@
+## Local development (updated for cookie-based auth)
+
+1. Install dependencies:
+   npm install
+
+2. Create an .env file based on .env.example and set:
+   - JWT_SECRET to a long random string
+   - ADMIN_USER and ADMIN_PASS if you want Basic admin login
+   - MPESA/PAYPAL credentials if testing payments
+
+3. Start the server:
+   node server.js
+
+4. Open the site:
+   http://localhost:3000/index.html
+
+5. Signup & admin:
+   - Use the signup form to create a user.
+   - To make a user an admin:
+     - Option A: set ADMIN_USER in .env and create a user with that email (server marks them admin on login).
+     - Option B: edit users.json and add `"admin": true` to the user record (manual).
+
+6. Authentication:
+   - /api/auth/login sets an HttpOnly cookie named `si_token`. The client should call fetch with `credentials: 'include'`.
+   - /api/auth/me returns { success: true, email, admin } if session exists.
+
+7. Payments:
+   - Payments endpoints are as before; to test M-Pesa or PayPal, set their env vars accordingly.
+
+Security notes:
+- Use HTTPS and set NODE_ENV=production when deploying. The server sets the cookie `secure: true` when NODE_ENV === 'production'.
+- Keep your JWT_SECRET secret and never commit it to source control.

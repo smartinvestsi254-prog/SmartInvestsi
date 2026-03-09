@@ -1,0 +1,29 @@
+<!-- In admin.html, update fetch calls to use credentials: 'include' instead of reading token from localStorage.
+     Example change for loading users and dashboard stats: -->
+
+<script>
+  async function refreshDashboard() {
+    try {
+      const res = await fetch('/api/admin/dashboard-stats', { credentials: 'include' });
+      if (!res.ok) {
+        if (res.status === 401) { alert('Admin session expired'); /* redirect or hide */ }
+        return;
+      }
+      const data = await res.json();
+      document.getElementById('stat-users').textContent = data.totalUsers || '0';
+      // ...
+    } catch (e) { console.error(e); }
+  }
+
+  async function loadAllUsers() {
+    try {
+      const res = await fetch('/api/admin/users', { credentials: 'include' });
+      if (!res.ok) {
+        if (res.status === 401) { alert('Admin session expired'); /* redirect or hide */ }
+        return;
+      }
+      const data = await res.json();
+      // render users...
+    } catch (e) { console.error(e); }
+  }
+</script>

@@ -1,0 +1,108 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": null,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "nodejs": "18"
+      }
+    },
+    {
+      "src": "src/server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "nodejs": "18"
+      }
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "wwwroot/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static",
+      "config": {
+        "maxAge": 3600
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+        "OPTIONS"
+      ]
+    },
+    {
+      "src": "/pochi/(.*)",
+      "dest": "/server.js",
+      "methods": [
+        "POST",
+        "GET"
+      ]
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/wwwroot/(.*)",
+      "dest": "/wwwroot/$1"
+    },
+    {
+      "src": "/tools/(.*)",
+      "dest": "/tools/$1"
+    },
+    {
+      "src": "/health",
+      "dest": "/server.js"
+    },
+    {
+      "src": "^/(?!api/).*\\.html$",
+      "dest": "/$0",
+      "continue": true
+    },
+    {
+      "src": "/(.*\\.(?:css|js|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000"
+  },
+  "envObjects": {
+    "production": {
+      "NODE_ENV": "production"
+    },
+    "preview": {
+      "NODE_ENV": "production"
+    }
+  }
+}

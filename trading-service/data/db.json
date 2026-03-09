@@ -1,0 +1,21 @@
+{
+    "accounts": {
+        "admin": {
+            "cash": 0,
+            "tokens": 0
+        },
+        "user1": {
+            "cash": 100000,
+            "tokens": 0,
+            "positions": {}
+        }
+    },
+    "orders": [],
+    "trades": [],
+    "marketplace": {
+        "users": {},
+        "listings": [],
+        "bids": [],
+        "messages": []
+    }
+}

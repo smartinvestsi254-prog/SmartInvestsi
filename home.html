@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvestsi - Intelligent Investment Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-corporate: #1a365d;
+            --primary-light: #2563eb;
+            --accent-gold: #d4af37;
+            --accent-teal: #0891b2;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            block-size: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .feature-icon {
+            inline-size: 64px;
+            block-size: 64px;
+            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-block-end: 1rem;
+        }
+        .diplomacy-strip {
+            background: linear-gradient(135deg, #0b3d2e 0%, #0f1a2b 100%);
+            color: white;
+            border-radius: 14px;
+            padding: 28px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">💰 SmartInvest</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalog.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/diplomacy/index.html">Diplomacy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin.html">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary ms-2" href="/login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">Intelligent Investment Platform</h1>
+            <p class="lead mb-4">Comprehensive investment management with compliance, analytics, and partnerships</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="/dashboard.html#onboarding" class="btn btn-light btn-lg">Start Personalized Plan</a>
+                <a href="/calculator.html" class="btn btn-primary btn-lg">Try Calculator</a>
+                <a href="/catalog.html" class="btn btn-outline-gold btn-lg">View Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container my-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Platform Features</h2>
+            <p class="text-muted">Everything you need for successful investing</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">📊</div>
+                        <h5 class="card-title">Advanced Analytics</h5>
+                        <p class="card-text">Real-time portfolio tracking with risk metrics, CAGR, and Sharpe ratio calculations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">🛡️</div>
+                        <h5 class="card-title">Full Compliance</h5>
+                        <p class="card-text">POPIA, GDPR, FICA, FSB, AML/KYC compliant - African & Global regulations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">🤝</div>
+                        <h5 class="card-title">Partnership Network</h5>
+                        <p class="card-text">Access to verified financial institutions and investment products</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">💳</div>
+                        <h5 class="card-title">Multi-Payment</h5>
+                        <p class="card-text">Paystack, Flutterwave, Stripe, PayPal - Support for African & global payments</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">🧮</div>
+                        <h5 class="card-title">Smart Calculators</h5>
+                        <p class="card-text">Compound interest, ROI, tax calculations for ZA, NG, GH, KE</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+                        <div class="feature-icon mx-auto">👥</div>
+                        <h5 class="card-title">User Management</h5>
+                        <p class="card-text">Complete admin panel with user, partner, and transaction management</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container my-5">
+        <div class="diplomacy-strip">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="mb-2">Kenya Diplomacy Portal</h2>
+                    <p class="mb-0">Access mission directories, treaty trackers, and delegation planning alongside investment intelligence.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a href="/diplomacy/index.html" class="btn btn-light">Open Diplomacy Hub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Plans -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Subscription Plans</h2>
+                <p class="text-muted">Choose the plan that fits your needs</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header text-center py-3">
+                            <h4 class="mb-0">Free</h4>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="text-center mb-4">R0<small class="text-muted">/month</small></h2>
+                            <ul class="list-unstyled">
+                                <li>✓ 1 Portfolio</li>
+                                <li>✓ Basic Analytics</li>
+                                <li>✓ 10 Transactions/month</li>
+                                <li>✓ Email Support</li>
+                            </ul>
+                            <button class="btn btn-secondary w-100 mt-3">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header text-center py-3">
+                            <h4 class="mb-0">Premium</h4>
+                            <span class="badge bg-warning text-dark">Most Popular</span>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="text-center mb-4">R49.99<small class="text-muted">/month</small></h2>
+                            <ul class="list-unstyled">
+                                <li>✓ 5 Portfolios</li>
+                                <li>✓ Advanced Analytics</li>
+                                <li>✓ 100 Transactions/month</li>
+                                <li>✓ Priority Support</li>
+                                <li>✓ Tax Optimization</li>
+                                <li>✓ API Access</li>
+                            </ul>
+                            <button class="btn btn-primary w-100 mt-3">Upgrade Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header text-center py-3">
+                            <h4 class="mb-0">Enterprise</h4>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="text-center mb-4">R199.99<small class="text-muted">/month</small></h2>
+                            <ul class="list-unstyled">
+                                <li>✓ Unlimited Portfolios</li>
+                                <li>✓ Full Analytics Suite</li>
+                                <li>✓ Unlimited Transactions</li>
+                                <li>✓ Dedicated Advisor</li>
+                                <li>✓ Custom Reports</li>
+                                <li>✓ Full API Access</li>
+                            </ul>
+                            <button class="btn btn-primary w-100 mt-3">Contact Sales</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 SmartInvest. All rights reserved.</p>
+            <p class="small mt-2">
+                <a href="/terms.html" class="text-warning">Terms</a> | 
+                <a href="/privacy.html" class="text-warning">Privacy</a> | 
+                <a href="/privacy.html" class="text-warning">Compliance</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/wwwroot/js/theme-toggle.js"></script>
+</body>
+</html>

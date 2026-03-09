@@ -1,0 +1,7 @@
+/api
+ ├─ mpesa
+ │   ├─ auth.ts
+ │   ├─ stkPush.ts
+ │   ├─ validation.ts
+ │   ├─ confirmation.ts
+ │   └─ callback.ts

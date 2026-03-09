@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Management - SmartInvestsi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .navbar { background: rgba(0,0,0,0.3) !important; backdrop-filter: blur(10px); }
+    .card { border: none; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+    .portfolio-item { border-left: 5px solid #667eea; padding: 20px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark navbar-expand-lg mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fas fa-chart-line"></i> SmartInvest</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="enhanced-dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#portfolios">Portfolios</a></li>
+          <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fas fa-briefcase"></i> My Portfolios</h2>
+              <button class="btn btn-primary" onclick="showCreatePortfolio()">
+                <i class="fas fa-plus"></i> New Portfolio
+              </button>
+            </div>
+
+            <div id="portfoliosList" class="row g-4">
+              <div class="col-md-6 col-lg-4">
+                <div class="card portfolio-item">
+                  <h5>Tech Growth Portfolio</h5>
+                  <p class="text-muted mb-2">Created: 30 days ago</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <small class="text-success"><i class="fas fa-arrow-up"></i> +12.5%</small>
+                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$24,500</p>
+                    </div>
+                    <div class="text-end">
+                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">8 Holdings</p>
+                      <small>Real-time tracking</small>
+                    </div>
+                  </div>
+                  <div class="btn-group mt-3 w-100" role="group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('1')">View</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('1')">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('1')">Delete</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="card portfolio-item">
+                  <h5>Dividend Income</h5>
+                  <p class="text-muted mb-2">Created: 60 days ago</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <small class="text-success"><i class="fas fa-arrow-up"></i> +8.3%</small>
+                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$42,300</p>
+                    </div>
+                    <div class="text-end">
+                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">15 Holdings</p>
+                      <small>Dividend focus</small>
+                    </div>
+                  </div>
+                  <div class="btn-group mt-3 w-100" role="group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('2')">View</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('2')">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('2')">Delete</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-lg-4">
+                <div class="card portfolio-item">
+                  <h5>Emerging Markets</h5>
+                  <p class="text-muted mb-2">Created: 15 days ago</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <small class="text-danger"><i class="fas fa-arrow-down"></i> -3.2%</small>
+                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$18,750</p>
+                    </div>
+                    <div class="text-end">
+                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">12 Holdings</p>
+                      <small>High growth</small>
+                    </div>
+                  </div>
+                  <div class="btn-group mt-3 w-100" role="group">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('3')">View</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('3')">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('3')">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Portfolio Summary</h5>
+            <div class="row text-center">
+              <div class="col-md-3">
+                <h6 class="text-muted">Total Value</h6>
+                <p style="font-size: 1.8rem; font-weight: bold; color: #667eea;">$85,550</p>
+              </div>
+              <div class="col-md-3">
+                <h6 class="text-muted">Total Return</h6>
+                <p style="font-size: 1.8rem; font-weight: bold; color: #28a745;">+$8,455 (11%)</p>
+              </div>
+              <div class="col-md-3">
+                <h6 class="text-muted">Avg Return</h6>
+                <p style="font-size: 1.8rem; font-weight: bold; color: #17a2b8;">+5.9%</p>
+              </div>
+              <div class="col-md-3">
+                <h6 class="text-muted">Total Holdings</h6>
+                <p style="font-size: 1.8rem; font-weight: bold; color: #ffc107;">35</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function showCreatePortfolio() {
+      alert('Create new portfolio dialog would open here');
+    }
+    function viewPortfolioDetails(id) {
+      window.location.href = `/portfolio-details.html?id=${id}`;
+    }
+    function editPortfolio(id) {
+      alert(`Edit portfolio ${id}`);
+    }
+    function deletePortfolio(id) {
+      if (confirm('Are you sure you want to delete this portfolio?')) {
+        alert(`Portfolio ${id} deleted`);
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

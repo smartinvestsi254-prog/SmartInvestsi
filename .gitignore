@@ -1,0 +1,39 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.log
+data/*.json
+transactions.json
+
+# Sensitive files
+*.pem
+*.key
+*.p12
+*.pfx
+.env.production
+secrets/
+credentials/
+
+# Build artifacts
+dist/
+build/
+bin/
+obj/
+*.dll
+*.exe
+
+# Uploads and generated content
+uploads/
+data/content/
+
+# IDE files
+.vscode/settings.json
+.idea/
+
+# OS files
+Thumbs.db
+SmartInvest-.sln
+
+.fake

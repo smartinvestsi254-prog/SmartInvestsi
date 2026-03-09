@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Traders - SmartInvestsi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .navbar { background: rgba(0,0,0,0.3) !important; backdrop-filter: blur(10px); }
+    .card { border: none; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .trader-card { padding: 20px; border-left: 5px solid #667eea; margin-bottom: 15px; }
+    .avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark navbar-expand-lg mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fas fa-chart-line"></i> SmartInvest</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="enhanced-dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#traders">Traders</a></li>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="row mb-4">
+      <div class="col-lg-12">
+        <h2 class="text-white mb-4"><i class="fas fa-users"></i> Top Traders</h2>
+        
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="input-group mb-3">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control" placeholder="Search traders..." id="searchTraders">
+              <select class="form-select" style="max-width: 150px;">
+                <option>Sort by Return</option>
+                <option>Sort by Risk</option>
+                <option>Sort by Followers</option>
+                <option>Sort by Success Rate</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Trader 1 -->
+      <div class="col-lg-12">
+        <div class="card trader-card">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-start">
+              <div class="avatar me-3">
+                <i class="fas fa-user text-white" style="line-height: 50px; font-size: 20px;"></i>
+              </div>
+              <div>
+                <h5>Ahmed Hassan <span class="badge bg-success ms-2">VERIFIED</span></h5>
+                <p class="text-muted mb-2">@ahmed_trader • Member for 18 months</p>
+                <p class="mb-2"><i class="fas fa-star text-warning"></i> 4.8/5 (234 reviews)</p>
+                <p class="mb-0"><small>Specializing in Tech Stocks and Growth Investing</small></p>
+              </div>
+            </div>
+            <div class="text-end">
+              <h4 class="text-success">+38.5%</h4>
+              <small class="text-muted">YTD Return</small>
+            </div>
+          </div>
+          
+          <div class="row mt-4 mb-4">
+            <div class="col-md-3">
+              <small class="text-muted">Followers</small>
+              <p class="h6">1,245</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Success Rate</small>
+              <p class="h6">72%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Avg Trade</small>
+              <p class="h6">+2.3%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Risk Score</small>
+              <p class="h6">Low</p>
+            </div>
+          </div>
+
+          <div class="btn-group w-100" role="group">
+            <button class="btn btn-outline-primary" onclick="viewTraderProfile('1')">
+              <i class="fas fa-user-circle"></i> Profile
+            </button>
+            <button class="btn btn-outline-info" onclick="viewTraderPortfolio('1')">
+              <i class="fas fa-portfolio"></i> Portfolio
+            </button>
+            <button class="btn btn-primary" onclick="startCopyTrade('1')">
+              <i class="fas fa-copy"></i> Copy Trader
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trader 2 -->
+      <div class="col-lg-12">
+        <div class="card trader-card">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-start">
+              <div class="avatar me-3">
+                <i class="fas fa-user text-white" style="line-height: 50px; font-size: 20px;"></i>
+              </div>
+              <div>
+                <h5>Fatima Okafor <span class="badge bg-success ms-2">VERIFIED</span></h5>
+                <p class="text-muted mb-2">@fatima_markets • Member for 24 months</p>
+                <p class="mb-2"><i class="fas fa-star text-warning"></i> 4.9/5 (512 reviews)</p>
+                <p class="mb-0"><small>Dividend Strategy and Value Investing Expert</small></p>
+              </div>
+            </div>
+            <div class="text-end">
+              <h4 class="text-success">+24.2%</h4>
+              <small class="text-muted">YTD Return</small>
+            </div>
+          </div>
+          
+          <div class="row mt-4 mb-4">
+            <div class="col-md-3">
+              <small class="text-muted">Followers</small>
+              <p class="h6">3,892</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Success Rate</small>
+              <p class="h6">68%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Avg Trade</small>
+              <p class="h6">+1.8%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Risk Score</small>
+              <p class="h6">Very Low</p>
+            </div>
+          </div>
+
+          <div class="btn-group w-100" role="group">
+            <button class="btn btn-outline-primary" onclick="viewTraderProfile('2')">
+              <i class="fas fa-user-circle"></i> Profile
+            </button>
+            <button class="btn btn-outline-info" onclick="viewTraderPortfolio('2')">
+              <i class="fas fa-portfolio"></i> Portfolio
+            </button>
+            <button class="btn btn-primary" onclick="startCopyTrade('2')">
+              <i class="fas fa-copy"></i> Copy Trader
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trader 3 -->
+      <div class="col-lg-12">
+        <div class="card trader-card">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-start">
+              <div class="avatar me-3">
+                <i class="fas fa-user text-white" style="line-height: 50px; font-size: 20px;"></i>
+              </div>
+              <div>
+                <h5>David Kipchoge <span class="badge bg-warning ms-2">PREMIUM</span></h5>
+                <p class="text-muted mb-2">@david_momentum • Member for 12 months</p>
+                <p class="mb-2"><i class="fas fa-star text-warning"></i> 4.6/5 (189 reviews)</p>
+                <p class="mb-0"><small>Momentum and Technical Analysis Specialist</small></p>
+              </div>
+            </div>
+            <div class="text-end">
+              <h4 class="text-success">+51.3%</h4>
+              <small class="text-muted">YTD Return</small>
+            </div>
+          </div>
+          
+          <div class="row mt-4 mb-4">
+            <div class="col-md-3">
+              <small class="text-muted">Followers</small>
+              <p class="h6">892</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Success Rate</small>
+              <p class="h6">65%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Avg Trade</small>
+              <p class="h6">+3.1%</p>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Risk Score</small>
+              <p class="h6">Medium</p>
+            </div>
+          </div>
+
+          <div class="btn-group w-100" role="group">
+            <button class="btn btn-outline-primary" onclick="viewTraderProfile('3')">
+              <i class="fas fa-user-circle"></i> Profile
+            </button>
+            <button class="btn btn-outline-info" onclick="viewTraderPortfolio('3')">
+              <i class="fas fa-portfolio"></i> Portfolio
+            </button>
+            <button class="btn btn-primary" onclick="startCopyTrade('3')">
+              <i class="fas fa-copy"></i> Copy Trader
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function viewTraderProfile(id) { alert(`View trader ${id} profile`); }
+    function viewTraderPortfolio(id) { alert(`View trader ${id} portfolio`); }
+    function startCopyTrade(id) { window.location.href = `/copy-trading.html?traderId=${id}`; }
+  </script>
+</body>
+</html>

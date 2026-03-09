@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kenya Treaty Tracker</title>
+  <meta name="description" content="Treaty tracker and briefings for Kenya diplomatic agreements.">
+  <link rel="stylesheet" href="/public/css/diplomacy.css">
+  <script src="/public/js/diplomacy-data.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell header-inner">
+      <div class="brand">
+        Kenya Diplomacy Portal
+        <span>Treaty Tracker</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="/diplomacy/index.html">Overview</a>
+        <a class="nav-link" href="/diplomacy/missions.html">Missions</a>
+        <a class="nav-link active" href="/diplomacy/treaties.html">Treaties</a>
+        <a class="nav-link" href="/diplomacy/delegations.html">Delegations</a>
+        <a class="nav-link" href="/diplomacy/documents.html">Documents</a>
+        <a class="nav-link" href="/index.html">SmartInvest</a>
+        <a class="cta" href="/contact.html">Engage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="page-shell hero-grid">
+        <div>
+          <div class="badge">Treaty Status</div>
+          <h1 class="hero-title">Treaty and MoU Tracker</h1>
+          <p class="hero-subtitle">Monitor status, obligations, and implementation milestones for Kenya agreements.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Filter Agreements</h3>
+          <p>Search by partner country, sector, or status.</p>
+          <input id="treatyFilter" class="input" type="text" placeholder="Search treaties" style="margin-top: 12px;">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Agreement</th>
+                <th>Partner</th>
+                <th>Sector</th>
+                <th>Status</th>
+                <th>Next Milestone</th>
+              </tr>
+            </thead>
+            <tbody id="treatyRows">
+              <!-- Dynamic treaty rows loaded here -->
+              <tr>
+                <td colspan="5" style="text-align: center;">Loading treaties...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell grid">
+        <div class="card">
+          <h3>Implementation Notes</h3>
+          <p>Capture risks, dependencies, and delivery owners for each agreement.</p>
+          <ul class="list">
+            <li>Align treaty timelines with national development plans.</li>
+            <li>Coordinate private sector partners through SmartInvest.</li>
+            <li>Monitor budget releases and reporting obligations.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Reporting Checklist</h3>
+          <p>Weekly updates to policy leadership and mission heads.</p>
+          <ul class="list">
+            <li>Status change summary and next actions</li>
+            <li>Stakeholder engagement log</li>
+            <li>Implementation readiness assessment</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer-grid">
+      <div>
+        <h3>Treaty Tracker</h3>
+        <p>Visibility on agreements supporting Kenya diplomatic priorities.</p>
+      </div>
+      <div>
+        <h4>Portal</h4>
+        <ul class="list">
+          <li><a href="/diplomacy/index.html">Overview</a></li>
+          <li><a href="/diplomacy/missions.html">Missions</a></li>
+          <li><a href="/diplomacy/delegations.html">Delegations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>SmartInvest</h4>
+        <ul class="list">
+          <li><a href="/index.html">SmartInvest Home</a></li>
+          <li><a href="/catalog.html">Products</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let allTreaties = [];
+    const filterInput = document.getElementById('treatyFilter');
+    const tbody = document.getElementById('treatyRows');
+
+    // Load and display treaties
+    async function loadTreatiesPage() {
+      try {
+        allTreaties = await window.DiplomacyAPI.loadTreaties();
+        
+        if (allTreaties.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center;">No treaties found in the system.</td>
+            </tr>
+          `;
+          return;
+        }
+        
+        renderTreaties(allTreaties);
+      } catch (error) {
+        console.error('Failed to load treaties:', error);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: red;">Error loading treaties. Please try again later.</td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderTreaties(treaties) {
+      tbody.innerHTML = treaties.map(treaty => `
+        <tr data-keywords="${makeKeywords(treaty)}">
+          <td>${treaty.title || 'Untitled Agreement'}</td>
+          <td>${treaty.partnerCountry || 'N/A'}</td>
+          <td>${treaty.sector || 'General'}</td>
+          <td>${window.DiplomacyAPI.formatTreatyStatus(treaty.status)}</td>
+          <td>${treaty.nextMilestone || 'N/A'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function makeKeywords(treaty) {
+      return [
+        treaty.title,
+        treaty.partnerCountry,
+        treaty.sector,
+        treaty.status,
+        treaty.nextMilestone
+      ].filter(Boolean).join(' ').toLowerCase();
+    }
+
+    // Filter functionality
+    filterInput.addEventListener('input', (event) => {
+      const query = event.target.value.trim().toLowerCase();
+      const filtered = query === '' 
+        ? allTreaties 
+        : allTreaties.filter(t => makeKeywords(t).includes(query));
+      renderTreaties(filtered);
+    });
+
+    // Load on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadTreatiesPage);
+    } else {
+      loadTreatiesPage();
+    }
+  </script>
+</body>
+</html>

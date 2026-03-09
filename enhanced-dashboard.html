@@ -1,0 +1,377 @@
+<!-- enhanced-dashboard.html - Complete dashboard with all 20 features -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvestsi - Enhanced Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-corporate: #0B1F33;
+            --primary-light: #1a365d;
+            --accent-gold: #D4AF37;
+            --accent-teal: #0891b2;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8ecf1 100%);
+        }
+        
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--accent-gold);
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(212,175,55,0.2);
+        }
+        
+        .feature-card.premium { border-left-color: var(--accent-teal); }
+        .feature-card.enterprise { border-left-color: #10b981; }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-corporate);
+            margin-bottom: 10px;
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tier-badge.free { background: #e2e8f0; color: #1f2937; }
+        .tier-badge.premium { background: var(--accent-teal); color: white; }
+        .tier-badge.enterprise { background: #10b981; color: white; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value { font-size: 2rem; font-weight: 700; }
+        .stat-label { font-size: 0.875rem; opacity: 0.9; }
+        
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .action-buttons button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-primary-feature { background: var(--accent-gold); color: var(--primary-corporate); }
+        .btn-primary-feature:hover { background: #c4a02f; }
+        .btn-secondary-feature { background: #e2e8f0; color: var(--primary-corporate); }
+        .btn-secondary-feature:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/index.html" style="color: var(--accent-gold); font-weight: 700;">SmartInvest Africa</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/enhanced-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/marketplace.html">Marketplace</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pricing.html">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin.html">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div style="margin-bottom: 30px;">
+            <h1 style="color: var(--primary-corporate); margin-bottom: 10px;">Welcome to SmartInvest Africa</h1>
+            <p style="color: #64748b; font-size: 1.1rem;">Your comprehensive investment management platform</p>
+            <div style="display: flex; align-items: center; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
+                <div>
+                    <strong>Your Tier:</strong> <span id="userTier" style="color: var(--accent-gold); font-weight: 700;">Loading...</span>
+                </div>
+                <div>
+                    <strong>Portfolio Value:</strong> <span id="portfolioValue" style="color: var(--primary-light); font-weight: 700;">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-box">
+                <div class="stat-value" id="statsPortfolios">0</div>
+                <div class="stat-label">Portfolios</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statsHoldings">0</div>
+                <div class="stat-label">Holdings</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statsDividends">$0</div>
+                <div class="stat-label">Div Income</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statsAlerts">0</div>
+                <div class="stat-label">Active Alerts</div>
+            </div>
+        </div>
+
+        <!-- All 20 Features -->
+        
+        <!-- 1. PORTFOLIO MANAGEMENT -->
+        <div class="feature-card">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-briefcase"></i> 1. Portfolio Management</div>
+            <p>Create and manage multiple investment portfolios tailored to your goals.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="loadPortfolios()">View Portfolios</button>
+                <button class="btn-secondary-feature" onclick="showCreatePortfolio()">+ New Portfolio</button>
+            </div>
+        </div>
+
+        <!-- 2. PORTFOLIO REBALANCING -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-balance-scale"></i> 2. Portfolio Rebalancing</div>
+            <p>AI-powered recommendations to rebalance your portfolio based on target allocations.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="analyzeRebalancing()">Analyze Rebalancing</button>
+                <button class="btn-secondary-feature" onclick="setTargetAllocation()">Set Targets</button>
+            </div>
+        </div>
+
+        <!-- 3. REAL-TIME MARKET DATA -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-chart-line"></i> 3. Real-time Market Data</div>
+            <p>Live stock quotes, market indices, and comprehensive financial data.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="getMarketQuote()">Get Quote</button>
+                <button class="btn-secondary-feature" onclick="viewWatchlist()">View Watchlist</button>
+            </div>
+        </div>
+
+        <!-- 4. PRICE ALERTS -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE (5 Alerts)</span>
+            <div class="feature-title"><i class="fas fa-bell"></i> 4. Price Alerts</div>
+            <p>Get notified when prices reach your target levels. Premium: 50 alerts.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="createPriceAlert()">+ New Alert</button>
+                <button class="btn-secondary-feature" onclick="viewAlerts()">View Alerts</button>
+            </div>
+        </div>
+
+        <!-- 5. DIVIDEND TRACKER -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-coins"></i> 5. Dividend Tracker</div>
+            <p>Track dividend payments, ex-dates, and reinvestment opportunities.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="viewDividends()">View Dividends</button>
+                <button class="btn-secondary-feature" onclick="dividendCalendar()">Calendar</button>
+            </div>
+        </div>
+
+        <!-- 6. NEWS AGGREGATOR -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-newspaper"></i> 6. News Aggregator</div>
+            <p>Market news, investment analysis, and economic updates tailored to your holdings.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="viewNews()">Read News</button>
+                <button class="btn-secondary-feature" onclick="newsAlerts()">News Alerts</button>
+            </div>
+        </div>
+
+        <!-- 7. SOCIAL TRADING -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE (View Only)</span>
+            <div class="feature-title"><i class="fas fa-users"></i> 7. Social Trading</div>
+            <p>Connect with traders, share insights, and copy successful strategies.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="viewTraders()">View Top Traders</button>
+                <button class="btn-secondary-feature" onclick="viewSocialFeed()">Social Feed</button>
+            </div>
+        </div>
+
+        <!-- 8. COPY TRADING (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-copy"></i> 8. Copy Trading</div>
+            <p>Automatically copy trades from verified top-performing traders.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="compareTraders()">Compare Traders</button>
+                <button class="btn-secondary-feature" onclick="startCopyTrading()">Start Copying</button>
+            </div>
+        </div>
+
+        <!-- 9. ROBO-ADVISOR (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-robot"></i> 9. Robo-Advisor</div>
+            <p>AI-driven portfolio recommendations based on your risk profile and goals.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="createRoboPortfolio()">Create Robo Portfolio</button>
+                <button class="btn-secondary-feature" onclick="getRoboAdvice()">Get Advice</button>
+            </div>
+        </div>
+
+        <!-- 10. BANK LINKING (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-university"></i> 10. Bank Linking</div>
+            <p>Connect your bank accounts securely for easy deposits and transfers.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="linkBankAccount()">+ Link Bank</button>
+                <button class="btn-secondary-feature" onclick="manageBankAccounts()">Manage Banks</button>
+            </div>
+        </div>
+
+        <!-- 11. AUTO-INVESTING / DCA (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-calendar-alt"></i> 11. Auto-Investing (DCA)</div>
+            <p>Dollar-Cost Averaging - automate regular investments into your portfolio.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="setupAutoInvest()">Setup Auto-Invest</button>
+                <button class="btn-secondary-feature" onclick="viewAutoInvest()">View Active</button>
+            </div>
+        </div>
+
+        <!-- 12. MULTI-CURRENCY WALLETS (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-wallet"></i> 12. Multi-Currency Wallets</div>
+            <p>Hold and manage multiple currencies with real-time exchange rates.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="manageWallets()">Manage Wallets</button>
+                <button class="btn-secondary-feature" onclick="exchangeCurrency()">Exchange</button>
+            </div>
+        </div>
+
+        <!-- 13. REFERRAL PROGRAM -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-share-alt"></i> 13. Referral Program</div>
+            <p>Earn rewards by referring friends and family to SmartInvest.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="generateReferralCode()">Generate Code</button>
+                <button class="btn-secondary-feature" onclick="viewReferralRewards()">View Rewards</button>
+            </div>
+        </div>
+
+        <!-- 14. EDUCATIONAL CONTENT -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE (Basic Courses)</span>
+            <div class="feature-title"><i class="fas fa-graduation-cap"></i> 14. Educational Content</div>
+            <p>Learn investment strategies through courses, webinars, and tutorials.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="browseCourses()">Browse Courses</button>
+                <button class="btn-secondary-feature" onclick="viewEnrolled()">My Courses</button>
+            </div>
+        </div>
+
+        <!-- 15. TAX OPTIMIZATION (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-file-invoice-dollar"></i> 15. Tax Optimization</div>
+            <p>Advanced tax-loss harvesting and tax efficiency recommendations.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="viewTaxReport()">Tax Report</button>
+                <button class="btn-secondary-feature" onclick="harvestTaxLoss()">Tax Harvesting</button>
+            </div>
+        </div>
+
+        <!-- 16. FRACTIONAL SHARES (Premium) -->
+        <div class="feature-card premium">
+            <span class="tier-badge premium">PREMIUM</span>
+            <div class="feature-title"><i class="fas fa-pie-chart"></i> 16. Fractional Shares</div>
+            <p>Invest any dollar amount in stocks, even partial shares.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="buyFractionalShares()">Buy Fractional</button>
+                <button class="btn-secondary-feature" onclick="viewOrders()">View Orders</button>
+            </div>
+        </div>
+
+        <!-- 17. PERFORMANCE BENCHMARKING -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-chart-bar"></i> 17. Performance Benchmarking</div>
+            <p>Compare your portfolio performance against market indices and benchmarks.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="compareBenchmarks()">Compare</button>
+                <button class="btn-secondary-feature" onclick="viewPerformance()">Performance</button>
+            </div>
+        </div>
+
+        <!-- 18. NOTIFICATIONS & WHATSAPP (Premium for WhatsApp) -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE (Email)</span>
+            <div class="feature-title"><i class="fas fa-comments"></i> 18. Notifications & WhatsApp</div>
+            <p>Get real-time notifications via email, app, or WhatsApp (Premium).</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="manageNotifications()">Manage</button>
+                <button class="btn-secondary-feature" onclick="setupWhatsApp()">WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- 19. MOBILE APPS -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-mobile-alt"></i> 19. Mobile Apps</div>
+            <p>Full access to SmartInvest on iOS and Android devices.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="downloadApps()">Download Apps</button>
+                <button class="btn-secondary-feature" onclick="viewAppFeatures()">App Features</button>
+            </div>
+        </div>
+
+        <!-- 20. MULTI-LANGUAGE SUPPORT -->
+        <div class="feature-card free">
+            <span class="tier-badge free">FREE</span>
+            <div class="feature-title"><i class="fas fa-globe"></i> 20. Multi-Language Support</div>
+            <p>SmartInvest available in English, Swahili, French, Arabic, and more.</p>
+            <div class="action-buttons">
+                <button class="btn-primary-feature" onclick="changeLanguage()">Change Language</button>
+                <button class="btn-secondary-feature" onclick="viewLanguages()">Available Languages</button>
+            </div>
+        </div>
+
+        <!-- Upgrade CTA -->
+        <div style="background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%); color: white; padding: 40px; border-radius: 12px; text-align: center; margin-top: 40px;">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">Unlock Premium Features</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 20px;">Get access to portfolio rebalancing, real-time market data, copy trading, robo-advisor, and more.</p>
+            <a href="/pricing.html" class="btn" style="background: var(--accent-gold); color: var(--primary-corporate); padding: 12px 32px; font-weight: 700; border-radius: 6px; text-decoration: none; display: inline-block;">Upgrade to Premium</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/enhanced-dashboard.js"></script>
+</body>
+</html>

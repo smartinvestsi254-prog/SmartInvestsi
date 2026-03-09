@@ -1,0 +1,15 @@
+{
+<<<<<<< HEAD
+	"recommendations": [
+		"GitHub.copilot",
+		"GitHub.vscode-pull-request-github",
+		"eamodio.gitlens",
+		"mhutchie.git-graph"
+	]
+}
+=======
+    "recommendations": [
+        "github.copilot-chat"
+    ]
+}
+>>>>>>> f5fa794 (Fix: update changes)
