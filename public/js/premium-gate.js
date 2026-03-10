@@ -4,6 +4,8 @@
   };
 
   let premiumCache = null; // true|false|null
+  let adminCache = null; // true|false|null
+
   async function fetchPremiumStatus() {
     if (premiumCache !== null) return premiumCache;
     const tryEndpoints = [
@@ -24,6 +26,34 @@
     }
     premiumCache = false; // default to not premium if unknown
     return premiumCache;
+  }
+
+  async function checkAdminStatus() {
+    if (adminCache !== null) return adminCache;
+    try {
+      // Import Supabase client
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+      const supabase = createClient(
+        'https://mylsjhueujnuwahzzjhz.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bHNqaHVldWpudXdhaHp6amh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDM4NjQsImV4cCI6MjA4NDk3OTg2NH0.KBj5zyxubnWhN-psV0Eb87-lFEXUSeq5vF1gTKoCBWk'
+      );
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        adminCache = false;
+        return adminCache;
+      }
+
+      // Check if user has admin role
+      const adminEmails = ['admin@example.com', 'admin@smartinvestsi.com'];
+      adminCache = adminEmails.includes(user.email) || user.user_metadata?.role === 'admin';
+      return adminCache;
+    } catch (error) {
+      console.error('Admin check failed:', error);
+      adminCache = false;
+      return adminCache;
+    }
   }
 
   function isException(href) {
@@ -54,6 +84,19 @@
     const targetUrl = a.href;
 
     try {
+      // Check if user is admin first
+      const isAdmin = await checkAdminStatus();
+      if (isAdmin) {
+        // Admin can access everything
+        if (a.target === '_blank' || e.ctrlKey || e.metaKey) {
+          window.open(targetUrl, '_blank');
+        } else {
+          location.href = targetUrl;
+        }
+        return;
+      }
+
+      // Check premium status for non-admin users
       const isPremium = await fetchPremiumStatus();
       if (isPremium) {
         // proceed

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Dashboard — SmartInvestsi</title>
+  <meta name="google-site-verification" content="PGl8tnEo0cLmNeSByTMPH8DWktC-VI4J_cReUfG0Hdk" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/wwwroot/css/corporate-theme.css">
   <link rel="stylesheet" href="/public/css/modern-payment-interface.css">
@@ -328,24 +329,64 @@
     </div>
   </footer>
 
-  <script>
-    async function loadContactLine() {
-      try {
-        const res = await fetch('/api/public-config');
-        const data = await res.json();
-        const line = document.getElementById('adminContactLine');
-        if (!line) return;
-        const parts = [data.supportPhone, data.supportEmail].filter(Boolean);
-        line.textContent = parts.length ? `Contact: ${parts.join(' • ')}` : 'Contact: --';
-      } catch (e) {
-        const line = document.getElementById('adminContactLine');
-        if (line) line.textContent = 'Contact: --';
-      }
+  <script type="module">
+    // Initialize Supabase client
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient(
+      'https://mylsjhueujnuwahzzjhz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bHNqaHVldWpudXdhaHp6amh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDM4NjQsImV4cCI6MjA4NDk3OTg2NH0.KBj5zyxubnWhN-psV0Eb87-lFEXUSeq5vF1gTKoCBWk'
+    );
+
+    // Helper function to get auth headers
+    async function getAuthHeaders() {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {};
     }
+
+    // Check admin access on load
+    window.addEventListener('load', async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
+
+      const adminEmails = ['admin@example.com', 'admin@smartinvestsi.com'];
+      const isAdmin = adminEmails.includes(user.email) || user.user_metadata?.role === 'admin';
+      if (!isAdmin) {
+        window.location.href = '/403.html';
+        return;
+      }
+
+      // Load data
+      loadContactLine();
+      refreshDashboard();
+      loadFiles();
+      loadMessages();
+      loadKCBTransfers();
+      loadStorageStats();
+      
+      // Initialize transaction history viewer for admin
+      if (window.TransactionHistoryViewer) {
+        const adminHistoryViewer = new window.TransactionHistoryViewer({
+          apiBase: '/api/payments',
+          containerId: 'adminTransactionsContainer',
+          adminMode: true,
+          pageSize: 15
+        });
+        
+        // Initialize when admin loads the payments tab
+        adminHistoryViewer.init();
+      }
+    });
+  </script>
+
+  <script>
 
     async function refreshDashboard() {
       try {
-        const res = await fetch('/api/admin/dashboard-stats', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/dashboard-stats', { headers });
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('stat-users').textContent = data.totalUsers ?? '-';
@@ -364,7 +405,10 @@
       fd.append('price', document.getElementById('filePrice').value || '0');
       fd.append('description', document.getElementById('fileDescription').value);
       try {
-        const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, credentials: 'include' });
+        const headers = await getAuthHeaders();
+        // Remove content-type for FormData
+        delete headers['Content-Type'];
+        const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, headers });
         const data = await res.json();
         const status = document.getElementById('uploadStatus');
         if (data.success) {
@@ -385,10 +429,12 @@
         status.className = 'text-sm text-red-600';
       }
     }
-
+headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/files', { headers
     async function loadFiles() {
       try {
-        const res = await fetch('/api/admin/files', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/files', { headers });
         const data = await res.json();
         const list = document.getElementById('filesList');
         if (!data.success || !data.files?.length) {
@@ -418,8 +464,11 @@
 
     async function togglePublish(id, current) {
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch(`/api/admin/files/${id}`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST', 
+          headers,
           body: JSON.stringify({ published: !current })
         });
         const data = await res.json();
@@ -430,7 +479,8 @@
     async function deleteFile(id) {
       if (!confirm('Delete this file?')) return;
       try {
-        const res = await fetch(`/api/admin/files/${id}`, { method: 'DELETE', credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/admin/files/${id}`, { method: 'DELETE', headers });
         const data = await res.json();
         if (data.success) { alert('File deleted'); loadFiles(); }
         else { alert('Error: ' + (data.error || 'Failed')); }
@@ -441,7 +491,8 @@
 
     async function loadMessages() {
       try {
-        const res = await fetch('/api/admin/messages', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/messages', { headers });
         const data = await res.json();
         const list = document.getElementById('messagesList');
         if (!data.success || !data.messages?.length) {
@@ -482,8 +533,11 @@
       const text = input.value.trim();
       if (!text) return alert('Enter a reply');
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch(`/api/admin/messages/${id}/reply`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ reply: text })
         });
         const data = await res.json();
@@ -496,7 +550,8 @@
 
     async function loadKCBTransfers() {
       try {
-        const res = await fetch('/api/admin/kcb-transfers', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/kcb-transfers', { headers });
         const data = await res.json();
         const list = document.getElementById('kcbTransfersList');
         if (!data.success || !data.transfers?.length) {
@@ -527,8 +582,11 @@
     async function markPaid(ts) {
       const note = prompt('Optional note for this transfer:');
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch('/api/admin/kcb/mark-paid', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ timestamp: ts, note })
         });
         const data = await res.json();
@@ -539,7 +597,8 @@
 
     async function exportKCBCSV() {
       try {
-        const res = await fetch('/api/admin/kcb-export', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/kcb-export', { headers });
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -553,8 +612,11 @@
       if (!txt) return alert('Paste JSON array');
       let arr; try { arr = JSON.parse(txt); } catch (e) { return alert('Invalid JSON: ' + e.message); }
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch('/api/admin/kcb/reconcile', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ entries: arr })
         });
         const data = await res.json();
@@ -574,8 +636,11 @@
       const paymentId = document.getElementById('paymentId').value.trim();
       if (!paymentId) return alert('Enter payment ID');
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch('/api/admin/payment-review', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ paymentId })
         });
         const data = await res.json();
@@ -587,7 +652,8 @@
 
     async function loadPaymentsLedger() {
       try {
-        const res = await fetch('/api/admin/payments', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/payments', { headers });
         const data = await res.json();
         const list = document.getElementById('paymentsLedger');
         if (!data.success) { list.innerHTML = '<div class="text-red-600">Error loading payments ledger.</div>'; return; }
@@ -622,8 +688,11 @@
       const body = document.getElementById('emailBody').value;
       if (!to || !subject || !body) return alert('Fill all fields');
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch('/api/admin/send-email', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ to, subject, body })
         });
         const data = await res.json();
@@ -639,8 +708,11 @@
       const recipients = document.getElementById('bulkRecipients').value;
       if (!subject || !body || !recipients) return alert('Fill all fields');
       try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
         const res = await fetch('/api/admin/send-bulk-email', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          method: 'POST',
+          headers,
           body: JSON.stringify({ subject, body, recipients })
         });
         const data = await res.json();
@@ -653,7 +725,8 @@
     // Storage Complex Functions
     async function loadStorageStats() {
       try {
-        const res = await fetch('/api/admin/storage-stats', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/storage-stats', { headers });
         if (!res.ok) throw new Error('Failed to load stats');
         const data = await res.json();
         if (data.success && data.stats) {
@@ -671,7 +744,8 @@
 
     async function loadAllStorageData() {
       try {
-        const res = await fetch('/api/admin/storage-complex', { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/storage-complex', { headers });
         if (!res.ok) throw new Error('Failed to load storage data');
         const result = await res.json();
         if (result.success && result.data) {
@@ -685,7 +759,8 @@
 
     async function loadStorageByType(type) {
       try {
-        const res = await fetch(`/api/admin/storage-complex/${type}`, { credentials: 'include' });
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/admin/storage-complex/${type}`, { headers });
         if (!res.ok) throw new Error('Failed to load data');
         const result = await res.json();
         if (result.success) {
@@ -731,9 +806,10 @@
     async function clearStorageType(type) {
       if (!confirm(`Are you sure you want to clear all ${type} data? This cannot be undone.`)) return;
       try {
+        const headers = await getAuthHeaders();
         const res = await fetch(`/api/admin/storage-complex/${type}/clear`, { 
           method: 'POST', 
-          credentials: 'include' 
+          headers 
         });
         const data = await res.json();
         const status = document.getElementById('clearStatus');
@@ -752,7 +828,8 @@
     }
 
     function exportStorageData() {
-      fetch('/api/admin/storage-complex', { credentials: 'include' })
+      getAuthHeaders().then(headers => {
+        fetch('/api/admin/storage-complex', { headers })
         .then(res => res.json())
         .then(result => {
           if (result.success && result.data) {

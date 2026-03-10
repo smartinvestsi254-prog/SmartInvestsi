@@ -10,21 +10,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function verifyAdminAccess() {
   try {
-    const response = await fetch('/api/admin/verify-access', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    // Import Supabase client
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+    const supabase = createClient(
+      'https://mylsjhueujnuwahzzjhz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bHNqaHVldWpudXdhaHp6amh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDM4NjQsImV4cCI6MjA4NDk3OTg2NH0.KBj5zyxubnWhN-psV0Eb87-lFEXUSeq5vF1gTKoCBWk'
+    );
 
-    if (!response.ok) {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
       redirectToLogin();
       return;
     }
 
-    const data = await response.json();
-    if (!data.isAdmin) {
+    // Check if user has admin role
+    // For now, check if email is in admin list or has admin metadata
+    const adminEmails = ['admin@example.com', 'admin@smartinvestsi.com']; // Add admin emails here
+    const isAdmin = adminEmails.includes(user.email) || user.user_metadata?.role === 'admin' || user.app_metadata?.role === 'admin';
+
+    if (!isAdmin) {
       redirectToUnauthorized();
       return;
     }
