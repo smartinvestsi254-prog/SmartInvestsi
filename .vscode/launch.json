@@ -9,7 +9,24 @@
             "name": "Run mkdirp",
             "runtimeExecutable": "mkdirp",
             "cwd": "${workspaceFolder}",
-            "args": []
+            "args": [],
+            "configurations": [
+                
+
+
+                {
+                    "name": ".NET Core Attach",
+                    "type": "coreclr",
+                    "request": "attach",
+                    "pipeTransport": {
+                        "pipeCwd": "${workspaceFolder}",
+                        "pipeProgram": "enter the fully qualified path for the pipe program name, for example '/usr/bin/ssh'",
+                        "pipeArgs": [],
+                        "debuggerPath": "enter the path for the debugger on the target machine, for example ~/vsdbg/vsdbg"
+                    }
+                }
+
+            ]
         },review to to check errors in the w
         {
             "type": "node",
