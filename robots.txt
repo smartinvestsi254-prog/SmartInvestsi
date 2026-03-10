@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://smartinvest.africa/sitemap.xml
+Sitemap: https://smartinvestsi.netlify.app/sitemap.xml

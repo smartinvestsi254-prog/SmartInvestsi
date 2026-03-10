@@ -5,22 +5,15 @@
  * 
  * Run this with: node test-security.js
  * Assumes server is running on http://localhost:3000
-<<<<<<< HEAD
-=======
  * 
  * Environment Variables:
  * - BASE_URL: Server URL (default: http://localhost:3000)
  * - TEST_ADMIN_USER: Admin username for testing (default: admin)
  * - TEST_ADMIN_PASS: Admin password for testing (default: password)
->>>>>>> ffee94f (Next commit)
  */
 
 const http = require('http');
 
-<<<<<<< HEAD
-const BASE_URL = 'http://localhost:3000';
-const ADMIN_AUTH = 'Basic ' + Buffer.from('admin:password').toString('base64');
-=======
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const TEST_ADMIN_USER = process.env.TEST_ADMIN_USER || 'admin';
 const TEST_ADMIN_PASS = process.env.TEST_ADMIN_PASS || 'password';
@@ -28,7 +21,6 @@ const TEST_ADMIN_PASS = process.env.TEST_ADMIN_PASS || 'password';
 // ⚠️ WARNING: Use test credentials only in development/testing environments
 // Never use production credentials in test files
 const ADMIN_AUTH = 'Basic ' + Buffer.from(`${TEST_ADMIN_USER}:${TEST_ADMIN_PASS}`).toString('base64');
->>>>>>> ffee94f (Next commit)
 
 // Test helper
 async function test(method, path, body = null, headers = {}) {
@@ -289,3 +281,4 @@ runTests().catch(err => {
   console.error('Test suite error:', err);
   process.exit(1);
 });
+

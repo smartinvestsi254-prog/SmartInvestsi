@@ -1,9 +1,14 @@
 [build]
-  publish = "public"          # change to 'dist' if React/Vite
-  command = "npm run build"   # or leave blank for static HTML
+  publish = "."           # HTML files are in root, not /public
+  command = "echo 'No build required for static site'"
 
 [functions]
   directory = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [build.environment]
   NODE_ENV = "production"

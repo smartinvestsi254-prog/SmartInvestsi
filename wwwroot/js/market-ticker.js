@@ -1,20 +1,30 @@
-// market-ticker.js
-// Simple rotating ticker for demo purposes
-(function(){
-    const data = [
-        'NSE 20: +0.54%',
-        'JSE All Share: -0.12%',
-        'NGX ASI: +1.32%',
-        'KRX KOSPI: +0.78%',
-        'S&P 500: +0.25%'
+// SmartInvest Market Ticker Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const ticker = document.getElementById('market-ticker');
+    if (!ticker) return;
+    
+    // Simulated market data - replace with actual API in production
+    const marketData = [
+        { symbol: 'NSE ASI', change: '+0.45%', up: true },
+        { symbol: 'JSE ALSI', change: '+0.22%', up: true },
+        { symbol: 'NGX', change: '-0.15%', up: false },
+        { symbol: 'KES', change: '+0.08%', up: true },
+        { symbol: 'GHS', change: '-0.32%', up: false }
     ];
-    let idx = 0;
-    const tickerEl = document.getElementById('market-ticker');
-    if(!tickerEl) return;
-    function update(){
-        tickerEl.querySelector('span').textContent = data[idx];
-        idx = (idx + 1) % data.length;
+    
+    function updateTicker() {
+        const html = marketData.map(item => {
+            const color = item.up ? '#22c55e' : '#ef4444';
+            const arrow = item.up ? '▲' : '▼';
+            return `<span style="margin: 0 15px;"><strong>${item.symbol}</strong> <span style="color:${color}">${arrow} ${item.change}</span></span>`;
+        }).join('');
+        ticker.innerHTML = html;
     }
-    update();
-    setInterval(update, 4000);
-})();
+    
+    // Initial load
+    updateTicker();
+    
+    // Update every 60 seconds
+    setInterval(updateTicker, 60000);
+});
+
