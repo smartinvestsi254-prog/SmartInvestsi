@@ -1,11 +1,17 @@
 node_modules/
-.env
+.env.example
 .env.local
 .env.*.local
 .DS_Store
 *.log
 data/*.json
 transactions.json
+ADMIN_CONTROL_GUIDE.md
+API_DOCUMENTATIONmd
+ADMIN_QUICK_REFERENCE.md
+ARCHITECTURE_OVERVIEW.md
+CALCULATORS_ANALYSIS.md
+COMPLETE_DEPLOYMENT_SUMMARY.md
 
 # Sensitive files
 *.pem
