@@ -1,45 +1,101 @@
-node_modules/
-.env.example
+.env
 .env.local
-.env.*.local
-.DS_Store
-*.log
-data/*.json
-transactions.json
-ADMIN_CONTROL_GUIDE.md
-API_DOCUMENTATIONmd
-ADMIN_QUICK_REFERENCE.md
-ARCHITECTURE_OVERVIEW.md
-CALCULATORS_ANALYSIS.md
-COMPLETE_DEPLOYMENT_SUMMARY.md
-
-# Sensitive files
-*.pem
-*.key
-*.p12
-*.pfx
 .env.production
-secrets/
-credentials/
-
-# Build artifacts
+.env.*.local
+secrets-patterns.json
+.env.example
+Encryption secrets.js
+netlify frontend usage.js
+Netlify usage example.js
+netlify database connections handler.js
+Netlify env table.txt
+Netlify functions secret.js
+Netlify functions payments.js
+rncryption secrets.js
+playground-1.mongodb.js
+data-protection.js
+index.html.backup
+headers.js
+console.js
+core-reconciliation-states.js
+amount-business-logic-validation.js
+manualpaybillreconcilliation.js
+Idempotency.js
+shortcode-verification.js
+storage-complex.js
+MPESA_POCHI_IMPLEMENTATION.md
+docs/serverjs update.js
+Netlify.toml/toml.txt
+netlify database connections handler.js
+"Netlify.toml/export const handler = async (event, con.js"
+"Netlify.toml/netlify functions paypalWebhook.js"
+"Netlify.toml/Project folder.md"
+src/lib/export default async function handler(re.js
+start_here_backup.txt
+.env.backup
+.env.prod
+.local.env
+admin_keys.json
+service_account.json
+credentials.json
+*.credentials
+access_tokens.json
+session_store.json
+jwt_secrets.txt
+api_keys.txt
+private_keys/
+secure_config/
+vault/
+node_modules/
 dist/
 build/
-bin/
-obj/
-*.dll
-*.exe
-
-# Uploads and generated content
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+logs/
+*.log
+*.log.*
+log/*
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+*.backup
+*.sql
+data/
+db/
+local_db/
+*.tar.gz
 uploads/
-data/content/
-
-# IDE files
-.vscode/settings.json
-.idea/
-
-# OS files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+.next/
+out/
+public/build/
+.cache/
+*.map
+.DS_Store
 Thumbs.db
-SmartInvest-.sln
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+private*
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.pfx
+.netlify/
+netlify.toml
+*.bak
+*.old
+*.orig.env
 
-.fake

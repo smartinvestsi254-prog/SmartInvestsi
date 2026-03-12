@@ -1,4 +1,4 @@
-'use strict';
+ress'use strict';
 
 const dashboardHubState = {
   catalog: [],
@@ -254,7 +254,7 @@ async function handleMpesaPay() {
   msgDiv.textContent = '';
 
   try {
-    const phone = btn.dataset.phone || '254114383762';
+    const phone = btn.dataset.phone || '';
     const res = await fetch('/api/pay/mpesa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -292,7 +292,7 @@ async function handleBuyMpesa(fileId) {
   msgDiv.textContent = '';
 
   try {
-    const phone = btn.dataset.phone || '254114383762';
+    const phone = btn.dataset.phone || '';
     const res = await fetch('/api/pay/mpesa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

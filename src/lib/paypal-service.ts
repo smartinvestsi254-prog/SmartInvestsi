@@ -373,7 +373,7 @@ export function initializePayPalService(): PayPalService {
     env: (process.env.PAYPAL_ENV as 'sandbox' | 'production') || 'sandbox',
     returnUrl: process.env.PAYPAL_RETURN_URL || 'https://yourdomain.com/paypal/return',
     cancelUrl: process.env.PAYPAL_CANCEL_URL || 'https://yourdomain.com/paypal/cancel',
-    receiverEmail: process.env.PAYPAL_RECEIVER_EMAIL || 'delijah5415@gmail.com',
+    receiverEmail: process.env.PAYPAL_RECEIVER_EMAIL || '',
   };
 
   paypalService = new PayPalService(config);
