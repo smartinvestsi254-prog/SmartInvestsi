@@ -81,6 +81,14 @@ This document lists all environment variables used in SmartInvest. Copy values t
 | SUPPORT_EMAIL | Support contact email |
 | SUPPORT_PHONE | Support phone number |
 
+## Chatbase AI Chat Support
+| Variable | Description | Required |
+|----------|-------------|----------|
+| CHATBASE_API_KEY | Chatbase API key for AI chatbot | Yes |
+| CHATBASE_BOT_ID | Chatbase bot ID | Yes |
+| CHATBASE_CHATBOT_ID | Chatbase chatbot ID | Yes |
+| CHATBASE_API_URL | Chatbase API endpoint | `https://www.chatbase.co/api/v1/chat` |
+
 ## Feature Flags
 | Variable | Default | Description |
 |----------|---------|-------------|

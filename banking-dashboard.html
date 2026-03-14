@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvest Banking Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2d3748;
+            --accent-color: #3182ce;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
+            --background-color: #f7fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: var(--card-shadow);
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-health {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .health-excellent { background-color: #c6f6d5; color: #22543d; }
+        .health-good { background-color: #bee3f8; color: #2a4365; }
+        .health-fair { background-color: #fef5e7; color: #744210; }
+        .health-poor { background-color: #fed7d7; color: #742a2a; }
+
+        .transaction-item {
+            border-left: 4px solid var(--accent-color);
+            background: white;
+            margin-bottom: 8px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .transaction-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .debit { color: var(--danger-color); }
+        .credit { color: var(--success-color); }
+
+        .workflow-button {
+            background: linear-gradient(135deg, var(--accent-color), #4299e1);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+            transition: all 0.3s;
+        }
+
+        .workflow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
+        }
+
+        .workflow-modal .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .workflow-step {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.2s;
+        }
+
+        .step-pending { border-left-color: var(--warning-color); }
+        .step-in_progress { border-left-color: var(--accent-color); }
+        .step-completed { border-left-color: var(--success-color); }
+        .step-failed { border-left-color: var(--danger-color); }
+
+        .verification-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .verified { background-color: var(--success-color); color: white; }
+        .pending { background-color: var(--warning-color); color: white; }
+        .unverified { background-color: var(--danger-color); color: white; }
+
+        .secure-notice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .account-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .currency-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .balance-display {
+                font-size: 2rem;
+            }
+
+            .dashboard-card {
+                margin-bottom: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-university me-2"></i>
+                SmartInvest Banking
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3" id="userEmail">user@example.com</span>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Account
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="showVerificationModal()">
+                            <i class="fas fa-shield-alt me-2"></i>Verification Status
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showSettings()">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Security Notice -->
+        <div class="secure-notice">
+            <i class="fas fa-lock fa-2x mb-2"></i>
+            <h5>Your Banking Data is Private & Secure</h5>
+            <p class="mb-0">All information displayed here is encrypted and visible only to you. Our closed-loop system ensures maximum security.</p>
+        </div>
+
+        <!-- Account Selector -->
+        <div class="account-selector mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-2"><i class="fas fa-wallet me-2"></i>Select Account</h6>
+                    <select class="form-select" id="accountSelector" onchange="loadAccountData()">
+                        <option value="">Loading accounts...</option>
+                    </select>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary me-2" onclick="showTransferModal()">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfer
+                    </button>
+                    <button class="btn btn-success" onclick="showDepositModal()">
+                        <i class="fas fa-plus me-2"></i>Deposit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Account Summary -->
+            <div class="col-lg-8">
+                <div class="dashboard-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h4 class="mb-1" id="accountType">Checking Account</h4>
+                            <span class="currency-badge" id="accountCurrency">USD</span>
+                            <span class="verification-badge ms-2" id="verificationBadge">Verified</span>
+                        </div>
+                        <div class="text-end">
+                            <div class="account-health" id="accountHealth">Excellent</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Current Balance</label>
+                                <div class="balance-display" id="currentBalance">$0.00</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Available Balance</label>
+                                <div class="h3 text-success" id="availableBalance">$0.00</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Pending Transactions</label>
+                                <div class="h5" id="pendingTransactions">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Monthly Spending</label>
+                                <div class="h5" id="monthlySpending">$0.00</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Last Transaction</label>
+                                <div class="small text-muted" id="lastTransaction">No recent transactions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="dashboard-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-history me-2"></i>Recent Transactions</h5>
+                        <button class="btn btn-outline-primary btn-sm" onclick="loadTransactionHistory()">
+                            <i class="fas fa-sync me-1"></i>Refresh
+                        </button>
+                    </div>
+
+                    <div id="transactionList">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                            <p>Loading transactions...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Workflow Button -->
+                <div class="dashboard-card p-4 mb-4 text-center">
+                    <button class="btn btn-primary btn-lg workflow-button w-100" onclick="showWorkflowModal()">
+                        <i class="fas fa-tasks fa-2x mb-2"></i>
+                        <div class="h5 mb-1">Banking Workflow</div>
+                        <small>View your account setup and verification progress</small>
+                    </button>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card p-4 mb-4">
+                    <h6 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="showTransferModal()">
+                            <i class="fas fa-exchange-alt me-2"></i>P2P Transfer
+                        </button>
+                        <button class="btn btn-outline-success" onclick="showDepositModal()">
+                            <i class="fas fa-arrow-down me-2"></i>Deposit Funds
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="showWithdrawalModal()">
+                            <i class="fas fa-arrow-up me-2"></i>Withdraw Funds
+                        </button>
+                        <button class="btn btn-outline-info" onclick="showPinSetupModal()">
+                            <i class="fas fa-key me-2"></i>Setup PIN
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="showVerificationModal()">
+                            <i class="fas fa-shield-alt me-2"></i>Verification Status
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Account Security -->
+                <div class="dashboard-card p-4">
+                    <h6 class="mb-3"><i class="fas fa-shield-alt me-2"></i>Account Security</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">Email Verification</span>
+                            <i class="fas fa-check-circle text-success" id="emailVerified"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">Phone Verification</span>
+                            <i class="fas fa-check-circle text-success" id="phoneVerified"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">ID Verification</span>
+                            <i class="fas fa-check-circle text-success" id="idVerified"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small">Address Verification</span>
+                            <i class="fas fa-check-circle text-success" id="addressVerified"></i>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="updateVerification()">
+                        <i class="fas fa-upload me-1"></i>Update Verification
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Modal -->
+    <div class="modal fade workflow-modal" id="workflowModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-tasks me-2"></i>Banking Workflow Progress</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="workflowContent">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                        <p>Loading workflow...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div class="modal fade" id="transferModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-exchange-alt me-2"></i>P2P Transfer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transferForm">
+                        <div class="mb-3">
+                            <label class="form-label">Recipient Account ID</label>
+                            <input type="text" class="form-control" id="recipientAccountId" placeholder="SI-ACCT-XXXXX" required>
+                            <div class="form-text">Enter the recipient's SmartInvest Account ID</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="currencySymbol">$</span>
+                                <input type="number" class="form-control" id="transferAmount" min="0.01" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Transaction PIN (for auto-approval)</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="transferPin" placeholder="Enter PIN" maxlength="6" pattern="\d*">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePinVisibility('transferPin')">
+                                        <i class="fas fa-eye" id="transferPinIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Enter your transaction PIN for instant auto-approval</div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Closed-Loop System:</strong> Transfers are only allowed between verified SmartInvest accounts for maximum security.
+                            <br><strong>PIN Auto-Approval:</strong> Enter your transaction PIN for instant transfer completion.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="initiateTransfer()">Transfer Funds</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Setup Modal -->
+    <div class="modal fade" id="pinSetupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Setup Transaction PIN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>PIN Auto-Approval:</strong> Setting up a PIN allows instant auto-approval of transfers without waiting for manual processing.
+                    </div>
+                    <form id="pinSetupForm">
+                        <div class="mb-3">
+                            <label class="form-label">New PIN (4-6 digits)</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="newPin" placeholder="Enter PIN" maxlength="6" pattern="\d*" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePinVisibility('newPin')">
+                                    <i class="fas fa-eye" id="newPinIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm PIN</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmNewPin" placeholder="Confirm PIN" maxlength="6" pattern="\d*" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePinVisibility('confirmNewPin')">
+                                    <i class="fas fa-eye" id="confirmNewPinIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Security Notice:</strong> Keep your PIN secure. Transfers with PIN verification are auto-approved instantly.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="setupPin()">Setup PIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-arrow-down me-2"></i>Deposit Funds</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Verification Required:</strong> Deposits require ID verification and account holder confirmation.
+                    </div>
+                    <form id="depositForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Deposit Method</label>
+                                <select class="form-select" id="depositMethod" required>
+                                    <option value="">Select method...</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="mobile_money">Mobile Money (M-Pesa)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="depositCurrencySymbol">$</span>
+                                    <input type="number" class="form-control" id="depositAmount" min="100" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="bankTransferFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" class="form-control" id="bankName">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="accountNumber">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mobileMoneyFields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phoneNumber" placeholder="+254XXXXXXXXX">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="initiateDeposit()">Request Deposit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentUser = { id: 'demo-user', email: 'user@example.com' };
+        let currentAccount = null;
+        let userAccounts = [];
+        let userVerification = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                // Load user accounts
+                await loadUserAccounts();
+
+                // Load user verification status
+                await loadUserVerification();
+
+                // Load initial account data if accounts exist
+                if (userAccounts.length > 0) {
+                    currentAccount = userAccounts[0];
+                    await loadAccountData();
+                }
+
+                updateUI();
+            } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                showAlert('Error loading dashboard. Please refresh the page.', 'danger');
+            }
+        }
+
+        // Load user accounts
+        async function loadUserAccounts() {
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/accounts', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    userAccounts = result.data;
+                    updateAccountSelector();
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Load accounts error:', error);
+                userAccounts = [];
+            }
+        }
+
+        // Update account selector
+        function updateAccountSelector() {
+            const selector = document.getElementById('accountSelector');
+            selector.innerHTML = '';
+
+            if (userAccounts.length === 0) {
+                selector.innerHTML = '<option value="">No accounts found</option>';
+                return;
+            }
+
+            userAccounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.accountId;
+                option.textContent = `${account.accountType} - ${account.currency} (${account.accountId})`;
+                selector.appendChild(option);
+            });
+
+            // Select first account
+            if (userAccounts.length > 0) {
+                selector.value = userAccounts[0].accountId;
+                currentAccount = userAccounts[0];
+            }
+        }
+
+        // Load account data
+        async function loadAccountData() {
+            const accountId = document.getElementById('accountSelector').value;
+            if (!accountId) return;
+
+            currentAccount = userAccounts.find(acc => acc.accountId === accountId);
+            if (!currentAccount) return;
+
+            try {
+                // Load account summary
+                const summaryResponse = await fetch(`/.netlify/functions/advanced-banking/banking/summary/${accountId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    }
+                });
+
+                const summaryResult = await summaryResponse.json();
+
+                if (summaryResult.success) {
+                    updateAccountSummary(summaryResult.data);
+                }
+
+                // Load recent transactions
+                await loadTransactionHistory();
+
+            } catch (error) {
+                console.error('Load account data error:', error);
+                showAlert('Error loading account data.', 'danger');
+            }
+        }
+
+        // Update account summary display
+        function updateAccountSummary(summary) {
+            document.getElementById('accountType').textContent = summary.accountType.charAt(0).toUpperCase() + summary.accountType.slice(1) + ' Account';
+            document.getElementById('accountCurrency').textContent = summary.currency;
+            document.getElementById('currentBalance').textContent = formatCurrency(summary.currentBalance, summary.currency);
+            document.getElementById('availableBalance').textContent = formatCurrency(summary.availableBalance, summary.currency);
+            document.getElementById('pendingTransactions').textContent = summary.pendingTransactions;
+            document.getElementById('monthlySpending').textContent = formatCurrency(summary.monthlySpending, summary.currency);
+
+            // Update account health
+            const healthElement = document.getElementById('accountHealth');
+            healthElement.textContent = summary.accountHealth.charAt(0).toUpperCase() + summary.accountHealth.slice(1);
+            healthElement.className = `account-health health-${summary.accountHealth.toLowerCase()}`;
+
+            // Update last transaction
+            if (summary.lastTransaction) {
+                document.getElementById('lastTransaction').textContent =
+                    `${summary.lastTransaction.amount > 0 ? '+' : ''}${formatCurrency(summary.lastTransaction.amount, summary.currency)} - ${summary.lastTransaction.description}`;
+            } else {
+                document.getElementById('lastTransaction').textContent = 'No recent transactions';
+            }
+
+            // Update currency symbols
+            updateCurrencySymbols(summary.currency);
+        }
+
+        // Load transaction history
+        async function loadTransactionHistory() {
+            if (!currentAccount) return;
+
+            try {
+                const response = await fetch(`/.netlify/functions/advanced-banking/banking/transactions?accountId=${currentAccount.accountId}&limit=10`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    updateTransactionList(result.data);
+                }
+            } catch (error) {
+                console.error('Load transactions error:', error);
+                document.getElementById('transactionList').innerHTML =
+                    '<div class="text-center text-muted py-4"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><p>Error loading transactions</p></div>';
+            }
+        }
+
+        // Update transaction list
+        function updateTransactionList(transactions) {
+            const container = document.getElementById('transactionList');
+
+            if (transactions.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-receipt fa-2x mb-2"></i><p>No transactions yet</p></div>';
+                return;
+            }
+
+            container.innerHTML = transactions.map(tx => `
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-bold">${tx.description}</div>
+                            <small class="text-muted">${formatDate(tx.createdAt)}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="transaction-amount ${tx.isDebit ? 'debit' : 'credit'}">
+                                ${tx.isDebit ? '-' : '+'}${formatCurrency(Math.abs(tx.amount), currentAccount.currency)}
+                            </div>
+                            <small class="text-muted">${tx.status}</small>
+                        </div>
+                    </div>
+                    ${tx.fee ? `<small class="text-muted">Fee: ${formatCurrency(tx.fee, currentAccount.currency)}</small>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Load user verification status
+        async function loadUserVerification() {
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/verification', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    userVerification = result.data;
+                    updateVerificationDisplay();
+                }
+            } catch (error) {
+                console.error('Load verification error:', error);
+            }
+        }
+
+        // Update verification display
+        function updateVerificationDisplay() {
+            const statusMap = {
+                'emailVerified': 'emailVerified',
+                'phoneVerified': 'phoneVerified',
+                'idVerified': 'idVerified',
+                'addressVerified': 'addressVerified'
+            };
+
+            Object.keys(statusMap).forEach(key => {
+                const element = document.getElementById(statusMap[key]);
+                const isVerified = userVerification[key];
+                element.className = `fas ${isVerified ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}`;
+            });
+
+            // Update verification badge
+            const badge = document.getElementById('verificationBadge');
+            const level = userVerification.verificationLevel;
+            badge.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            badge.className = `verification-badge ${level === 'premium' ? 'verified' : level === 'advanced' ? 'pending' : 'unverified'}`;
+        }
+
+        // Show workflow modal
+        async function showWorkflowModal() {
+            const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
+            const content = document.getElementById('workflowContent');
+
+            content.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x mb-2"></i><p>Loading workflow...</p></div>';
+
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/workflows', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    updateWorkflowDisplay(result.data);
+                } else {
+                    content.innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><p>Error loading workflow</p></div>';
+                }
+            } catch (error) {
+                console.error('Load workflow error:', error);
+                content.innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><p>Error loading workflow</p></div>';
+            }
+
+            modal.show();
+        }
+
+        // Update workflow display
+        function updateWorkflowDisplay(workflows) {
+            const content = document.getElementById('workflowContent');
+
+            if (workflows.length === 0) {
+                content.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-check-circle fa-2x mb-2 text-success"></i><p>All workflows completed!</p></div>';
+                return;
+            }
+
+            content.innerHTML = workflows.map(workflow => `
+                <div class="workflow-step step-${workflow.status}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="mb-1">${workflow.title}</h6>
+                        <span class="badge bg-${getStatusColor(workflow.status)}">${workflow.status.replace('_', ' ')}</span>
+                    </div>
+                    <p class="mb-2 small">${workflow.description}</p>
+                    <div class="mb-2">
+                        <strong>Required Actions:</strong>
+                        <ul class="mb-0 small">
+                            ${workflow.requiredActions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <small class="text-muted">Estimated completion: ${formatDate(workflow.estimatedCompletion)}</small>
+                </div>
+            `).join('');
+        }
+
+        // Show transfer modal
+        function showTransferModal() {
+            if (!currentAccount) {
+                showAlert('Please select an account first.', 'warning');
+                return;
+            }
+            new bootstrap.Modal(document.getElementById('transferModal')).show();
+        }
+
+        // Show deposit modal
+        function showDepositModal() {
+            if (!currentAccount) {
+                showAlert('Please select an account first.', 'warning');
+                return;
+            }
+            new bootstrap.Modal(document.getElementById('depositModal')).show();
+        }
+
+        // Show PIN setup modal
+        function showPinSetupModal() {
+            if (!currentAccount) {
+                showAlert('Please select an account first.', 'warning');
+                return;
+            }
+            new bootstrap.Modal(document.getElementById('pinSetupModal')).show();
+        }
+
+        // Setup PIN
+        async function setupPin() {
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmNewPin').value;
+
+            if (!newPin || !confirmPin) {
+                showAlert('Please fill in both PIN fields.', 'warning');
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                showAlert('PIN confirmation does not match.', 'danger');
+                return;
+            }
+
+            if (newPin.length < 4 || newPin.length > 6) {
+                showAlert('PIN must be 4-6 digits.', 'warning');
+                return;
+            }
+
+            if (!/^\d+$/.test(newPin)) {
+                showAlert('PIN must contain only numbers.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/setup-pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        accountId: currentAccount.accountId,
+                        pin: newPin,
+                        confirmPin
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Transaction PIN set up successfully! You can now use PIN for auto-approved transfers.', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('pinSetupModal')).hide();
+                    document.getElementById('pinSetupForm').reset();
+                } else {
+                    showAlert(result.error || 'PIN setup failed.', 'danger');
+                }
+            } catch (error) {
+                console.error('PIN setup error:', error);
+                showAlert('PIN setup failed. Please try again.', 'danger');
+            }
+        }
+
+        // Toggle PIN visibility
+        function togglePinVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + 'Icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Initiate transfer
+        async function initiateTransfer() {
+            const recipientId = document.getElementById('recipientAccountId').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const description = document.getElementById('transferDescription').value;
+            const pin = document.getElementById('transferPin').value;
+
+            if (!recipientId || !amount) {
+                showAlert('Please fill in all required fields.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        fromAccountId: currentAccount.accountId,
+                        toAccountId: recipientId,
+                        amount,
+                        description,
+                        pin: pin || undefined // Include PIN if provided
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    let message = 'Transfer initiated successfully!';
+                    if (result.data.autoApproved) {
+                        message = 'Transfer auto-approved with PIN and completed instantly!';
+                    } else if (result.data.pinVerified === false) {
+                        message = 'Transfer initiated but PIN verification failed. Transfer is pending manual approval.';
+                    }
+
+                    showAlert(message, result.data.autoApproved ? 'success' : 'warning');
+                    bootstrap.Modal.getInstance(document.getElementById('transferModal')).hide();
+                    document.getElementById('transferForm').reset();
+                    loadAccountData(); // Refresh data
+                } else {
+                    showAlert(result.error || 'Transfer failed.', 'danger');
+                }
+            } catch (error) {
+                console.error('Transfer error:', error);
+                showAlert('Transfer failed. Please try again.', 'danger');
+            }
+        }
+
+        // Initiate deposit
+        async function initiateDeposit() {
+            const method = document.getElementById('depositMethod').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+
+            if (!method || !amount) {
+                showAlert('Please fill in all required fields.', 'warning');
+                return;
+            }
+
+            let externalAccount = {};
+
+            if (method === 'bank_transfer') {
+                externalAccount = {
+                    bankName: document.getElementById('bankName').value,
+                    accountNumber: document.getElementById('accountNumber').value
+                };
+            } else if (method === 'mobile_money') {
+                externalAccount = {
+                    phoneNumber: document.getElementById('phoneNumber').value
+                };
+            }
+
+            try {
+                const response = await fetch('/.netlify/functions/advanced-banking/banking/deposit-withdrawal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': currentUser.id
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        accountId: currentAccount.accountId,
+                        type: 'deposit',
+                        amount,
+                        currency: currentAccount.currency,
+                        method,
+                        externalAccount
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Deposit request submitted! Please upload verification documents.', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('depositModal')).hide();
+                    document.getElementById('depositForm').reset();
+                } else {
+                    showAlert(result.error || 'Deposit request failed.', 'danger');
+                }
+            } catch (error) {
+                console.error('Deposit error:', error);
+                showAlert('Deposit request failed. Please try again.', 'danger');
+            }
+        }
+
+        // Update verification (placeholder)
+        function updateVerification() {
+            showAlert('Verification update functionality coming soon.', 'info');
+        }
+
+        // Show settings (placeholder)
+        function showSettings() {
+            showAlert('Settings panel coming soon.', 'info');
+        }
+
+        // Logout (placeholder)
+        function logout() {
+            showAlert('Logout functionality would redirect to login page.', 'info');
+        }
+
+        // Utility functions
+        function formatCurrency(amount, currency) {
+            const symbols = { USD: '$', EUR: '€', KES: 'KSh', BTC: '₿', ETH: 'Ξ' };
+            return `${symbols[currency] || currency}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'warning',
+                'in_progress': 'primary',
+                'completed': 'success',
+                'failed': 'danger'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        function updateCurrencySymbols(currency) {
+            const symbols = { USD: '$', EUR: '€', KES: 'KSh', BTC: '₿', ETH: 'Ξ' };
+            document.getElementById('currencySymbol').textContent = symbols[currency] || currency;
+            document.getElementById('depositCurrencySymbol').textContent = symbols[currency] || currency;
+        }
+
+        function updateUI() {
+            document.getElementById('userEmail').textContent = currentUser.email;
+        }
+
+        function showAlert(message, type = 'info') {
+            // Simple alert - in production, use a proper toast library
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Form event listeners
+        document.getElementById('depositMethod').addEventListener('change', function() {
+            const method = this.value;
+            document.getElementById('bankTransferFields').style.display = method === 'bank_transfer' ? 'block' : 'none';
+            document.getElementById('mobileMoneyFields').style.display = method === 'mobile_money' ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

@@ -85,6 +85,7 @@
     <div class="flex gap-2 mb-4 flex-wrap bg-white p-2 rounded shadow classic-card">
       <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
       <button class="tab-btn" onclick="switchTab('users')">Users & Sessions</button>
+      <button class="tab-btn" onclick="switchTab('system')">System Controls</button>
       <button class="tab-btn" onclick="switchTab('files')">File Manager</button>
       <button class="tab-btn" onclick="switchTab('messages')">Support Messages</button>
       <button class="tab-btn" onclick="switchTab('payments')">Payments</button>
@@ -136,6 +137,20 @@
           <div id="sessionsList" class="text-sm text-gray-700">Loading sessions...</div>
           <button onclick="loadActiveSessions()" class="classic-btn mt-2">Refresh Sessions</button>
         </div>
+      </div>
+    </section>
+
+    <!-- System Controls Tab -->
+    <section id="system" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">System Controls</h2>
+      <div class="mb-4">
+        <button id="toggleFallbackBtn" class="classic-btn">Loading status…</button>
+        <p id="fallbackStatusMsg" class="text-sm text-gray-700 mt-2"></p>
+      </div>
+      <div class="mb-4">
+        <p class="text-sm">Crisis flags:</p>
+        <ul id="crisisFlags" class="text-sm text-red-600"></ul>
+        <button id="clearCrisisBtn" class="classic-btn mt-2">Clear All Crisis Flags</button>
       </div>
     </section>
 
@@ -329,44 +344,30 @@
     </div>
   </footer>
 
-  <script type="module">
-    // Initialize Supabase client
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const supabase = createClient(
-      'https://mylsjhueujnuwahzzjhz.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bHNqaHVldWpudXdhaHp6amh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDM4NjQsImV4cCI6MjA4NDk3OTg2NH0.KBj5zyxubnWhN-psV0Eb87-lFEXUSeq5vF1gTKoCBWk'
-    );
-
-    // Helper function to get auth headers
-    async function getAuthHeaders() {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {};
-    }
-
-    // Check admin access on load
-    window.addEventListener('load', async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
-        return;
-      }
-
-      const adminEmails = ['admin@example.com', 'admin@smartinvestsi.com'];
-      const isAdmin = adminEmails.includes(user.email) || user.user_metadata?.role === 'admin';
-      if (!isAdmin) {
+  <script src="/public/js/auth.js"></script>
+  <script>
+    // wrapper to perform admin-only page initialization
+    (async () => {
+      const user = await requireAuth('/login.html');
+      if (!user) return; // redirected
+      if (!user.isAdmin) {
         window.location.href = '/403.html';
         return;
       }
 
-      // Load data
+      function authFetch(url, opts = {}) {
+        opts.credentials = 'include';
+        return fetch(url, opts);
+      }
+
+      // Load data after auth confirmed
       loadContactLine();
       refreshDashboard();
-      window.AdminFiles.loadFiles();
+      window.AdminFiles && window.AdminFiles.loadFiles();
       loadMessages();
       loadKCBTransfers();
       loadStorageStats();
-      
-      // Initialize transaction history viewer for admin
+
       if (window.TransactionHistoryViewer) {
         const adminHistoryViewer = new window.TransactionHistoryViewer({
           apiBase: '/api/payments',
@@ -374,11 +375,9 @@
           adminMode: true,
           pageSize: 15
         });
-        
-        // Initialize when admin loads the payments tab
         adminHistoryViewer.init();
       }
-    });
+    })();
   </script>
 
   <script>
@@ -760,6 +759,66 @@
       loadKCBTransfers();
       loadStorageStats();
       
+      // initialize fallback toggle UI
+      async function refreshFallbackUI() {
+        try {
+          const enabled = await window.AdminAuth.getFallbackStatus();
+          const btn = document.getElementById('toggleFallbackBtn');
+          btn.textContent = enabled ? 'Disable Supabase Fallback' : 'Enable Supabase Fallback';
+          btn.onclick = async () => {
+            try {
+              await window.AdminAuth.setFallback(!enabled);
+              refreshFallbackUI();
+              refreshCrisisUI();
+            } catch (err) {
+              alert('Error updating fallback: ' + err.message);
+            }
+          };
+          document.getElementById('fallbackStatusMsg').textContent = enabled ? 'Fallback is currently active.' : 'Fallback is not active.';
+        } catch (err) {
+          console.error(err);
+          document.getElementById('fallbackStatusMsg').textContent = 'Failed to load status';
+        }
+      }
+      refreshFallbackUI();
+
+      async function refreshCrisisUI() {
+        try {
+          const res = await fetch('/api/crisis', { credentials: 'include' });
+          if (!res.ok) throw new Error('unable to query crisis');
+          const body = await res.json();
+          const list = document.getElementById('crisisFlags');
+          list.innerHTML = '';
+          if (body.errorFlag) {
+            const li = document.createElement('li');
+            li.textContent = 'Unhandled server error occurred';
+            list.appendChild(li);
+          }
+          if (body.slowFlag) {
+            const li = document.createElement('li');
+            li.textContent = 'Slow request detected';
+            list.appendChild(li);
+          }
+          if (body.fallbackReq) {
+            const li = document.createElement('li');
+            li.textContent = 'Auth fallback was triggered';
+            list.appendChild(li);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      refreshCrisisUI();
+
+      document.getElementById('clearCrisisBtn').onclick = async () => {
+        try {
+          await fetch('/api/crisis/clear', { method: 'POST', credentials: 'include' });
+          refreshCrisisUI();
+        } catch (e) {
+          alert('Failed to clear crisis flags: ' + e.message);
+        }
+      };
+
       // Initialize transaction history viewer for admin
       if (window.TransactionHistoryViewer) {
         const adminHistoryViewer = new window.TransactionHistoryViewer({
@@ -775,7 +834,6 @@
     });
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/admin/auth.js"></script>
   <script src="/admin/users.js"></script>
   <script src="/admin/files.js"></script>
@@ -783,5 +841,40 @@
   <script src="/public/js/modern-payment-interface.js"></script>
   <script src="/public/js/transaction-history-viewer.js"></script>
   <script src="/public/js/dashboard-hub.js"></script>
+  <script src="/public/js/chat-client.js"></script>
+  <script>
+    <script>
+      (function() {
+        if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+          window.chatbase = (...arguments) => {
+            if (!window.chatbase.q) {
+              window.chatbase.q = []
+            }
+            window.chatbase.q.push(arguments)
+          };
+          window.chatbase = new Proxy(window.chatbase, {
+            get(target, prop) {
+              if (prop === "q") {
+                return target.q
+              }
+              return (...args) => target(prop, ...args)
+            }
+          })
+        }
+        const onLoad = function() {
+          const script = document.createElement("script");
+          script.src = "https://www.chatbase.co/embed.min.js";
+          script.id = "DH09Xb_YLRjwTDDhXSIQ4";
+          script.domain = "www.chatbase.co";
+          document.body.appendChild(script)
+        };
+        if (document.readyState === "complete") {
+          onLoad()
+        } else {
+          window.addEventListener("load", onLoad)
+        }
+      })();
+    </script>
+  </script>
 </body>
 </html>

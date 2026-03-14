@@ -1,5 +1,5 @@
 [build]
-  publish = "."           # HTML files are in root, not /public
+  publish = "."           
   command = "echo 'No build required for static site'"
 
 [functions]
@@ -10,5 +10,42 @@
   to = "/index.html"
   status = 200
 
+[[headers]]
+  for = "/api/chat/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+[[headers]]
+  for = "/help/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/__cb/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
 [build.environment]
   NODE_ENV = "production"
+
+[[redirects]]
+  from = "/help/*"
+  to = "https://chatbase.co/DH09Xb_YLRjwTDDhXSIQ4/help/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/help"
+  to = "https://chatbase.co/DH09Xb_YLRjwTDDhXSIQ4/help"
+  status = 200
+
+[[redirects]]
+  from = "/__cb/*"
+  to = "https://chatbase.co/__cb/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/chat/DH09Xb_YLRjwTDDhXSIQ4/*"
+  to = "https://chatbase.co/api/chat/DH09Xb_YLRjwTDDhXSIQ4/:splat"
+  status = 200

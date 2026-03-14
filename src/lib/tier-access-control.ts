@@ -158,6 +158,11 @@ export const FEATURES: Record<string, FeatureConfig> = {
   'support.dedicated': {
     name: 'Dedicated Account Manager',
     requiredTier: SubscriptionTier.ENTERPRISE
+  },
+  // emergency configuration access (admin toggles fallback authentication)
+  'auth.fallback': {
+    name: 'Auth Fallback (Supabase)',
+    requiredTier: SubscriptionTier.FREE
   }
 };
 

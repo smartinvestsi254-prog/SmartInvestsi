@@ -3,6 +3,8 @@
  * Creates PayPal orders for subscription payments
  */
 
+import logger from './logger';
+
 interface Plan {
   name: string;
   description: string;
@@ -28,13 +30,13 @@ const APP_URL: string = process.env.APP_URL || 'https://smartinvestsi.com';
 
 // Validate required env vars
 if (!PAYPAL_CLIENT_ID && !TEST_MODE) {
-  console.error('PAYPAL_CLIENT_ID is required when not in TEST_MODE');
+  logger.error('PAYPAL_CLIENT_ID is required when not in TEST_MODE');
 }
 if (!PAYPAL_CLIENT_SECRET && !TEST_MODE) {
-  console.error('PAYPAL_CLIENT_SECRET is required when not in TEST_MODE');
+  logger.error('PAYPAL_CLIENT_SECRET is required when not in TEST_MODE');
 }
 if (!APP_URL) {
-  console.error('APP_URL is required');
+  logger.error('APP_URL is required');
 }
 
 // Plan pricing configuration
@@ -58,7 +60,7 @@ const PLANS: Record<string, Plan> = {
  */
 async function getAccessToken(): Promise<string> {
   if (TEST_MODE || !PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-    console.log('Using test/sandbox mode - no real PayPal credentials or TEST_MODE enabled');
+    logger.info('Using test/sandbox mode - no real PayPal credentials or TEST_MODE enabled');
     return 'test-token';
   }
 
@@ -172,6 +174,8 @@ export const handler = async function(event: any, context: any): Promise<any> {
       }
     }
 
+    logger.info('PayPal order created successfully', { orderId: order.id, planId, userId });
+
     return {
       statusCode: 200,
       headers: {
@@ -186,7 +190,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
     };
 
   } catch (error: any) {
-    console.error('Create order error:', error);
+    logger.error('Create order error', { error: error.message, stack: error.stack, planId: body?.planId, userId: body?.userId });
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to create order' })

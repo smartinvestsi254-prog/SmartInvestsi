@@ -30,12 +30,24 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  name      String?
+  password  String?
+  emailVerified Boolean @default(false)
   role      UserRole @default(VIEWER)
+  resetToken String?  @unique
+  resetExpires DateTime?
+  confirmToken String?  @unique
+  confirmExpires DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   workflowsLocked     Workflow[]        @relation("LockedWorkflows")
+
+// new key/value store for application-wide configuration (used for fallback/crisis flag)
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
   workflowEvents      WorkflowEvent[]
   approvals           WorkflowApproval[]
   reportedIncidents   Incident[]        @relation("ReportedIncidents")

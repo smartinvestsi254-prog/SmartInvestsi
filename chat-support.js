@@ -1,4 +1,4 @@
-/**
+etition and show me a preview of the website /**
  * Support Chat System
  * Real-time and persistent support conversations
  */
@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const CHATS_FILE = path.join(__dirname, 'data', 'chats.json');
+const CHATS_FILE = path.join(process.cwd(), 'data', 'chats.json');
 if (!fs.existsSync(path.join(__dirname, 'data'))) {
   fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 }
@@ -245,7 +245,12 @@ class ChatManager {
   }
 }
 
+// Singleton instance for Netlify functions (in-memory store, stateless per invocation)
+const chatManager = new ChatManager();
+
 module.exports = {
   SupportChat,
-  ChatManager
+  ChatManager,
+  getChatManager: () => chatManager
 };
+

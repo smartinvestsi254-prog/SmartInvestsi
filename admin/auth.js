@@ -1,46 +1,48 @@
-// Admin Authentication Module
-
-// Supabase client (assuming it's loaded globally or imported)
-const { createClient } = supabase;
-const supabaseUrl = 'https://your-supabase-url.supabase.co'; // Replace with actual URL
-const supabaseKey = 'your-anon-key'; // Replace with actual key
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Admin email list
-const ADMIN_EMAILS = ['admin@smartinvestsi.com', 'support@smartinvestsi.com']; // Add actual admin emails
+// Admin Authentication Module (backend-driven)
 
 /**
- * Get authentication headers for API calls
+ * Headers are not strictly required since cookie carries JWT, but helper provided
  */
 async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    throw new Error('No active session');
-  }
-  return {
-    'Authorization': `Bearer ${session.access_token}`,
-    'Content-Type': 'application/json'
-  };
+  // cookie includes si_token; API will read it
+  return { 'Content-Type': 'application/json' };
 }
 
-/**
- * Check if current user is admin
- */
 async function checkAdminStatus() {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !user.email) {
-      return false;
-    }
-    return ADMIN_EMAILS.includes(user.email);
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) return false;
+    const body = await res.json();
+    return body.user?.isAdmin === true;
   } catch (e) {
     console.error('Admin check failed:', e);
     return false;
   }
 }
 
+// backend helpers
+async function getFallbackStatus() {
+  const res = await fetch('/api/auth/fallback', { credentials: 'include' });
+  if (!res.ok) throw new Error('Unable to read fallback status');
+  const body = await res.json();
+  return body.enabled === true;
+}
+
+async function setFallback(enabled) {
+  const url = `/api/auth/fallback/${enabled ? 'enable' : 'disable'}`;
+  const res = await fetch(url, { method: 'POST', credentials: 'include' });
+  if (!res.ok) {
+    const body = await res.json();
+    throw new Error(body.error || 'Failed to update fallback');
+  }
+  const body = await res.json();
+  return body.enabled;
+}
+
 // Export functions
 window.AdminAuth = {
   getAuthHeaders,
-  checkAdminStatus
+  checkAdminStatus,
+  getFallbackStatus,
+  setFallback
 };
