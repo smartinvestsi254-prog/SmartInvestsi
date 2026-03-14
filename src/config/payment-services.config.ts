@@ -60,8 +60,8 @@ const paymentServicesConfig: PaymentServicesConfig = {
     clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
     mode: (process.env.PAYPAL_MODE as 'live' | 'sandbox') || 'live',
     receiverEmail: process.env.PAYPAL_RECEIVER_EMAIL || 'delijah5415@gmail.com',
-    returnUrl: process.env.PAYPAL_RETURN_URL || 'https://smartinvestsi.com/paypal/return',
-    cancelUrl: process.env.PAYPAL_CANCEL_URL || 'https://smartinvestsi.com/paypal/cancel',
+    returnUrl: process.env.PAYPAL_RETURN_URL || 'https://smartinvestsi.netlify.app/paypal/return',
+    cancelUrl: process.env.PAYPAL_CANCEL_URL || 'https://smartinvestsi.netlify.app/paypal/cancel',
   },
 
   googlePay: {
@@ -97,7 +97,7 @@ const paymentServicesConfig: PaymentServicesConfig = {
     shortcode: process.env.MPESA_SHORTCODE || '',
     paybill: process.env.MPESA_PAYBILL || '',
     passkey: process.env.MPESA_PASSKEY || '',
-    callbackUrl: process.env.MPESA_CALLBACK_URL || 'https://smartinvestsi.com/api/pochi/callback',
+    callbackUrl: process.env.MPESA_CALLBACK_URL || 'https://smartinvestsi.netlify.app/api/pochi/callback',
   },
 
   kcbBank: {
@@ -161,9 +161,9 @@ const emailConfig = {
   port: parseInt(process.env.EMAIL_PORT || '587'),
   user: process.env.EMAIL_USER || 'smartinvestsi254@gmail.com',
   password: process.env.EMAIL_PASSWORD || '',
-  from: process.env.EMAIL_FROM || 'noreply@smartinvestsi.com',
+  from: process.env.EMAIL_FROM || 'noreply@smartinvestsi.netlify.app',
   fromName: process.env.EMAIL_FROM_NAME || 'SmartInvest Support',
-  supportEmail: process.env.SUPPORT_EMAIL || 'support@smartinvestsi.com',
+  supportEmail: process.env.SUPPORT_EMAIL || 'support@smartinvestsi.netlify.app',
   supportPhone: process.env.SUPPORT_PHONE || '+254700000000',
 };
 
@@ -236,8 +236,8 @@ export default {
     isProduction: process.env.IS_PRODUCTION === 'true' || process.env.NODE_ENV === 'production',
     isDevelopment: process.env.NODE_ENV === 'development',
     port: parseInt(process.env.PORT || '3000'),
-    appUrl: process.env.APP_URL || 'https://smartinvestsi.com',
-    frontendUrl: process.env.FRONTEND_URL || 'https://smartinvestsi.com',
+    appUrl: process.env.APP_URL || 'https://smartinvestsi.netlify.app',
+    frontendUrl: process.env.FRONTEND_URL || 'https://smartinvestsi.netlify.app',
     logLevel: process.env.LOG_LEVEL || 'info',
     monitoring: {
       enabled: process.env.ENABLE_MONITORING === 'true',

@@ -26,7 +26,7 @@ const PAYPAL_MODE: string = process.env.PAYPAL_MODE || 'sandbox';
 const PAYPAL_CLIENT_ID: string = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET: string = process.env.PAYPAL_CLIENT_SECRET || '';
 const TEST_MODE: boolean = process.env.TEST_MODE === 'true';
-const APP_URL: string = process.env.APP_URL || 'https://smartinvestsi.com';
+const APP_URL: string = process.env.APP_URL || 'https://smartinvestsi.netlify.app';
 
 // Validate required env vars
 if (!PAYPAL_CLIENT_ID && !TEST_MODE) {

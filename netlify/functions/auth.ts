@@ -27,7 +27,7 @@ interface AuthResponse {
 const MOCK_USERS: User[] = [
   {
     id: '1',
-    email: 'admin@smartinvestsi.com',
+    email: 'admin@smartinvestsi.netlify.app',
     name: 'Admin User',
     role: 'admin',
     plan: 'enterprise',
@@ -58,7 +58,7 @@ function authenticateUser(email: string, password: string): AuthResponse {
   }
 
   // Mock password validation - in production, use proper hashing
-  if (password !== 'demo123' && email !== 'admin@smartinvestsi.com') {
+  if (password !== 'demo123' && email !== 'admin@smartinvestsi.netlify.app') {
     logger.warn('Login attempt with invalid password', { email });
     return { success: false, error: 'Invalid credentials' };
   }

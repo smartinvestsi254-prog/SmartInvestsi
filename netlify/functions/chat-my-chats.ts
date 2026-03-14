@@ -14,7 +14,7 @@ export const handler: Handler = async (event) => {
   }
 
   const chatManager = getChatManager();
-  const userEmail = headers['user-email'] || 'anonymous@smartinvestsi.com'; // From auth middleware
+  const userEmail = headers['user-email'] || 'anonymous@smartinvestsi.netlify.app'; // From auth middleware
   
   const chats = chatManager.getUserChats(userEmail);
   const openChats = chats.filter(c => ['open', 'in-progress'].includes(c.status));

@@ -45,8 +45,8 @@ function paymentServicesConfig() {
 function monitorConfig() {
   return {
     URLS: parseList(process.env.URLS, [
-      'https://smartinvestsi.com',
-      'https://smartinvestsi.com/api',
+      'https://smartinvestsi.netlify.app',
+      'https://smartinvestsi.netlify.app/api',
     ]),
     RESPONSE_TIME_THRESHOLD: Number(process.env.RESPONSE_TIME_THRESHOLD) || 2000,
     ERROR_RATE_THRESHOLD: Number(process.env.ERROR_RATE_THRESHOLD) || 0.2,

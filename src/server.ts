@@ -31,9 +31,7 @@ import { AutoInvestService } from "./services/AutoInvestService";
 import priorityFeaturesRouter from "./routes/priority-features";
 import paymentRouter from "./routes/payment-routes";
 
-// ============================================
-// RECONCILIATION & ERROR HANDLING
-// ============================================
+
 import { autoReconcileTransactions, handleFailedTransaction } from "./utils/reconciliation-error-handler";
 import { sendEmail } from "./utils/mailer";
 
@@ -44,11 +42,7 @@ app.set("trust proxy", 1);
 // initialize MongoDB collections (async safe)
 import { initializeCollections } from './lib/mongodb';
 initializeCollections().catch((err) => {
-  // Log error only in non-production or with debug enabled
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_ENABLED === 'true') {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.warn(`[MongoDB Init Warning] Collection initialization failed: ${errorMsg}`);
-  }
+
 });
 
 // Initialize feature services
@@ -65,9 +59,7 @@ const walletService = new WalletService();
 const notificationService = new NotificationService();
 const autoInvestService = new AutoInvestService();
 
-// ============================================
-// SETUP: Automatic Reconciliation Scheduler
-// ============================================
+
 (async () => {
   try {
     // Run initial reconciliation on startup
@@ -110,9 +102,7 @@ const ALLOWED_ORIGINS = (() => {
       throw new Error('CRITICAL: ALLOWED_ORIGINS must be set in .env for production');
     }
     // Development defaults
-    if (process.env.DEBUG_ENABLED === 'true') {
-      console.warn('⚠️ WARNING: ALLOWED_ORIGINS not configured — using development defaults');
-    }
+
     return ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:3000'];
   }
   
@@ -141,9 +131,7 @@ app.use(
       }
       
       // Log blocked origins in development
-      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_ENABLED === 'true') {
-        console.warn(`[CORS] Blocked request from origin: ${origin}`);
-      }
+
       
       return cb(new Error("CORS policy violation"), false);
     },
@@ -328,9 +316,7 @@ interface JWTPayload {
   admin?: boolean;
 }
 
-// ============================================
-// PHASE 1 SECURITY: Input Validators
-// ============================================
+
 
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -353,7 +339,6 @@ function sanitizeError(error: any): string {
   return 'An error occurred';
 }
 
-// Simple password hashing (use bcrypt in production)
 function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
@@ -362,9 +347,7 @@ function verifyPassword(password: string, hash: string): boolean {
   return hashPassword(password) === hash;
 }
 
-// ============================================
-// PHASE 1 SECURITY: Admin Rate Limiting
-// ============================================
+
 
 const failedAdminAttempts = new Map<string, { count: number; resetTime: number }>();
 
@@ -445,7 +428,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   // Send sanitized error to client
   res.status(statusCode).json({
     error: sanitized,
-    ...(process.env.NODE_ENV === 'development' && { hint: 'Run with NODE_ENV=production to hide errors' }),
+  }
   });
 });
 
@@ -760,9 +743,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ---------------------------------------------------
-// END login route (fallback handling above)
-// ---------------------------------------------------
+
 
 // new endpoints to manage supabase fallback
 app.get('/api/auth/fallback', async (req, res) => {
@@ -824,9 +805,7 @@ app.post('/api/crisis/clear', async (req, res) => {
 });
 
 
-// -------------------------
-// Additional auth helpers
-// -------------------------
+
 
 import { sendEmail } from './utils/mailer';
 
@@ -1206,7 +1185,6 @@ const port = process.env.PORT || 3001;
 const server = app.listen(port, () => console.log(`Server on :${port}`));
 
 // WebSocket for realtime chat
-// @ts-ignore
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ noServer: true });
 

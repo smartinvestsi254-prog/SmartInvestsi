@@ -20,6 +20,7 @@ interface Subscription {
 const PAYPAL_MODE: string = process.env.PAYPAL_MODE || 'sandbox';
 const PAYPAL_CLIENT_ID: string = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET: string = process.env.PAYPAL_CLIENT_SECRET || '';
+const PAYPAL_WEBHOOK_ID: string = process.env.PAYPAL_WEBHOOK_ID || '';
 const TEST_MODE: boolean = process.env.TEST_MODE === 'true';
 
 // Validate required env vars
@@ -61,22 +62,57 @@ async function getAccessToken(): Promise<string> {
  * Verify PayPal webhook signature
  */
 async function verifyWebhookSignature(event: any, headers: any): Promise<boolean> {
-  // In production, implement proper webhook verification
-  // https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature
-  // For now, skip verification in test mode
+  // In test mode, skip verification
   if (TEST_MODE) {
     return true;
   }
 
-  // TODO: Implement actual signature verification
-  // const signature = headers['paypal-transmission-signature'];
-  // const certUrl = headers['paypal-cert-url'];
-  // const transmissionId = headers['paypal-transmission-id'];
-  // const timestamp = headers['paypal-transmission-time'];
-  // const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  // Get required headers
+  const transmissionSig = headers['paypal-transmission-signature'];
+  const certUrl = headers['paypal-cert-url'];
+  const transmissionId = headers['paypal-transmission-id'];
+  const transmissionTime = headers['paypal-transmission-time'];
 
-  // Verify the signature using PayPal's algorithm
-  return true; // Placeholder
+  // Check if all required headers are present
+  if (!transmissionSig || !certUrl || !transmissionId || !transmissionTime || !PAYPAL_WEBHOOK_ID) {
+    console.error('Missing required PayPal webhook headers or WEBHOOK_ID');
+    return false;
+  }
+
+  try {
+    // Get access token
+    const accessToken = await getAccessToken();
+
+    // Prepare verification request
+    const verificationBody = {
+      auth_algo: 'SHA256withRSA',
+      cert_url: certUrl,
+      transmission_id: transmissionId,
+      transmission_sig: transmissionSig,
+      transmission_time: transmissionTime,
+      webhook_id: PAYPAL_WEBHOOK_ID,
+      webhook_event: event
+    };
+
+    // Verify with PayPal
+    const response = await fetch(`https://api.${PAYPAL_MODE}.paypal.com/v1/notifications/verify-webhook-signature`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(verificationBody)
+    });
+
+    const result = await response.json();
+
+    // Check verification status
+    return result.verification_status === 'SUCCESS';
+
+  } catch (error) {
+    console.error('Webhook signature verification failed:', error);
+    return false;
+  }
 }
 
 /**

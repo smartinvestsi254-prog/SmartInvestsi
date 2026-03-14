@@ -22,7 +22,7 @@ export const handler: Handler = async (event) => {
     const { category = 'general' } = JSON.parse(event.body || '{}');
 
     const chatManager = getChatManager();
-    const userEmail = event.headers['user-email'] || 'anonymous@smartinvestsi.com';
+    const userEmail = event.headers['user-email'] || 'anonymous@smartinvestsi.netlify.app';
 
     const chat = chatManager.createChat(userEmail, category);
 

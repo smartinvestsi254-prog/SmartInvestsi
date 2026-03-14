@@ -360,6 +360,12 @@
         return fetch(url, opts);
       }
 
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
       // Load data after auth confirmed
       loadContactLine();
       refreshDashboard();
@@ -468,15 +474,15 @@
           <div class="border rounded p-2 mb-2 text-sm">
             <div class="flex justify-between">
               <div>
-                <strong>${t.name}</strong> (${t.email})<br>
-                <small class="text-gray-600">KES ${t.amount} - Ref: ${t.reference || 'N/A'}</small>
+                <strong>${escapeHtml(t.name)}</strong> (${escapeHtml(t.email)})<br>
+                <small class="text-gray-600">KES ${escapeHtml(t.amount)} - Ref: ${escapeHtml(t.reference || 'N/A')}</small>
               </div>
               <div class="text-right">
-                <span class="text-xs px-2 py-1 rounded" style="background:${t.status === 'paid' ? '#dcfce7' : '#fef9c3'}">${t.status}</span><br>
-                <small class="text-gray-500">${t.timestamp}</small>
+                <span class="text-xs px-2 py-1 rounded" style="background:${t.status === 'paid' ? '#dcfce7' : '#fef9c3'}">${escapeHtml(t.status)}</span><br>
+                <small class="text-gray-500">${escapeHtml(t.timestamp)}</small>
               </div>
             </div>
-            ${t.status !== 'paid' ? `<button onclick="markPaid('${t.timestamp}')" class="classic-btn mt-1 text-xs">Mark Paid</button>` : ''}
+            ${t.status !== 'paid' ? `<button onclick="markPaid('${escapeHtml(t.timestamp)}')" class="classic-btn mt-1 text-xs">Mark Paid</button>` : ''}
           </div>
         `).join('');
         list.innerHTML = rows;
@@ -568,18 +574,18 @@
           <div class="bg-white border rounded p-3 mb-2">
             <div class="flex justify-between items-start">
               <div>
-                <div class="text-xs uppercase tracking-wide text-gray-500">${p.provider}</div>
-                <div class="font-semibold">${p.amount ? p.amount : 'N/A'} ${p.currency || ''}</div>
-                <div class="text-xs text-gray-600">${p.fileTitle ? 'File: ' + p.fileTitle : ''}</div>
+                <div class="text-xs uppercase tracking-wide text-gray-500">${escapeHtml(p.provider)}</div>
+                <div class="font-semibold">${escapeHtml(p.amount ? p.amount : 'N/A')} ${escapeHtml(p.currency || '')}</div>
+                <div class="text-xs text-gray-600">${p.fileTitle ? 'File: ' + escapeHtml(p.fileTitle) : ''}</div>
               </div>
               <div class="text-right">
-                <span class="text-xs px-2 py-1 rounded" style="background:${(p.status === 'success' || p.status === 'paid') ? '#dcfce7' : p.status === 'pending' ? '#fef9c3' : '#fee2e2'}">${p.status}</span><br>
-                <small class="text-gray-500">${p.createdAt || ''}</small>
+                <span class="text-xs px-2 py-1 rounded" style="background:${(p.status === 'success' || p.status === 'paid') ? '#dcfce7' : p.status === 'pending' ? '#fef9c3' : '#fee2e2'}">${escapeHtml(p.status)}</span><br>
+                <small class="text-gray-500">${escapeHtml(p.createdAt || '')}</small>
               </div>
             </div>
-            <div class="text-xs text-gray-700 mt-2">User: ${p.email || 'N/A'} ${p.phone ? '(' + p.phone + ')' : ''}</div>
-            <div class="text-xs text-gray-600">Reference: ${p.reference || 'N/A'} ${p.receipt ? ' • Receipt: ' + p.receipt : ''}</div>
-            ${p.note ? `<div class="text-xs text-gray-600">Note: ${p.note}</div>` : ''}
+            <div class="text-xs text-gray-700 mt-2">User: ${escapeHtml(p.email || 'N/A')} ${p.phone ? '(' + escapeHtml(p.phone) + ')' : ''}</div>
+            <div class="text-xs text-gray-600">Reference: ${escapeHtml(p.reference || 'N/A')} ${p.receipt ? ' • Receipt: ' + escapeHtml(p.receipt) : ''}</div>
+            ${p.note ? `<div class="text-xs text-gray-600">Note: ${escapeHtml(p.note)}</div>` : ''}
           </div>
         `).join('');
         list.innerHTML = rows;
@@ -659,7 +665,7 @@
           loadStorageStats();
         }
       } catch (e) {
-        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading storage data: ' + e.message + '</div>';
+        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading storage data: ' + escapeHtml(e.message) + '</div>';
       }
     }
 
@@ -674,7 +680,7 @@
           loadStorageStats();
         }
       } catch (e) {
-        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading ' + type + ' data: ' + e.message + '</div>';
+        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading ' + escapeHtml(type) + ' data: ' + escapeHtml(e.message) + '</div>';
       }
     }
 
@@ -694,8 +700,8 @@
           html += `<div class="space-y-1">`;
           for (const entry of recentEntries) {
             html += `<div class="border-l-2 border-blue-400 pl-2 py-1 text-xs bg-white">`;
-            html += `<div class="text-gray-500">${entry.date} ${entry.time}</div>`;
-            html += `<div class="font-mono">${JSON.stringify(entry, null, 2).substring(0, 200)}${JSON.stringify(entry).length > 200 ? '...' : ''}</div>`;
+            html += `<div class="text-gray-500">${escapeHtml(entry.date)} ${escapeHtml(entry.time)}</div>`;
+            html += `<div class="font-mono">${escapeHtml(JSON.stringify(entry, null, 2).substring(0, 200))}${JSON.stringify(entry).length > 200 ? '...' : ''}</div>`;
             html += `</div>`;
           }
           html += `</div>`;
@@ -729,7 +735,7 @@
           status.className = 'text-sm text-red-600';
         }
       } catch (e) {
-        document.getElementById('clearStatus').innerHTML = '<div class="text-red-600">Error: ' + e.message + '</div>';
+        document.getElementById('clearStatus').innerHTML = '<div class="text-red-600">Error: ' + escapeHtml(e.message) + '</div>';
       }
     }
 

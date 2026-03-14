@@ -9,8 +9,8 @@ function parseList(envVar, fallback) {
 
 module.exports = {
   URLS: parseList(env.URLS, [
-    "https://smartinvestsi.com",
-    "https://smartinvestsi.com/api"
+    "https://smartinvestsi.netlify.app",
+    "https://smartinvestsi.netlify.app/api"
   ]),
   RESPONSE_TIME_THRESHOLD: Number(env.RESPONSE_TIME_THRESHOLD) || 2000, // ms
   ERROR_RATE_THRESHOLD: Number(env.ERROR_RATE_THRESHOLD) || 0.2, // fraction

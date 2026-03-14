@@ -33,15 +33,42 @@ const mockSubscriptions: Subscription[] = [];
 /**
  * Process Stripe payment
  */
+async function processAdminFeeTransaction(originalAmount: number, userId: string, transactionId: string, gateway: string): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }> {
+  const ADMIN_FEE_PERCENT = 2.5; // 2.5% transaction fee
+  const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || 'ceo_main_account';
+  
+  const adminFee = originalAmount * (ADMIN_FEE_PERCENT / 100);
+  const netAmount = originalAmount - adminFee;
+
+  // Record admin fee transaction (CEO receives)
+  await recordAdminFee({
+    transactionId,
+    userId,
+    originalAmount,
+    adminFee,
+    netAmount,
+    gateway,
+    ceoAccountId: CEO_ACCOUNT_ID,
+    timestamp: new Date().toISOString()
+  });
+
+  logger.info('Admin fee deducted', { transactionId, userId, adminFee: adminFee.toFixed(2), ceoAccountId: CEO_ACCOUNT_ID });
+  
+  return { adminFee, netAmount, ceoAccountId: CEO_ACCOUNT_ID };
+}
+
 async function processStripePayment(data: any): Promise<any> {
   try {
-    // In production, integrate with Stripe API
+    // Admin fee logic for every transaction
     const { paymentMethodId, amount, currency, userId } = data;
-
-    // Simulate Stripe payment processing
+    const transactionId = `stripe_${Date.now()}`;
+    
+    const feeResult = await processAdminFeeTransaction(Number(amount), userId, transactionId, 'stripe');
+    
+    // Simulate Stripe processing with net amount
     const paymentIntent: PaymentIntent = {
-      id: `pi_${Date.now()}`,
-      amount,
+      id: transactionId,
+      amount: feeResult.netAmount,
       currency: currency || 'usd',
       status: 'completed',
       method: 'stripe',
@@ -50,14 +77,18 @@ async function processStripePayment(data: any): Promise<any> {
     };
 
     mockPaymentIntents.push(paymentIntent);
+    logger.info('Stripe payment processed with admin fee', { transactionId, userId, adminFee: feeResult.adminFee.toFixed(2) });
 
-    logger.info('Stripe payment processed', { paymentIntentId: paymentIntent.id, userId });
-
-    return { success: true, data: paymentIntent };
+    return { success: true, data: paymentIntent, adminFee: feeResult.adminFee };
   } catch (error) {
     logger.error('Stripe payment error', { error: error.message });
     return { success: false, error: error.message };
   }
+}
+
+async function recordAdminFee(feeData: any) {
+  // Mock - use DB in production
+  console.log('Admin fee recorded:', feeData);
 }
 
 /**

@@ -40,7 +40,10 @@ const mockFeedback: UserFeedback[] = [];
 const CHATBASE_API_KEY = process.env.CHATBASE_API_KEY;
 const CHATBASE_BOT_ID = process.env.CHATBASE_BOT_ID;
 const CHATBASE_CHATBOT_ID = process.env.CHATBASE_CHATBOT_ID;
-const CHATBASE_API_URL = process.env.CHATBASE_API_URL || 'https://www.chatbase.co/api/v1/chat';
+  // Chatbase disabled for website-only access
+  const CHATBASE_ENABLED = process.env.CHATBASE_ENABLED === 'true';
+  const fallbackResponse = "Thank you for reaching out to SmartInvest support! We're available Monday-Friday 9AM-6PM EST. For immediate assistance, please email support@smartinvest.com or check our FAQ at smartinvestsi.netlify.app/faq.html. Our website chat is currently website-only.";
+
 
 /**
  * Analyze user question for feedback and insights
@@ -119,41 +122,9 @@ async function analyzeQuestion(question: string, userId: string): Promise<UserFe
  * Send message to Chatbase and get response
  */
 async function getChatbaseResponse(message: string, sessionId: string): Promise<string> {
-  if (!CHATBASE_API_KEY || !CHATBASE_BOT_ID) {
-    logger.warn('Chatbase not configured, using fallback response');
-    return "I'm here to help! Our support team will get back to you soon. For immediate assistance, please check our FAQ or contact support@smartinvest.com.";
-  }
-
-  try {
-    const response = await fetch(CHATBASE_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CHATBASE_API_KEY}`
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        chatbotId: CHATBASE_CHATBOT_ID,
-        stream: false,
-        sessionId: sessionId
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chatbase API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.response || data.text || "I apologize, but I'm having trouble processing your request right now.";
-  } catch (error) {
-    logger.error('Chatbase API error', { error: error.message });
-    return "I'm experiencing technical difficulties. Please try again later or contact our support team.";
-  }
+  // PERMANENTLY DISABLED: Chatbase serves website services ONLY via internal fallback
+  logger.info('Chatbase permanently restricted - website services only', { sessionId, messageLength: message.length });
+  return fallbackResponse;
 }
 
 /**

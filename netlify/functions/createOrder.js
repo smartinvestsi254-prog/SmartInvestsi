@@ -75,7 +75,7 @@ async function createPayPalOrder(planId, userId) {
     };
   }
 
-  var appUrl = process.env.APP_URL || 'https://smartinvestsi.com';
+  var appUrl = process.env.APP_URL || 'https://smartinvestsi.netlify.app';
 
   var response = await fetch('https://api.' + PAYPAL_MODE + '.paypal.com/v2/checkout/orders', {
     method: 'POST',

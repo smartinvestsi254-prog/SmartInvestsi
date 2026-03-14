@@ -1,4 +1,4 @@
-# Admin Control Guide - SmartInvest Africa
+# Admin Control Guide - SmartInvest
 
 ## 👨‍💼 Admin Account
 

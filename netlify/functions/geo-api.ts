@@ -56,7 +56,7 @@ const mockGeoData: { [ip: string]: GeoLocation } = {
     region: 'Nairobi',
     latitude: -1.2864,
     longitude: 36.8172,
-    timezone: 'Africa/Nairobi',
+    timezone: 'UTC',
     isp: 'Safaricom'
   }
 };

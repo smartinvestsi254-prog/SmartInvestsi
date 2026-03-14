@@ -13,19 +13,19 @@
 [[headers]]
   for = "/api/chat/*"
   [headers.values]
-    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Origin = "https://smartinvestsi.netlify.app"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[headers]]
   for = "/help/*"
   [headers.values]
-    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Origin = "https://smartinvestsi.netlify.app"
 
 [[headers]]
   for = "/__cb/*"
   [headers.values]
-    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Origin = "https://smartinvestsi.netlify.app"
 
 [build.environment]
   NODE_ENV = "production"

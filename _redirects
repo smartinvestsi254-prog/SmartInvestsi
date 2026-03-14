@@ -1,3 +1,17 @@
-/*    /index.html   200
-/api/*  /.netlify/functions/:splat  200!
+# SmartInvest Redirects Configuration
+# Netlify _redirects file - processed from top to bottom
+
+# HTTPS Redirects - Force all traffic to HTTPS
+http://smartinvestsi.netlify.app/* https://smartinvestsi.netlify.app/:splat 301!
+http://www.smartinvestsi.netlify.app/* https://smartinvestsi.netlify.app/:splat 301!
+
+# API Routes - Function redirects
+/api/* /.netlify/functions/:splat 200
+
+# Legacy URL redirects (if needed)
+# /old-path /new-path 301
+
+# SPA fallback - must be last rule
+/ads /advertiser-dashboard.html 200
+/* /
 

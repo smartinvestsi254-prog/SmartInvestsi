@@ -1,5 +1,6 @@
 /**
- * Portfolio Management Handler for SmartInvestsi
+ * Portfolio Management Handler for SmartInvestsi - TypeScript Refactored (Fixed)
+ * Compatible with portfolio.ts interfaces, no local type conflicts
  */
 
 import logger from './logger';
@@ -10,109 +11,135 @@ import {
   updatePortfolioHoldings,
   calculatePortfolioAnalytics
 } from './portfolio';
+import type {
+  NetlifyEvent,
+  NetlifyContext,
+  APIResponse,
+  PortfolioBody,
+  HTTPStatus
+} from './types';
+import type { Portfolio, Holding } from './portfolio';
 
-export const handler = async function(event: any, context: any): Promise<any> {
+export const handler = async function(event: NetlifyEvent, context: NetlifyContext): Promise<APIResponse> {
   const userId = event.headers['x-user-id'] || 'demo-user'; // In production, get from JWT
 
   try {
     if (event.httpMethod === 'GET') {
-      // Get user's portfolios
       if (event.path.includes('/analytics/')) {
         const portfolioId = event.path.split('/analytics/')[1];
         const portfolio = getPortfolio(portfolioId, userId);
 
         if (!portfolio) {
           return {
-            statusCode: 404,
-            body: JSON.stringify({ error: 'Portfolio not found' })
+            statusCode: 404 as HTTPStatus,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({ success: false, error: 'Portfolio not found' })
           };
         }
 
         const analytics = calculatePortfolioAnalytics(portfolio);
 
         return {
-          statusCode: 200,
+          statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           },
-          body: JSON.stringify({ success: true, analytics })
+          body: JSON.stringify({ success: true, data: analytics })
         };
       } else {
         const portfolios = getUserPortfolios(userId);
         return {
-          statusCode: 200,
+          statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           },
-          body: JSON.stringify({ success: true, portfolios })
+          body: JSON.stringify({ success: true, data: portfolios })
         };
       }
     }
 
     if (event.httpMethod === 'POST') {
-      const { action, name, holdings } = JSON.parse(event.body || '{}');
+      let body: PortfolioBody;
+      try {
+        body = JSON.parse(event.body || '{}') as PortfolioBody;
+      } catch {
+        return {
+          statusCode: 400 as HTTPStatus,
+          body: JSON.stringify({ success: false, error: 'Invalid JSON body' })
+        };
+      }
+
+      const { action, name, holdings } = body;
 
       if (action === 'create') {
         if (!name) {
           return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'Portfolio name is required' })
+            statusCode: 400 as HTTPStatus,
+            body: JSON.stringify({ success: false, error: 'Portfolio name is required' })
           };
         }
 
         const portfolio = createPortfolio(userId, name);
 
         return {
-          statusCode: 201,
+          statusCode: 201 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           },
-          body: JSON.stringify({ success: true, portfolio })
+          body: JSON.stringify({ success: true, data: portfolio })
         };
       }
 
       if (action === 'update-holdings') {
-        const portfolioId = event.path.split('/').pop();
+        const portfolioId = event.path.split('/').pop() || '';
         if (!portfolioId || !holdings) {
           return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'Portfolio ID and holdings are required' })
+            statusCode: 400 as HTTPStatus,
+            body: JSON.stringify({ success: false, error: 'Portfolio ID and holdings are required' })
           };
         }
 
-        const portfolio = updatePortfolioHoldings(portfolioId, userId, holdings);
+        // Cast holdings to match Holding[] expected by updatePortfolioHoldings
+        const portfolio = updatePortfolioHoldings(portfolioId, userId, holdings as unknown as Holding[]);
 
         if (!portfolio) {
           return {
-            statusCode: 404,
-            body: JSON.stringify({ error: 'Portfolio not found' })
+            statusCode: 404 as HTTPStatus,
+            body: JSON.stringify({ success: false, error: 'Portfolio not found' })
           };
         }
 
         return {
-          statusCode: 200,
+          statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           },
-          body: JSON.stringify({ success: true, portfolio })
+          body: JSON.stringify({ success: true, data: portfolio })
         };
       }
     }
 
     return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
+      statusCode: 405 as HTTPStatus,
+      body: JSON.stringify({ success: false, error: 'Method not allowed' })
     };
 
-  } catch (error: any) {
-    logger.error('Portfolio API error', { error: error.message, stack: error.stack, userId });
+  } catch (error: unknown) {
+    logger.error('Portfolio API error', { 
+      error: (error as Error).message, 
+      stack: (error as Error).stack, 
+      userId 
+    });
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Portfolio operation failed' })
+      statusCode: 500 as HTTPStatus,
+      body: JSON.stringify({ success: false, error: 'Portfolio operation failed' })
     };
   }
 };

@@ -24,7 +24,7 @@ describe('login', () => {
   });
 
   it('returns 200 for valid admin credentials', async () => {
-    const event = { httpMethod: 'POST', body: JSON.stringify({ email: 'admin@smartinvestsi.com', password: 'demo123' }) } as any;
+    const event = { httpMethod: 'POST', body: JSON.stringify({ email: 'admin@smartinvestsi.netlify.app', password: 'demo123' }) } as any;
     const res = await handler(event, {} as any);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
