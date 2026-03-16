@@ -168,6 +168,16 @@ export const FEATURES: Record<string, FeatureConfig> = {
 
 export async function getUserTier(userEmail: string): Promise<SubscriptionTier> {
   try {
+    // First check User.subscriptionTier (direct field)
+    const user = await prisma.user.findUnique({
+      where: { email: userEmail },
+      select: { subscriptionTier: true }
+    });
+    if (user?.subscriptionTier && user.subscriptionTier !== 'FREE') {
+      return user.subscriptionTier as SubscriptionTier;
+    }
+
+    // Fallback to subscription table
     const subscription = await prisma.subscription.findFirst({
       where: {
         userEmail,
@@ -423,76 +433,39 @@ export function requireFeature(featureName: string) {
 
 export function requireFeatureWithAdminBypass(featureName: string) {
   return async (req: any, res: any, next: any) => {
-    const isAdmin = req.isAdmin || 
-                    req.headers['x-admin'] === 'true' ||
-                    (req.user && req.user.admin);
+    // HARDENED: Admin bypass requires role === ADMIN from DB + JWT claim
+    const user = req.user;
+    if (!user || user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        error: 'Admin role required for bypass',
+        code: 'ADMIN_REQUIRED'
+      });
+    }
+
+    req.userTier = SubscriptionTier.ENTERPRISE;
+    req.isAdmin = true;
+    req.bypassedTierCheck = true;
     
-    if (isAdmin) {
-      req.userTier = SubscriptionTier.ENTERPRISE;
-      req.isAdmin = true;
-      req.bypassedTierCheck = true;
-      
-      // Log admin bypass
-      const userEmail = req.userEmail || req.body?.email || 'admin@system';
-      await auditLogger.logAdminAction(
-        userEmail,
-        `Admin bypassed feature access check for: ${featureName}`,
-        undefined,
-        { feature: featureName, bypassType: 'admin_override' },
-        true,
-        undefined,
-        req
-      );
-      
-      return next();
-    }
-
-    // For GET requests we skip the logging/limit portion but still enforce
-    // the tier requirement through the simplified path.
-    if (req.method === 'GET') {
-      const userEmail = req.userEmail || req.body?.email;
-      if (!userEmail) {
-        return res.status(401).json({
-          success: false,
-          error: 'Authentication required',
-          code: 'AUTHENTICATION_REQUIRED'
-        });
-      }
-      const userTier = await getUserTier(userEmail);
-      const feature = FEATURES[featureName];
-      const tierHierarchy: Record<SubscriptionTier, number> = {
-        [SubscriptionTier.FREE]: 0,
-        [SubscriptionTier.PREMIUM]: 1,
-        [SubscriptionTier.ENTERPRISE]: 2
-      };
-      if (!feature || tierHierarchy[userTier] < tierHierarchy[feature.requiredTier]) {
-        return res.status(403).json({
-          success: false,
-          error: feature
-            ? `This feature requires ${feature.requiredTier} tier`
-            : 'Unknown feature',
-          code: 'INSUFFICIENT_TIER',
-          userTier,
-          requiredTier: feature?.requiredTier || SubscriptionTier.ENTERPRISE,
-          feature: featureName,
-          upgradeUrl: '/pricing.html',
-          timestamp: new Date().toISOString()
-        });
-      }
-      req.userTier = userTier;
-      return next();
-    }
-
-    return requireFeature(featureName)(req, res, next);
+    // Log admin bypass
+    const userEmail = req.userEmail || req.body?.email || 'admin@system';
+    await auditLogger.logAdminAction(
+      userEmail,
+      `Admin bypassed feature access check for: ${featureName}`,
+      undefined,
+      { feature: featureName, bypassType: 'admin_override' },
+      true,
+      undefined,
+      req
+    );
+    
+    return next();
   };
 }
 
 export function adminOnly(req: any, res: any, next: any) {
-  const isAdmin = req.isAdmin || 
-                  req.headers['x-admin'] === 'true' ||
-                  (req.user && req.user.admin);
-  
-  if (!isAdmin) {
+  const user = req.user;
+  if (!user || user.role !== 'ADMIN') {
     const userEmail = req.userEmail || req.body?.email || 'anonymous';
     
     // Log unauthorized admin access attempt
@@ -507,7 +480,7 @@ export function adminOnly(req: any, res: any, next: any) {
 
     return res.status(403).json({
       success: false,
-      error: 'Admin access required',
+      error: 'Admin role required',
       code: 'ADMIN_REQUIRED',
       requiresAdmin: true,
       timestamp: new Date().toISOString()

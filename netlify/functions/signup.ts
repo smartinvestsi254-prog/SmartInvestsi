@@ -42,7 +42,30 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       };
     }
 
-    const { email, name, password } = body;
+    const { email, name, password, acceptTerms, captchaToken, phone, country, bankName, accountNumber } = body;
+
+    // Enforce terms acceptance
+    if (!acceptTerms) {
+      return {
+        statusCode: 400 as HTTPStatus,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ success: false, error: 'You must accept the Terms and Conditions to create an account' } as APIResponse)
+      };
+    }
+
+    // CAPTCHA validation stub (add HCAPTCHA_SECRET to env)
+    if (captchaToken) {
+      const captchaSecret = process.env.HCAPTCHA_SECRET;
+      if (captchaSecret) {
+        // TODO: verify with hCaptcha API
+        // const verifyUrl = `https://hcaptcha.com/siteverify`;
+        // const form = new URLSearchParams({ secret: captchaSecret, response: captchaToken });
+        console.log('CAPTCHA token received (validation pending)');
+      }
+    }
 
     if (!email || !name || !password) {
       return {
@@ -99,7 +122,18 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       };
     }
 
-    const authResult = await registerUser(email, name, password) as SignupResult & { success: boolean; error?: string };
+    // Sanitize sensitive inputs
+    const sanitizedAccountNumber = accountNumber ? accountNumber.replace(/[^0-9]/g, '') : null;
+
+    const authResult = await registerUser(email, name, password, {
+      acceptTerms: new Date().toISOString(),
+      subscriptionTier: 'FREE',
+      emailVerified: null,
+      phone,
+      country,
+      bankName,
+      accountNumber: sanitizedAccountNumber
+    }) as SignupResult & { success: boolean; error?: string };
 
     if (!authResult.success) {
       return {

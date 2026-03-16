@@ -6,7 +6,7 @@
 import type { Handler } from '@netlify/functions';
 import logger from './logger';
 
-const MPESA_TILL_NUMBER = '0114383762';
+const MPESA_NUMBER = '0114383762';
 const BUSINESS_NAME = 'SmartInvestsi';
 const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || 'ceo_manual';
 

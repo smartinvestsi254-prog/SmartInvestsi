@@ -229,11 +229,15 @@
                 <input type="text" class="form-control" id="accountNumber" placeholder="Your bank account number" required>
                 <small class="text-muted">For payment processing and withdrawals</small>
             </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="terms" required>
-                <label class="form-check-label" for="terms">
-                    I agree to the <a href="/terms.html">Terms of Service</a> and <a href="/privacy.html">Privacy Policy</a>
+            <div class="mb-3">
+                <label>
+                    <input type="checkbox" id="terms" required> I have read and accept the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a> <span class="text-danger">*</span>
                 </label>
+                <small class="text-muted d-block mt-1">Required to create account. Acceptance is logged and binding.</small>
+            </div>
+            <!-- hCaptcha -->
+            <div class="mb-3">
+                <div class="h-captcha" data-sitekey="YOUR_HCAPTCHA_SITEKEY"></div>
             </div>
             <button type="submit" class="btn btn-primary">Create Account</button>
         </form>

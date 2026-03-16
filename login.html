@@ -234,9 +234,14 @@
                 <a href="/forgot-password.html" class="text-decoration-none" style="color: #2563eb; font-size: 0.875rem;">Forgot password?</a>
             </div>
 
+            <!-- CAPTCHA for login -->
+            <div class="mb-3" id="captchaContainer" style="display: none;">
+                <div class="h-captcha" data-sitekey="YOUR_HCAPTCHA_SITEKEY"></div>
+            </div>
+
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="adminFlag">
-                <label class="form-check-label" for="adminFlag">Login as administrator (will redirect to admin area if credentials belong to an admin)</label>
+                <label class="form-check-label" for="adminFlag">Login as administrator</label>
             </div>
 
             <button type="submit" class="btn btn-primary">Sign In</button>

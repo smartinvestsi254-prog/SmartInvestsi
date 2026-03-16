@@ -6,7 +6,7 @@
 async function loadUsers() {
   try {
     const headers = await window.AdminAuth.getAuthHeaders();
-    const res = await fetch('/api/admin/users', { headers });
+const res = await fetch('/.netlify/functions/admin-api/admin/users', { headers });
     const data = await res.json();
     const list = document.getElementById('usersList');
     if (!data.success || !data.users?.length) {

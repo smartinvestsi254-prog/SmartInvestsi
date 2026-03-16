@@ -1,18 +1,8 @@
-# Cleaned TODO List
+# Task: Catalog Website Variables
 
-## Pending Tasks
+## Steps:
+- [x] 1. Confirm plan with user (done)
+- [x] 2. Create TODO.md 
+- [x] 3. Generate variables-catalog.md
+- [x] 4. Update TODO.md with completion
 
-### Chat Integration
-- Complete Netlify functions for chat
-- Test WebSocket realtime
-- Deploy and verify production chat
-
-### Security
-- Implement Netlify _headers
-- Fix CORS in functions
-- Add HTTPS redirect
-
-### Deployment
-- Update CI workflow
-- Run full security audit
-- Production env vars

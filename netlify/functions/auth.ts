@@ -94,6 +94,7 @@ function registerUser(email: string, name: string, password: string): AuthRespon
     email,
     name,
     role: 'user',
+    plan: 'free',
     createdAt: new Date().toISOString()
   };
 
@@ -113,32 +114,34 @@ function registerUser(email: string, name: string, password: string): AuthRespon
 /**
  * Generate JWT-like token (mock implementation)
  */
+import jwt from 'jsonwebtoken';
+
 function generateToken(user: User): string {
-  // In production, use proper JWT library
   const payload = {
     userId: user.id,
     email: user.email,
     role: user.role,
-    exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
   };
-
-  return Buffer.from(JSON.stringify(payload)).toString('base64');
-}
+  
+  const secret = process.env.JWT_SECRET || 'fallback-secret-change-in-prod';
 
 /**
  * Verify token
  */
 function verifyToken(token: string): User | null {
   try {
-    const payload = JSON.parse(Buffer.from(token, 'base64').toString());
-
-    if (payload.exp < Date.now()) {
+    const secret = process.env.JWT_SECRET || 'fallback-secret-change-in-prod';
+    const payload = jwt.verify(token, secret) as any;
+    
+    if (payload.exp * 1000 < Date.now()) {
       return null; // Token expired
     }
 
     const user = MOCK_USERS.find(u => u.id === payload.userId);
     return user || null;
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Token verification failed', { error: error.message });
     return null;
   }
