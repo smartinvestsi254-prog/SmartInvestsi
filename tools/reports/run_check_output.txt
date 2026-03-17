@@ -1,0 +1,13 @@
+=== git status ===
+On branch refactor/cleanup
+nothing to commit, working tree clean
+
+=== node version ===
+
+=== npm version ===
+
+=== npm scripts ===
+
+
+=== npm run check (if exists) ===
+No 'check' script found.

@@ -1,0 +1,19 @@
+orders (
+  id,
+  amount, 1000
+  phone,
+  status,
+  created_at
+)
+
+transactions (
+  id,
+  order_id,
+  trans_id,
+  amount,
+  phone,
+  source,          -- STK | C2B
+  status,
+  raw_payload,
+  created_at
+)

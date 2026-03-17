@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvestsi - Democratizing Investment Knowledge</title>
+    <meta name="description" content="SmartInvestsi — democratizing investment knowledge, tools and opportunities worldwide. Learn, invest, and grow with confidence.">
+    <meta name="robots" content="index,follow">
+    <meta name="google-site-verification" content="PGl8tnEo0cLmNeSByTMPH8DWktC-VI4J_cReUfG0Hdk" />
+    <meta property="og:title" content="SmartInvestsi">
+    <meta property="og:description" content="Democratizing investment knowledge, tools and opportunity worldwide.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1a365d">
+    <link rel="canonical" href="https://smartinvestsi.netlify.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@SmartInvestsi">
+    <meta name="twitter:creator" content="@SmartInvestsi">
+    <meta name="twitter:title" content="SmartInvestsi">
+    <meta name="twitter:description" content="Democratizing investment knowledge, tools and opportunity worldwide.">
+    
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%231a365d'/%3E%3Cstop offset='100%25' style='stop-color:%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Cpath d='M30 55 L40 45 L50 60 L70 35' stroke='%23d4af37' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='70' cy='35' r='3' fill='%23d4af37'/%3E%3C/svg%3E">
+    
+    <!-- Organization Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SmartInvestsi",
+      "url": "https://smartinvestsi.netlify.app",
+      "logo": "https://smartinvestsi.netlify.app/logo.svg",
+      "description": "Democratizing investment knowledge, tools and opportunities worldwide.",
+      "foundingDate": "2024",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Sandton City Office Tower, 83 Rivonia Road",
+        "addressLocality": "Sandton",
+        "addressRegion": "Gauteng",
+        "postalCode": "2196",
+        "addressCountry": "ZA"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+27-11-123-4567",
+        "contactType": "customer service",
+        "email": "support@smartinvestsi.netlify.app",
+        "availableLanguage": ["English", "Swahili", "Zulu"]
+      },
+      "sameAs": [
+        "https://twitter.com/SmartInvestsi",
+        "https://linkedin.com/company/smartinvestsi"
+      ],
+      "areaServed": {
+        "@type": "Place",
+        "name": "Worldwide"
+      },
+      "serviceType": ["Investment Education", "Portfolio Management", "Financial Calculators"],
+      "priceRange": "Free to Premium"
+    }
+    </script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-corporate: #0B1F33;
+            --primary-light: #1a365d;
+            --accent-gold: #D4AF37;
+            --accent-light-gold: #f4d03f;
+            --accent-teal: #0891b2;
+            --bg-dark: #05111e;
+            --text-light: #f8fafc;
+            --border-color: #1e3a5f;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--primary-corporate);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--accent-gold) !important;
+        }
+        
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            transition: color 0.3s ease;
+            margin: 0 8px;
+            font-weight: 500;
+        }
+        
+        .navbar .nav-link:hover {
+            color: var(--accent-gold) !important;
+        }
+        
+        .navbar .nav-link.active {
+            color: var(--accent-gold) !important;
+            border-block-end: 2px solid var(--accent-gold);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-light-gold) 100%);
+            border: none;
+            color: var(--primary-corporate);
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin-inline-start: 12px;
+            white-space: nowrap;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            color: var(--primary-corporate);
+        }
+        
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 100px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inset-inline-end: 0;
+            inset-block-end: 0;
+            background: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"%3E%3Cpath d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100" height="100" fill="url(%23grid)" /%3E%3C/svg%3E');
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-block-end: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            opacity: 0.95;
+            margin-block-end: 2rem;
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            block-size: 100%;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            inline-size: 64px;
+            block-size: 64px;
+            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-block-end: 1rem;
+        }
+        
+        .stats-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 60px 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-corporate);
+            margin-block-end: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #c4a02f 100%);
+            border: none;
+            color: #1a365d;
+            font-weight: 600;
+            padding: 12px 32px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            color: #1a365d;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-corporate);
+            margin-block-end: 1rem;
+        }
+        
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 4px;
+        }
+        
+        .stats-section {
+            background: linear-gradient(180deg, #f8fafc 0%, #e8ecf1 100%);
+            padding: 60px 0;
+            border-block-start: 1px solid var(--border-color);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-block-end: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            block-size: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.15);
+            border-color: var(--accent-gold);
+        }
+        
+        .feature-icon {
+            inline-size: 64px;
+            block-size: 64px;
+            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-block-end: 1rem;
+        }
+
+        .diplomacy-panel {
+            background: linear-gradient(135deg, #0b3d2e 0%, #0f1a2b 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diplomacy-panel::after {
+            content: '';
+            position: absolute;
+            inset-block-start: -30px;
+            inset-inline-end: -30px;
+            inline-size: 140px;
+            block-size: 140px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, rgba(212, 175, 55, 0) 70%);
+        }
+
+        .diplomacy-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .diplomacy-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .diplomacy-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <!-- market ticker bar -->
+        <div id="market-ticker" class="w-100 bg-secondary text-white text-center py-1 small">
+            <span>Loading market stats...</span>
+        </div>
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#d4af37"/>
+                            <stop offset="100%" style="stop-color:#c4a02f"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M30 55 L40 45 L50 60 L70 35" stroke="url(#logoGrad)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="70" cy="35" r="4" fill="#d4af37"/>
+                </svg>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalog.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pricing.html">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/faq.html">FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/diplomacy/index.html">Diplomacy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+                    <li class="nav-item ms-lg-2"><a class="nav-link" href="/login.html">Sign In</a></li>
+                    <li class="nav-item"><a class="btn btn-primary btn-sm" href="/signup.html">Get Started</a></li>
+                    <li class="nav-item"><a class="btn btn-admin btn-sm" href="/admin.html" title="Admin Portal">⚙️ Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-banner">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="hero-title">Start Your Investment Business Today</h1>
+                    <p class="hero-subtitle">SmartInvest empowers individual entrepreneurs and investors worldwide with professional tools, secure banking, and expert guidance to build and grow their wealth.</p>
+
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a href="/signup.html" class="btn btn-light btn-lg px-4">
+                            <span class="me-2">🚀</span> Start Free Today
+                        </a>
+                        <a href="/calculator.html" class="btn btn-gold btn-lg px-4">
+                            <span class="me-2">🧮</span> Try Investment Calculator
+                        </a>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <span class="trust-badge">👥 10,247+ Active Investors</span>
+                        <span class="trust-badge">🛡️ POPIA & GDPR Compliant</span>
+                        <span class="trust-badge">💰 $50M+ Assets Managed</span>
+                        <span class="trust-badge">🌍 50+ Countries Worldwide</span>
+                        <span class="trust-badge">🔒 Bank-Grade Security</span>
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block text-center">
+                    <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="chartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.8"/>
+                                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.8"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="50" y="50" width="300" height="200" rx="15" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <polyline points="80,200 120,180 160,140 200,160 240,100 280,120 320,80" 
+                                  fill="none" stroke="url(#chartGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="80" cy="200" r="6" fill="#d4af37"/>
+                        <circle cx="160" cy="140" r="6" fill="#d4af37"/>
+                        <circle cx="240" cy="100" r="6" fill="#d4af37"/>
+                        <circle cx="320" cy="80" r="6" fill="#d4af37"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-number">$50M+</div>
+                        <div class="stat-label">Assets Under Management</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Countries Served</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container my-5 py-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Everything You Need to Start & Grow Your Investment Business</h2>
+            <p class="text-muted fs-5">From registration to wealth management - professional tools for individual investors and entrepreneurs</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">📊</div>
+                        <h5 class="card-title fw-bold">Professional Portfolio Management</h5>
+                        <p class="card-text text-muted">Track investments, analyze performance, and optimize your portfolio with institutional-grade analytics and risk metrics</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">💰</div>
+                        <h5 class="card-title fw-bold">Secure Banking & Transactions</h5>
+                        <p class="card-text text-muted">PIN-based P2P transfers, multi-currency support, and bank-grade security for all your financial transactions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🎓</div>
+                        <h5 class="card-title fw-bold">Investment Education & Tools</h5>
+                        <p class="card-text text-muted">Free calculators, personalized investment plans, and comprehensive courses to build your financial knowledge</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🤝</div>
+                        <h5 class="card-title fw-bold">Community & Social Trading</h5>
+                        <p class="card-text text-muted">Learn from top traders, copy successful strategies, and connect with a global community of successful investors</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">📱</div>
+                        <h5 class="card-title fw-bold">Easy Registration & Onboarding</h5>
+                        <p class="card-text text-muted">Sign up with email, phone, or ID number. Get started in minutes with our streamlined registration process</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">⭐</div>
+                        <h5 class="card-title fw-bold">Premium Growth Features</h5>
+                        <p class="card-text text-muted">Unlock advanced analytics, unlimited portfolios, and priority support with our affordable subscription plans</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🛡️</div>
+                        <h5 class="card-title fw-bold">Full Compliance</h5>
+                        <p class="card-text text-muted">POPIA, GDPR, NDPR, Kenya DPA, FICA, FSB, AML/KYC compliant - meeting global regulatory requirements</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🤝</div>
+                        <h5 class="card-title fw-bold">Partnership Network</h5>
+                        <p class="card-text text-muted">Access verified financial institutions and curated investment products worldwide</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">💳</div>
+                        <h5 class="card-title fw-bold">Multi-Payment Support</h5>
+                        <p class="card-text text-muted">M-Pesa, Paystack, Flutterwave, Stripe, PayPal - global payment options</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🧮</div>
+                        <h5 class="card-title fw-bold">Smart Calculators</h5>
+                        <p class="card-text text-muted">Compound interest, ROI, tax calculations optimized for ZA, NG, GH, KE and more</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mx-auto">🌐</div>
+                        <h5 class="card-title fw-bold">Cloud Infrastructure</h5>
+                        <p class="card-text text-muted">Powered by Supabase for scalable, secure, and reliable serverless PostgreSQL with auto-scaling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Startup Benefits Section -->
+    <section class="container my-5 py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 20px; padding: 60px 40px;">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Why Choose SmartInvest for Your Investment Journey?</h2>
+            <p class="text-muted fs-5">Built by entrepreneurs, for entrepreneurs - trusted by thousands worldwide</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card feature-card h-100" style="border: 2px solid var(--accent-gold); background: white;">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon mx-auto mb-3" style="background: linear-gradient(135deg, var(--accent-gold) 0%, #c4a02f 100%);">🏆</div>
+                        <h5 class="card-title fw-bold text-primary">Individual-Focused Business Model</h5>
+                        <p class="card-text">Unlike big banks, we're built for individual investors and small business owners. Start with our free tier and grow your wealth at your own pace.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary">Free to Start</span>
+                            <span class="badge bg-success ms-2">No Hidden Fees</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card feature-card h-100" style="border: 2px solid var(--primary-light); background: white;">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon mx-auto mb-3" style="background: linear-gradient(135deg, var(--primary-light) 0%, #1d4ed8 100%);">🛡️</div>
+                        <h5 class="card-title fw-bold text-primary">Regulatory Compliance & Trust</h5>
+                        <p class="card-text">Fully compliant with POPIA, GDPR, NDPR, and Kenya DPA. Your data is secure, and your investments are protected by bank-grade security.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-warning text-dark">POPIA Compliant</span>
+                            <span class="badge bg-info ms-2">GDPR Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card feature-card h-100" style="border: 2px solid var(--accent-teal); background: white;">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon mx-auto mb-3" style="background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);">🚀</div>
+                        <h5 class="card-title fw-bold text-primary">Easy Registration & Growth</h5>
+                        <p class="card-text">Sign up in minutes with email, phone, or ID number. Our platform grows with you - from first-time investor to sophisticated portfolio manager.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-success">5-Min Setup</span>
+                            <span class="badge bg-primary ms-2">Scalable Platform</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card feature-card h-100" style="border: 2px solid #10b981; background: white;">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon mx-auto mb-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">💡</div>
+                        <h5 class="card-title fw-bold text-primary">Education & Community Support</h5>
+                        <p class="card-text">Learn from free courses, calculators, and expert insights. Join a community of successful African investors sharing strategies and opportunities.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-success">Free Education</span>
+                            <span class="badge bg-warning text-dark ms-2">Expert Community</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="text-center mt-5 pt-4 border-top">
+            <h4 class="mb-4 text-primary fw-bold">Trusted by Investors Worldwide</h4>
+            <div class="row g-4 justify-content-center">
+                <div class="col-auto">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold text-primary">10,247+</div>
+                        <div class="text-muted small">Active Investors</div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold text-success">$50M+</div>
+                        <div class="text-muted small">Assets Managed</div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold text-warning">50+</div>
+                        <div class="text-muted small">Countries Served</div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold text-info">99.9%</div>
+                        <div class="text-muted small">Platform Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="container my-5 py-5">
+        <div class="text-center" style="background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%); border-radius: 20px; padding: 60px 40px; color: white;">
+            <h2 class="mb-4 fw-bold">Ready to Start Your Investment Business?</h2>
+            <p class="mb-4 fs-5 opacity-90">Join thousands of investors worldwide who trust SmartInvest to grow their wealth. Start free today and unlock your financial potential.</p>
+
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="/signup.html" class="btn btn-light btn-lg px-5 py-3">
+                    <span class="me-2">🚀</span> Start Your Free Account
+                </a>
+                <a href="/pricing.html" class="btn btn-outline-light btn-lg px-5 py-3">
+                    <span class="me-2">💎</span> View Premium Plans
+                </a>
+            </div>
+
+            <div class="mt-4 opacity-75">
+                <small>✓ No credit card required • ✓ Cancel anytime • ✓ 30-day money-back guarantee</small>
+            </div>
+        </div>
+    </section>
+
+    <section class="container my-5">
+        <div class="diplomacy-panel">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h2 class="mb-3">Kenya Diplomacy Portal</h2>
+                    <p class="mb-4">Coordinate economic diplomacy, consular support, and mission activities alongside investment intelligence. The diplomacy portal is designed for public sector partners and private sector collaborators in Kenya.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/diplomacy/index.html" class="btn btn-light">Visit Diplomacy Hub</a>
+                        <a href="/contact.html" class="btn btn-outline-light">Partner With Us</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <ul class="diplomacy-list">
+                        <li class="diplomacy-card">Mission coordination and contact directories</li>
+                        <li class="diplomacy-card">Treaty status tracking and briefing notes</li>
+                        <li class="diplomacy-card">Delegations planning and protocol checklists</li>
+                        <li class="diplomacy-card">Trade and investment diplomacy dashboards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="section-title mb-3">Ready to Start Your Investment Journey?</h2>
+                    <p class="fs-5 text-muted">Join thousands of investors worldwide who trust SmartInvest for their financial future</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a href="/dashboard.html" class="btn btn-primary btn-lg px-5">Create Free Account</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5" style="background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%) !important;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold mb-3" style="color: var(--accent-gold);">SmartInvestsi</h5>
+                    <p class="text-white-50">Empowering individual investors and entrepreneurs worldwide with professional investment tools, secure banking, and expert guidance to build wealth and grow businesses.</p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-white-50" title="Twitter"><svg width="24" height="24" fill="currentColor"><use href="#twitter-icon"/></svg></a>
+                        <a href="#" class="text-white-50" title="LinkedIn"><svg width="24" height="24" fill="currentColor"><use href="#linkedin-icon"/></svg></a>
+                        <a href="#" class="text-white-50" title="Facebook"><svg width="24" height="24" fill="currentColor"><use href="#facebook-icon"/></svg></a>
+                    </div>
+                    <!-- Trust Badges -->
+                    <div class="mt-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-warning text-dark">POPIA Compliant</span>
+                            <span class="badge bg-info">GDPR Ready</span>
+                            <span class="badge bg-success">Bank-Grade Security</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--accent-gold);">Company</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/about.html" class="text-white-50 text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="/contact.html" class="text-white-50 text-decoration-none">Contact</a></li>
+                        <li class="mb-2"><a href="/diplomacy/index.html" class="text-white-50 text-decoration-none">Diplomacy Portal</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Careers</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--accent-gold);">Product</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/calculator.html" class="text-white-50 text-decoration-none">Calculator</a></li>
+                        <li class="mb-2"><a href="/catalog.html" class="text-white-50 text-decoration-none">Products</a></li>
+                        <li class="mb-2"><a href="/pricing.html" class="text-white-50 text-decoration-none">Pricing</a></li>
+                        <li class="mb-2"><a href="/faq.html" class="text-white-50 text-decoration-none">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--accent-gold);">Legal</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/privacy.html" class="text-white-50 text-decoration-none">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="/terms.html" class="text-white-50 text-decoration-none">Terms of Service</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Compliance</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--accent-gold);">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Help Center</a></li>
+                        <li class="mb-2"><a href="/contact.html" class="text-white-50 text-decoration-none">Contact Support</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">System Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0 text-white-50">&copy; 2026 SmartInvestsi. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+                        <span class="text-white-50 small">🛡️ POPIA • GDPR • NDPR • Kenya DPA Compliant</span>
+                        <span class="text-white-50 small">🔒 256-bit SSL Encryption • 💰 $50M+ Assets Protected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SVG Icons -->
+    <svg style="display: none;">
+        <symbol id="twitter-icon" viewBox="0 0 24 24">
+            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+        </symbol>
+        <symbol id="linkedin-icon" viewBox="0 0 24 24">
+            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+            <circle cx="4" cy="4" r="2"/>
+        </symbol>
+        <symbol id="facebook-icon" viewBox="0 0 24 24">
+            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+        </symbol>
+    </svg>
+
+    <!-- Newsletter subscription modal -->
+    <div class="modal fade" id="newsletterModal" tabindex="-1" aria-labelledby="newsletterModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newsletterModalLabel">Stay Updated</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Subscribe to our newsletter for the latest market insights.</p>
+            <input type="email" id="newsletterEmail" class="form-control" placeholder="Enter your email">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button id="subscribeBtn" type="button" class="btn btn-primary">Subscribe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/public-config.js"></script>
+    <script src="/wwwroot/js/theme-toggle.js"></script>
+    <script src="/wwwroot/js/market-ticker.js"></script>
+    <script src="/wwwroot/js/newsletter.js"></script>
+    <!-- Hybrid Chat: Chatbase Free Tier + Internal Fallback -->
+    <script src="/js/website-receptionist.js" defer></script>
+    <script>
+      // Chatbase Free Tier + Automatic Internal Fallback
+      window.chatbaseFallback = true; // Enable fallback
+      (function() {
+        if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+          window.chatbase = (...arguments) => {
+            if (!window.chatbase.q) window.chatbase.q = [];
+            window.chatbase.q.push(arguments);
+          };
+          window.chatbase = new Proxy(window.chatbase, {
+            get(target, prop) {
+              if (prop === "q") return target.q;
+              return (...args) => {
+                if (prop === "sendMessage" && window.chatbaseFallback) {
+                  // Check if Chatbase failed, use internal receptionist
+                  if (!window.chatReceptionistLoaded) {
+                    console.log('Chatbase unavailable, using internal receptionist');
+                    if (typeof WebsiteReceptionist !== 'undefined') {
+                      new WebsiteReceptionist();
+                    }
+                    return;
+                  }
+                }
+                target(prop, ...args);
+              };
+            }
+          });
+        }
+        const onLoad = function() {
+          const script = document.createElement("script");
+          script.src = "https://www.chatbase.co/embed.min.js";
+          script.id = "DH09Xb_YLRjwTDDhXSIQ4"; // Free tier Chatbase ID
+          script.async = true;
+          script.onerror = function() {
+            // Chatbase load failed -> internal takeover
+            console.log('Chatbase failed to load, activating internal receptionist');
+            window.chatbaseFallback = true;
+            if (typeof WebsiteReceptionist !== 'undefined') {
+              new WebsiteReceptionist();
+            }
+          };
+          document.body.appendChild(script);
+        };
+        if (document.readyState === "complete") {
+          onLoad();
+        } else {
+          window.addEventListener("load", onLoad);
+        }
+      })();
+    </script>
+
+</body>
+</html>

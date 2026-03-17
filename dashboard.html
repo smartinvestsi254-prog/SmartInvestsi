@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SmartInvestsi</title>
+    <meta name="description" content="Your SmartInvestsi investment dashboard. Track portfolio, analytics, transactions with POPIA/GDPR/NDPR/Kenya DPA protection.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://smartinvestsi.netlify.app/dashboard.html">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%231a365d'/%3E%3Cstop offset='100%25' style='stop-color:%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Cpath d='M30 55 L40 45 L50 60 L70 35' stroke='%23d4af37' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='70' cy='35' r='3' fill='%23d4af37'/%3E%3C/svg%3E">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+    <link href="/public/css/modern-payment-interface.css" rel="stylesheet">
+    <link href="/public/css/transaction-history.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .sidebar {
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            min-block-size: 100vh;
+            padding: 2rem 0;
+            color: white;
+        }
+        .sidebar-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            display: block;
+            transition: all 0.2s;
+            border-inline-start: 3px solid transparent;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-inline-start-color: #d4af37;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a365d;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .portfolio-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-block-end: 0.75rem;
+            border-inline-start: 4px solid #2563eb;
+            transition: all 0.2s;
+        }
+        .portfolio-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .badge-plan {
+            background: linear-gradient(135deg, #d4af37 0%, #c4a02f 100%);
+            color: #1a365d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        .onboarding-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            background: #f8fafc;
+        }
+        .pill {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: #e2e8f0;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar d-none d-md-block">
+                <div class="text-center mb-4">
+                    <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#d4af37"/>
+                                <stop offset="100%" style="stop-color:#c4a02f"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M30 55 L40 45 L50 60 L70 35" stroke="url(#logoGrad)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="70" cy="35" r="4" fill="#d4af37"/>
+                    </svg>
+                    <h6 class="mt-2 fw-bold">SmartInvest</h6>
+                </div>
+                <nav>
+                    <a href="#overview" class="sidebar-link active">📊 Overview</a>
+                    <a href="#onboarding" class="sidebar-link">🧭 Personalized Plan</a>
+                    <a href="#portfolio" class="sidebar-link">💼 Portfolio</a>
+                    <a href="#transactions" class="sidebar-link">💳 Transactions</a>
+                    <a href="#analytics" class="sidebar-link">📈 Analytics</a>
+                    <a href="#payments" class="sidebar-link">💰 Payments</a>
+                    <a href="#payment-history" class="sidebar-link">📜 Payment History</a>
+                    <a href="#settings" class="sidebar-link">⚙️ Settings</a>
+                    <hr class="my-3 opacity-25">
+                    <a href="/" class="sidebar-link">🏠 Back to Home</a>
+                    <a href="/calculator.html" class="sidebar-link">🧮 Calculator</a>
+                    <a href="/pricing.html" class="sidebar-link">💎 Upgrade</a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Welcome back, John!</h2>
+                        <p class="text-muted mb-0">Here's your investment overview</p>
+                    </div>
+                    <div>
+                        <span class="badge-plan me-3">FREE PLAN</span>
+                        <button class="btn btn-sm btn-outline-primary">👤 Profile</button>
+                    </div>
+                </div>
+
+                <section id="onboarding" class="mb-4">
+                    <div class="chart-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">Personalized Plan</h5>
+                                <p class="text-muted mb-0">Share your goals to build a tailored investment path.</p>
+                            </div>
+                            <span class="badge bg-info text-dark" id="onboardingStatus">Not started</span>
+                        </div>
+                        <form id="onboardingForm" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Primary Goal</label>
+                                <select class="form-select" name="goal" required>
+                                    <option value="growth">Grow wealth</option>
+                                    <option value="retirement">Retirement plan</option>
+                                    <option value="education">Education fund</option>
+                                    <option value="business">Business expansion</option>
+                                    <option value="income">Monthly income</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Time Horizon</label>
+                                <select class="form-select" name="horizon" required>
+                                    <option value="0-2">0-2 years</option>
+                                    <option value="3-5">3-5 years</option>
+                                    <option value="6-10">6-10 years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Risk Comfort</label>
+                                <select class="form-select" name="risk" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Region</label>
+                                <select class="form-select" name="region" required>
+                                    <option value="KE">Kenya</option>
+                                    <option value="ZA">South Africa</option>
+                                    <option value="NG">Nigeria</option>
+                                    <option value="GH">Ghana</option>
+                                    <option value="UG">Uganda</option>
+                                    <option value="TZ">Tanzania</option>
+                                    <option value="RW">Rwanda</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Monthly Contribution (KES)</label>
+                                <input class="form-control" type="number" name="contribution" min="0" step="100" value="5000">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Impact Focus</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="impact" id="impactFocus">
+                                    <label class="form-check-label" for="impactFocus">Prioritize impact and sustainability</label>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Save Plan</button>
+                                <button type="button" class="btn btn-outline-secondary" id="onboardingReset">Reset</button>
+                            </div>
+                        </form>
+                        <div class="onboarding-card mt-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Plan Summary</h6>
+                                    <div class="text-muted" id="onboardingSummary">Complete the plan to see personalized next steps.</div>
+                                </div>
+                                <div class="pill" id="onboardingPill">Not personalized</div>
+                            </div>
+                            <div class="row g-3 mt-2" id="onboardingActions"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats Overview -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label mb-2">Total Value</div>
+                            <div class="stat-value">R45,230</div>
+                            <div class="text-success small mt-2">↑ +12.5% this month</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label mb-2">Total Return</div>
+                            <div class="stat-value">R8,230</div>
+                            <div class="text-success small mt-2">↑ +22.3% all time</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label mb-2">Portfolios</div>
+                            <div class="stat-value">1</div>
+                            <div class="text-muted small mt-2">Free plan limit</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label mb-2">Transactions</div>
+                            <div class="stat-value">7/10</div>
+                            <div class="text-warning small mt-2">3 remaining this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Performance Chart -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <h5 class="fw-bold mb-3">Portfolio Performance</h5>
+                            <svg width="100%" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.3"/>
+                                        <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0"/>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Grid -->
+                                <line x1="0" y1="60" x2="600" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+                                <line x1="0" y1="120" x2="600" y2="120" stroke="#e2e8f0" stroke-width="1"/>
+                                <line x1="0" y1="180" x2="600" y2="180" stroke="#e2e8f0" stroke-width="1"/>
+                                <line x1="0" y1="240" x2="600" y2="240" stroke="#e2e8f0" stroke-width="1"/>
+                                
+                                <!-- Area Chart -->
+                                <polygon points="0,240 100,220 200,180 300,200 400,140 500,120 600,80 600,300 0,300" 
+                                         fill="url(#chartGradient)"/>
+                                
+                                <!-- Line Chart -->
+                                <polyline points="0,240 100,220 200,180 300,200 400,140 500,120 600,80" 
+                                          fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                
+                                <!-- Points -->
+                                <circle cx="0" cy="240" r="5" fill="#2563eb"/>
+                                <circle cx="100" cy="220" r="5" fill="#2563eb"/>
+                                <circle cx="200" cy="180" r="5" fill="#2563eb"/>
+                                <circle cx="300" cy="200" r="5" fill="#2563eb"/>
+                                <circle cx="400" cy="140" r="5" fill="#2563eb"/>
+                                <circle cx="500" cy="120" r="5" fill="#2563eb"/>
+                                <circle cx="600" cy="80" r="5" fill="#2563eb"/>
+                                
+                                <!-- Labels -->
+                                <text x="0" y="290" fill="#64748b" font-size="12">Jan</text>
+                                <text x="100" y="290" fill="#64748b" font-size="12">Feb</text>
+                                <text x="200" y="290" fill="#64748b" font-size="12">Mar</text>
+                                <text x="300" y="290" fill="#64748b" font-size="12">Apr</text>
+                                <text x="400" y="290" fill="#64748b" font-size="12">May</text>
+                                <text x="500" y="290" fill="#64748b" font-size="12">Jun</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="chart-container">
+                            <h5 class="fw-bold mb-3">Asset Allocation</h5>
+                            <svg width="100%" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Donut Chart -->
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#2563eb" stroke-width="40" 
+                                        stroke-dasharray="251.2 251.2" transform="rotate(-90 100 100)"/>
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#0891b2" stroke-width="40" 
+                                        stroke-dasharray="125.6 376.8" stroke-dashoffset="-251.2" transform="rotate(-90 100 100)"/>
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#d4af37" stroke-width="40" 
+                                        stroke-dasharray="62.8 439.6" stroke-dashoffset="-376.8" transform="rotate(-90 100 100)"/>
+                                <text x="100" y="105" text-anchor="middle" font-size="24" font-weight="bold" fill="#1a365d">100%</text>
+                            </svg>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><span style="color:#2563eb">■</span> Stocks (50%)</span>
+                                    <span class="fw-bold">R22,615</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><span style="color:#0891b2">■</span> Bonds (25%)</span>
+                                    <span class="fw-bold">R11,308</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span><span style="color:#d4af37">■</span> Cash (25%)</span>
+                                    <span class="fw-bold">R11,307</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Recent Transactions</h5>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="fw-bold">Bought AAPL</div>
+                                        <div class="small text-muted">2 days ago</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-danger">-R2,500</div>
+                                        <div class="small text-muted">10 shares</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="fw-bold">Dividend from VOO</div>
+                                        <div class="small text-muted">5 days ago</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-success">+R156</div>
+                                        <div class="small text-muted">Dividend</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="fw-bold">Sold TSLA</div>
+                                        <div class="small text-muted">1 week ago</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-success">+R3,200</div>
+                                        <div class="small text-muted">5 shares</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-container">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-lg" id="btnMakePayment">💰 Make a Payment</button>
+                                <button class="btn btn-outline-primary">📊 View Analytics</button>
+                                <button class="btn btn-outline-primary">🧮 Use Calculator</button>
+                                <button class="btn btn-outline-primary">📈 Explore Products</button>
+                            </div>
+                            <hr class="my-3">
+                            <div class="alert alert-warning mb-0">
+                                <strong>⚠️ Upgrade to Premium</strong>
+                                <p class="small mb-2">You've used 7/10 transactions. Upgrade for unlimited access!</p>
+                                <a href="/pricing.html" class="btn btn-sm btn-warning">View Plans</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History Section -->
+                <div id="payment-history-section" style="display: none;" class="mb-4">
+                    <div id="paymentsContainer" class="transactions-container"></div>
+                </div>
+
+                <!-- Compliance Badge -->
+                <div class="text-center py-4">
+                    <p class="text-muted small mb-2">🛡️ Your data is secured with Supabase serverless PostgreSQL</p>
+                    <p class="text-muted small">FSB Licensed | POPIA, GDPR, NDPR, Kenya DPA Compliant | Bank-grade Security</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/onboarding-mvp.js"></script>
+    <script src="/public/js/modern-payment-interface.js"></script>
+    <script src="/public/js/transaction-history-viewer.js"></script>
+    <script src="/public/js/chat-client.js"></script>
+    <script>
+    <script>
+      (function() {
+        if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+          window.chatbase = (...arguments) => {
+            if (!window.chatbase.q) {
+              window.chatbase.q = []
+            }
+            window.chatbase.q.push(arguments)
+          };
+          window.chatbase = new Proxy(window.chatbase, {
+            get(target, prop) {
+              if (prop === "q") {
+                return target.q
+              }
+              return (...args) => target(prop, ...args)
+            }
+          })
+        }
+        const onLoad = function() {
+          const script = document.createElement("script");
+          script.src = "https://www.chatbase.co/embed.min.js";
+          script.id = "DH09Xb_YLRjwTDDhXSIQ4";
+          script.domain = "www.chatbase.co";
+          document.body.appendChild(script)
+        };
+        if (document.readyState === "complete") {
+          onLoad()
+        } else {
+          window.addEventListener("load", onLoad)
+        }
+      })();
+    </script>
+    </script>
+    <script>
+        // verify authentication state and redirect when necessary
+        (async () => {
+            const user = await requireAuth();
+            if (!user) return; // requireAuth already redirected
+            initChat(user.email);
+            // TODO: you can make additional fetch calls to load user-specific data
+        })();
+
+        // existing UI behavior unrelated to auth remains unchanged
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    // Show/hide sections based on clicked link
+                    const section = this.getAttribute('href').substring(1);
+                    document.getElementById('payment-history-section').style.display = 
+                        section === 'payment-history' ? 'block' : 'none';
+                }
+            });
+        });
+
+        // other initialization code (payments, history) remains as before
+    </script>
+</body>
+</html>

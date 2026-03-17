@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  role             Role     @default(USER)
+  termsAcceptedAt  DateTime?
+  emailVerifiedAt  DateTime?
+  failedLoginAttempts Int    @default(0)
+  isBanned         Boolean  @default(false)
+  twoFactorSecret  String?
+  lastFailedLogin  DateTime?
+  subscriptionTier String?  @default("FREE")
+  accounts         BankAccount[]
+  assets           AssetHolding[]
+  transactions     Transaction[]
+  subscriptions    Subscription[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([email])
+  @@index([isBanned])
+}
+
+model BankAccount {
+  id              String   @id @default(cuid())
+  accountId       String   @unique // SI-ACCT-XXXXX
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String   // checking/savings/investment
+  currency        String
+  balance         Float    @default(0)
+  availableBalance Float   @default(0)
+  status          String   @default("active") // active/frozen/closed
+  kycLevel        String   @default("basic")
+  transactionPin  String?  // hashed
+  pinAttempts     Int      @default(0)
+  pinLockedUntil  DateTime?
+  holds           Json[]
+  createdAt       DateTime @default(now())
+  lastActivity    DateTime @updatedAt
+
+  transactions    Transaction[]
+  payments        Payment[]
+
+  @@index([userId])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction       Transaction? @relation("PaymentTransaction")
+  checkoutRequestId String   @unique
+  mpesaReceipt      String?  @unique
+  amount            Float
+  currency          String   @default("KES")
+  phoneNumber       String
+  tillNumber        String   @default("5263811")
+  shortcode         String   @default("8038267")
+  status            String   @default("pending") // pending/success/failed/cancelled
+  subscriptionType  String?  // premium/enterprise/one-time
+  reference         String?
+  callbackData      Json?
+  createdAt         DateTime @default(now())
+  completedAt       DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([checkoutRequestId])
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            String   // PREMIUM | ENTERPRISE
+  status          String   @default("active") // active | cancelled | expired | pending
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  nextBillingDate DateTime?
+  paymentMethod   String?  // mpesa | paypal | stripe | crypto
+  autoRenew       Boolean  @default(false)
+  currentPeriodStart DateTime @default(now())
+  currentPeriodEnd   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  cancelledAt     DateTime?
+
+  @@unique([userId, plan])
+  @@index([userId])
+  @@index([status])
+  @@index([nextBillingDate])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  transactionId String   @unique // TXN-XXXX
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  fromAccountId String?
+  toAccountId   String?
+  amount        Float
+  currency      String
+  description   String
+  status        String   // pending/completed/failed
+  fee           Float?
+  pinVerified   Boolean  @default(false)
+  autoApproved  Boolean  @default(false)
+  reference     String
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  @@index([userId, status])
+}
+
+model AssetHolding {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetType String   // cash/crypto
+  symbol    String   // USD/BTC/ETH
+  quantity  Float
+  valueUSD  Float    // current value
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, symbol])
+  @@index([userId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+

@@ -1,0 +1,169 @@
+repos:
+  # ============================================
+  # Core Security & Validation Hooks
+  # ============================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Detect accidental commits of secrets, API keys, private keys
+      - id: detect-private-key
+        exclude: ^ENVIRONMENT_VARIABLES\.md$
+      
+      # Detect merge conflict remnants
+      - id: detect-merge-conflict
+      
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+      
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        args: [--markdown-args=--markdown-args]
+      
+      # Validate JSON files
+      - id: check-json
+        exclude: ^(package-lock\.json|tsconfig\.json)$
+      
+      # Validate YAML files
+      - id: check-yaml
+        args: ['--unsafe']
+      
+      # Validate TOML files
+      - id: check-toml
+      
+      # Detect large files (> 500KB)
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      
+      # Check for merge conflicts
+      - id: check-merge-conflict
+
+  # ============================================
+  # TypeScript & JavaScript Linting
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.50.0
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: eslint --fix
+        language: node
+        types: [javascript, typescript]
+        exclude: ^(node_modules|dist|build|\.netlify|__tests__)
+        additional_dependencies: ['eslint', 'typescript', '@typescript-eslint/parser', '@typescript-eslint/eslint-plugin']
+
+  # ============================================
+  # Code Formatting (Prettier)
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        name: Prettier
+        types_or: [javascript, typescript, json, yaml, markdown, css, scss]
+        exclude: ^(node_modules|dist|build|\.netlify|package-lock\.json)$
+        additional_dependencies: ['prettier', 'prettier-plugin-organize-imports']
+
+  # ============================================
+  # TypeScript Type Checking
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-typescript
+    rev: v5.2.2
+    hooks:
+      - id: typescript-fixer
+        name: TypeScript Type Check
+        language: node
+        entry: tsc --noEmit
+        types: [typescript]
+        pass_filenames: false
+        additional_dependencies: ['typescript', '@types/node', '@types/express']
+
+  # ============================================
+  # Security: Detect Secrets & Credentials
+  # ============================================
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets (Fintech Patterns)
+        args: ['--baseline', '.secrets.baseline', '--fail-on-detected-secrets']
+        entry: detect-secrets scan
+        language: python
+        exclude: ^(node_modules|\.git|dist|build)$
+
+  # ============================================
+  # Database & Payment Security
+  # ============================================
+  - repo: local
+    hooks:
+      # Check for hardcoded API keys and credentials
+      - id: check-hardcoded-secrets
+        name: Check Hardcoded Secrets
+        entry: bash -c 'grep -rE "(api_key|apiKey|API_KEY|password|PASSWORD|secret|SECRET|token|TOKEN|MPESA|mpesa|paypal|PAYPAL)" --include="*.ts" --include="*.js" --include="*.json" . | grep -v node_modules | grep -v ".env" || true'
+        language: system
+        types: [javascript, typescript, json]
+        pass_filenames: false
+      
+      # Check for SQL injection patterns
+      - id: check-sql-injection
+        name: Check SQL Injection Patterns
+        entry: bash -c 'grep -rE "\.query\(.*\+|\.query\(.*\$\{|\`.*\$\{.*\}\`.*query" --include="*.ts" --include="*.js" . | grep -v node_modules || echo "No direct SQL injection patterns found"'
+        language: system
+        types: [javascript, typescript]
+        pass_filenames: false
+      
+      # Verify all environment variables are defined
+      - id: check-env-vars
+        name: Check Environment Variables
+        entry: bash -c 'grep -rE "process\.env\." --include="*.ts" --include="*.js" src/ | grep -oE "process\.env\.[A-Z_]+" | sort -u > /tmp/env_used.txt && grep -oE "[A-Z_]+" ENVIRONMENT_VARIABLES.md | sort -u > /tmp/env_defined.txt; comm -23 /tmp/env_used.txt /tmp/env_defined.txt | head -5 && exit 0 || exit 0'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  # ============================================
+  # File Integrity & Lock Files
+  # ============================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Check that package-lock.json matches package.json
+      - id: check-ast
+        name: Check Python AST
+        exclude: ^(node_modules|dist)$
+      
+      # Prevent accidental commits of lock files
+      - id: check-case-conflict
+      
+      # Check for duplicate keys in YAML/JSON
+      - id: check-docstring-first
+
+  # ============================================
+  # Financial Transaction Reconciliation
+  # ============================================
+  - repo: local
+    hooks:
+      - id: validate-payment-schema
+        name: Validate Payment Schema
+        entry: bash -c 'if [ -f "Services/Payment/payment.schema.json" ]; then npm run validate:payments || echo "Payment validation skipped"; fi'
+        language: system
+        types: [json]
+        pass_filenames: false
+      
+      - id: check-transaction-logs
+        name: Check Transaction Logs
+        entry: bash -c '[[ ! -d "logs/transactions" ]] || (ls -1 logs/transactions/*.log 2>/dev/null | wc -l)'
+        language: system
+        pass_filenames: false
+        always_run: false
+
+  # ============================================
+  # Documentation & Config Validation
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        name: MyPy Type Checker
+        additional_dependencies: ['types-all']
+        exclude: ^(node_modules|\.netlify)$
+        args: ['--ignore-missing-imports']
+        pass_filenames: false

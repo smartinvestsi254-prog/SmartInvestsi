@@ -1,0 +1,28 @@
+{
+  "duplicate_groups": [
+    {
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "canonical": "data/files.json",
+      "remove": [
+        "data/scenarios.json",
+        "transactions.json"
+      ]
+    },
+    {
+      "hash": "e010ec3573578bd7e15cedb47e7186335d5d991dafa4d97b900a95889ec86e5b",
+      "canonical": "logs/Safaricom APIs.postman_collection (1).json",
+      "remove": [
+        "logs/Safaricom APIs.postman_collection (2).json",
+        "logs/Safaricom APIs.postman_collection.json"
+      ]
+    },
+    {
+      "hash": "1f4eb88d9983ac22fbff09e011523361505362966a57a2547e7e2951916f4ea9",
+      "canonical": "tools/simulate_kcb_mark_paid.js",
+      "remove": [
+        "tools/simulate_mpesa_callback.js",
+        "tools/simulate_paypal_webhook.js"
+      ]
+    }
+  ]
+}

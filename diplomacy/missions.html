@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kenya Missions Directory</title>
+  <meta name="description" content="Directory of Kenya diplomatic missions, consular offices, and contact points.">
+  <link rel="stylesheet" href="/public/css/diplomacy.css">
+  <script src="/public/js/diplomacy-data.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell header-inner">
+      <div class="brand">
+        Kenya Diplomacy Portal
+        <span>Missions and Consular Services</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="/diplomacy/index.html">Overview</a>
+        <a class="nav-link active" href="/diplomacy/missions.html">Missions</a>
+        <a class="nav-link" href="/diplomacy/treaties.html">Treaties</a>
+        <a class="nav-link" href="/diplomacy/delegations.html">Delegations</a>
+        <a class="nav-link" href="/diplomacy/documents.html">Documents</a>
+        <a class="nav-link" href="/index.html">SmartInvest</a>
+        <a class="cta" href="/contact.html">Engage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="page-shell hero-grid">
+        <div>
+          <div class="badge">Mission Directory</div>
+          <h1 class="hero-title">Kenya Missions and Consulates</h1>
+          <p class="hero-subtitle">Locate mission leadership, consular services, and regional coordination desks for Kenya abroad.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Search Missions</h3>
+          <p>Filter by region, mission type, or service capability.</p>
+          <div class="form-grid" style="margin-top: 12px;">
+            <input class="input" type="text" placeholder="City or country">
+            <select class="select">
+              <option>Mission type</option>
+              <option>Embassy</option>
+              <option>High Commission</option>
+              <option>Consulate</option>
+            </select>
+            <select class="select">
+              <option>Region</option>
+              <option>Africa</option>
+              <option>Europe</option>
+              <option>Americas</option>
+              <option>Asia Pacific</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell">
+        <h2 class="section-title">Mission Highlights</h2>
+        <div id="missionHighlights" class="grid" style="margin-top: 20px;">
+          <!-- Dynamic mission cards loaded here -->
+          <div class="card">
+            <h3>Loading missions...</h3>
+            <p>Please wait while we fetch mission data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell grid">
+        <div class="card">
+          <h3>Honorary Consuls</h3>
+          <p>Point-of-contact support for citizens in areas without full missions.</p>
+          <ul class="list">
+            <li>Zurich - Consular liaison and diaspora engagement</li>
+            <li>Melbourne - Trade promotion and student services</li>
+            <li>Dubai - Business facilitation and logistics desk</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Mission Update Form</h3>
+          <p>Submit operational updates to headquarters.</p>
+          <div class="form-grid" style="margin-top: 12px;">
+            <input class="input" type="text" placeholder="Mission name">
+            <input class="input" type="text" placeholder="Point of contact">
+            <input class="input" type="text" placeholder="Urgency level">
+            <textarea class="textarea" placeholder="Summary update"></textarea>
+            <button class="btn-primary" type="button">Submit Update</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer-grid">
+      <div>
+        <h3>Mission Support</h3>
+        <p>Operational guidance and consular resources for Kenya missions worldwide.</p>
+      </div>
+      <div>
+        <h4>Directory</h4>
+        <ul class="list">
+          <li><a href="/diplomacy/index.html">Portal Overview</a></li>
+          <li><a href="/diplomacy/treaties.html">Treaty Tracker</a></li>
+          <li><a href="/diplomacy/delegations.html">Delegations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>SmartInvest</h4>
+        <ul class="list">
+          <li><a href="/index.html">SmartInvest Home</a></li>
+          <li><a href="/dashboard.html">Investor Dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Load and display missions on page load
+    async function loadMissionsPage() {
+      const highlightsContainer = document.getElementById('missionHighlights');
+      
+      try {
+        const missions = await window.DiplomacyAPI.loadMissions();
+        
+        if (missions.length === 0) {
+          highlightsContainer.innerHTML = `
+            <div class="card">
+              <h3>No missions found</h3>
+              <p>No diplomatic missions are currently registered in the system.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Render mission cards
+        highlightsContainer.innerHTML = missions.map(mission => `
+          <div class="card">
+            <h3>${mission.city || 'Unknown City'} ${mission.country || ''}</h3>
+            <p><strong>${window.DiplomacyAPI.formatMissionType(mission.type)}</strong></p>
+            <p>${mission.description || 'Mission information not available.'}</p>
+            <ul class="list">
+              ${mission.contactEmail ? `<li>Email: ${mission.contactEmail}</li>` : ''}
+              ${mission.contactPhone ? `<li>Phone: ${mission.contactPhone}</li>` : ''}
+              ${mission.region ? `<li>Region: ${mission.region}</li>` : ''}
+            </ul>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Failed to load missions:', error);
+        highlightsContainer.innerHTML = `
+          <div class="card">
+            <h3>Error loading missions</h3>
+            <p>Unable to fetch mission data at this time. Please try again later.</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Load on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadMissionsPage);
+    } else {
+      loadMissionsPage();
+    }
+  </script>
+</body>
+</html>

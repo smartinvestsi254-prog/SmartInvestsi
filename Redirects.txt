@@ -1,0 +1,5 @@
+# SPA Routing for Netlify
+/*    /index.html   200
+
+# Admin API routes
+/api/*  /.netlify/functions/:splat  200

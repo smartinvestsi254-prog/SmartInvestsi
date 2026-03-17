@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Optimization Strategies | SmartInvestsi Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0B1F33 0%, #1a365d 100%);
+      color: #333;
+      padding: 20px;
+    }
+    
+    .brochure-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    
+    .brochure-header {
+      background: linear-gradient(135deg, #0B1F33 0%, #1a365d 100%);
+      color: white;
+      padding: 40px;
+    }
+    
+    .logo {
+      color: #D4AF37;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+    
+    .brochure-meta {
+      display: flex;
+      gap: 30px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    .brochure-content {
+      padding: 40px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0B1F33;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #D4AF37;
+    }
+    
+    .strategy-card {
+      background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      border-left: 5px solid #0891b2;
+    }
+    
+    .strategy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .strategy-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0B1F33;
+    }
+    
+    .complexity-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .complexity-beginner {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .complexity-intermediate {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .complexity-advanced {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .strategy-content p {
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 15px;
+    }
+    
+    .benefits-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .benefit-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+    }
+    
+    .benefit-icon {
+      width: 24px;
+      height: 24px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .allocation-chart {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+    }
+    
+    .allocation-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+    
+    .allocation-label {
+      width: 180px;
+      font-weight: 600;
+      color: #0B1F33;
+    }
+    
+    .allocation-bar {
+      flex: 1;
+      height: 30px;
+      background: #e5e7eb;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .allocation-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #D4AF37, #f4d03f);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+      color: #0B1F33;
+      font-weight: 700;
+      font-size: 14px;
+      transition: width 1s ease;
+    }
+    
+    .rebalancing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .rebalancing-table th,
+    .rebalancing-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .rebalancing-table th {
+      background: #0B1F33;
+      color: white;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    
+    .rebalancing-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .action-required {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    
+    .action-complete {
+      color: #10b981;
+      font-weight: 600;
+    }
+    
+    .calculator-widget {
+      background: linear-gradient(145deg, #0891b2 0%, #0e7490 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+    
+    .calculator-widget h3 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+    
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      background: rgba(255,255,255,0.9);
+    }
+    
+    .calculate-btn {
+      background: #D4AF37;
+      color: #0B1F33;
+      padding: 14px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .calculate-btn:hover {
+      background: #f4d03f;
+      transform: translateY(-2px);
+    }
+    
+    .result-display {
+      margin-top: 25px;
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .result-display.show {
+      display: block;
+    }
+    
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .brochure-footer {
+      background: #f8f9fa;
+      padding: 30px 40px;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    .disclaimer {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .footer-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: #D4AF37;
+      color: #0B1F33;
+    }
+    
+    .btn-primary:hover {
+      background: #f4d03f;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #0B1F33;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #1a365d;
+      transform: translateY(-2px);
+    }
+    
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .footer-actions {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .brochure-header, .brochure-content {
+        padding: 25px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      .allocation-label {
+        width: 120px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="brochure-container">
+    <!-- Header -->
+    <div class="brochure-header">
+      <div class="logo">SmartInvest</div>
+      <h1>Portfolio Optimization Strategies</h1>
+      <p class="subtitle">Advanced techniques to maximize returns and minimize risk</p>
+      <div class="brochure-meta">
+        <div>📊 Brochure #3</div>
+        <div>📅 Delivered Week 3</div>
+        <div>🎯 5 Proven Strategies</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="brochure-content">
+      <!-- Introduction -->
+      <section class="section">
+        <h2 class="section-title">Why Portfolio Optimization Matters</h2>
+        <p style="line-height: 1.8; color: #444; font-size: 15px;">
+          Portfolio optimization is the process of selecting the best mix of investments to achieve your financial goals 
+          while managing risk appropriately. A well-optimized portfolio can increase returns by 15-30% annually while 
+          reducing volatility by up to 40%. This brochure presents five proven strategies used by institutional investors, 
+          adapted for individual portfolios in African and emerging markets.
+        </p>
+      </section>
+
+      <!-- Strategy 1: Modern Portfolio Theory -->
+      <section class="section">
+        <div class="strategy-card">
+          <div class="strategy-header">
+            <h3 class="strategy-title">1. Modern Portfolio Theory (MPT)</h3>
+            <span class="complexity-badge complexity-intermediate">Intermediate</span>
+          </div>
+          <div class="strategy-content">
+            <p>
+              <strong>Overview:</strong> MPT focuses on maximizing expected return for a given level of risk by diversifying 
+              across uncorrelated assets. The goal is to construct an "efficient frontier" of optimal portfolios.
+            </p>
+            <p>
+              <strong>Application:</strong> Combine African equities (high risk/return) with government bonds (low risk) and 
+              international ETFs (diversification) to create a balanced portfolio that matches your risk tolerance.
+            </p>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Reduces portfolio volatility by 25-35%</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Mathematically optimized asset allocation</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Suitable for investors with 5+ year horizon</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Can be rebalanced quarterly</div>
+              </div>
+            </div>
+            
+            <div class="allocation-chart">
+              <h4 style="margin-bottom: 20px; color: #0B1F33;">Sample MPT Portfolio Allocation</h4>
+              <div class="allocation-row">
+                <div class="allocation-label">African Equities</div>
+                <div class="allocation-bar">
+                  <div class="allocation-fill" style="width: 40%;">40%</div>
+                </div>
+              </div>
+              <div class="allocation-row">
+                <div class="allocation-label">Government Bonds</div>
+                <div class="allocation-bar">
+                  <div class="allocation-fill" style="width: 25%;">25%</div>
+                </div>
+              </div>
+              <div class="allocation-row">
+                <div class="allocation-label">International ETFs</div>
+                <div class="allocation-bar">
+                  <div class="allocation-fill" style="width: 20%;">20%</div>
+                </div>
+              </div>
+              <div class="allocation-row">
+                <div class="allocation-label">Real Estate</div>
+                <div class="allocation-bar">
+                  <div class="allocation-fill" style="width: 10%;">10%</div>
+                </div>
+              </div>
+              <div class="allocation-row">
+                <div class="allocation-label">Cash/Alternatives</div>
+                <div class="allocation-bar">
+                  <div class="allocation-fill" style="width: 5%;">5%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 2 -->
+        <div class="strategy-card">
+          <div class="strategy-header">
+            <h3 class="strategy-title">2. Core-Satellite Strategy</h3>
+            <span class="complexity-badge complexity-beginner">Beginner</span>
+          </div>
+          <div class="strategy-content">
+            <p>
+              <strong>Overview:</strong> Build a "core" of low-cost index funds (70-80% of portfolio) and add "satellites" 
+              of high-conviction active investments (20-30%) for enhanced returns.
+            </p>
+            <p>
+              <strong>Application:</strong> Use NSE-20 Index or JSE Top 40 as core holdings, then add satellites like 
+              fintech stocks, renewable energy funds, or specific growth opportunities.
+            </p>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Lower fees with index core</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Outperformance potential from satellites</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Easy to implement and manage</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Suitable for all experience levels</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 3 -->
+        <div class="strategy-card">
+          <div class="strategy-header">
+            <h3 class="strategy-title">3. Tactical Asset Allocation</h3>
+            <span class="complexity-badge complexity-advanced">Advanced</span>
+          </div>
+          <div class="strategy-content">
+            <p>
+              <strong>Overview:</strong> Actively adjust portfolio weights based on market conditions, economic indicators, 
+              and valuation metrics to capture short-term opportunities.
+            </p>
+            <p>
+              <strong>Application:</strong> Overweight emerging sectors (e.g., African fintech) during growth phases, 
+              shift to defensive assets when valuations are stretched or economic headwinds appear.
+            </p>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Potential for excess returns of 3-7% annually</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Flexibility to respond to market changes</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Requires active monitoring and expertise</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Monthly rebalancing recommended</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 4 -->
+        <div class="strategy-card">
+          <div class="strategy-header">
+            <h3 class="strategy-title">4. Risk Parity Approach</h3>
+            <span class="complexity-badge complexity-advanced">Advanced</span>
+          </div>
+          <div class="strategy-content">
+            <p>
+              <strong>Overview:</strong> Allocate capital based on risk contribution rather than dollar amounts. Each asset 
+              class contributes equally to portfolio risk, creating more balanced exposure.
+            </p>
+            <p>
+              <strong>Application:</strong> Increase allocation to lower-volatility bonds and reduce high-volatility equities 
+              to ensure each asset contributes ~25% of total portfolio risk.
+            </p>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Superior risk-adjusted returns</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Performs well in volatile markets</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Requires volatility calculations</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Quarterly rebalancing optimal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 5 -->
+        <div class="strategy-card">
+          <div class="strategy-header">
+            <h3 class="strategy-title">5. ESG-Integrated Optimization</h3>
+            <span class="complexity-badge complexity-intermediate">Intermediate</span>
+          </div>
+          <div class="strategy-content">
+            <p>
+              <strong>Overview:</strong> Incorporate Environmental, Social, and Governance (ESG) factors into portfolio 
+              construction while maintaining competitive returns. ESG funds have outperformed traditional funds by 2-4% 
+              annually over the past 5 years.
+            </p>
+            <p>
+              <strong>Application:</strong> Screen investments for ESG compliance, overweight solar energy, sustainable 
+              agriculture, and companies with strong governance. Avoid extractive industries with poor environmental records.
+            </p>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Alignment with sustainable development goals</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Lower long-term risk exposure</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Growing investor demand and capital flows</div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>Positive social and environmental impact</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rebalancing Guide -->
+      <section class="section">
+        <h2 class="section-title">Portfolio Rebalancing Calendar</h2>
+        <p style="margin-bottom: 20px; line-height: 1.7; color: #444;">
+          Rebalancing maintains your target allocation as market movements shift your portfolio. Here's a recommended calendar:
+        </p>
+        
+        <table class="rebalancing-table">
+          <thead>
+            <tr>
+              <th>Time Period</th>
+              <th>Action Required</th>
+              <th>Target Drift</th>
+              <th>Estimated Time</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Monthly</strong></td>
+              <td>Review performance & news</td>
+              <td>Monitor only</td>
+              <td>30 minutes</td>
+              <td><span class="action-complete">✓ Low</span></td>
+            </tr>
+            <tr>
+              <td><strong>Quarterly</strong></td>
+              <td>Rebalance if drift > 5%</td>
+              <td>± 5%</td>
+              <td>2 hours</td>
+              <td><span class="action-required">⚠ High</span></td>
+            </tr>
+            <tr>
+              <td><strong>Semi-Annual</strong></td>
+              <td>Full portfolio review</td>
+              <td>± 3%</td>
+              <td>4 hours</td>
+              <td><span class="action-required">⚠ High</span></td>
+            </tr>
+            <tr>
+              <td><strong>Annual</strong></td>
+              <td>Strategy reassessment</td>
+              <td>Full rebalance</td>
+              <td>1 day</td>
+              <td><span class="action-required">⚠ Critical</span></td>
+            </tr>
+            <tr>
+              <td><strong>Ad-hoc</strong></td>
+              <td>Major life events</td>
+              <td>As needed</td>
+              <td>Varies</td>
+              <td><span class="action-complete">✓ Variable</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Interactive Calculator -->
+      <div class="calculator-widget">
+        <h3>📊 Portfolio Rebalancing Calculator</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label>Current Portfolio Value ($)</label>
+            <input type="number" id="portfolioValue" placeholder="100000">
+          </div>
+          <div class="input-group">
+            <label>Target Equity Allocation (%)</label>
+            <input type="number" id="targetEquity" placeholder="60">
+          </div>
+          <div class="input-group">
+            <label>Current Equity Value ($)</label>
+            <input type="number" id="currentEquity" placeholder="65000">
+          </div>
+        </div>
+        <button class="calculate-btn" onclick="calculateRebalance()">Calculate Rebalance Needed</button>
+        
+        <div class="result-display" id="resultDisplay">
+          <div class="result-item">
+            <span>Current Equity Allocation:</span>
+            <strong id="currentAllocation">-</strong>
+          </div>
+          <div class="result-item">
+            <span>Target Equity Allocation:</span>
+            <strong id="targetAllocation">-</strong>
+          </div>
+          <div class="result-item">
+            <span>Drift:</span>
+            <strong id="drift">-</strong>
+          </div>
+          <div class="result-item">
+            <span>Action Required:</span>
+            <strong id="action">-</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="brochure-footer">
+      <p class="disclaimer">
+        <strong>Disclaimer:</strong> This brochure is for educational purposes only. Portfolio optimization strategies carry risk 
+        and may not be suitable for all investors. Past performance does not guarantee future results. Consult with a qualified 
+        financial advisor before implementing these strategies. SmartInvest is not a registered investment advisor.
+      </p>
+      <div class="footer-actions">
+        <button class="btn btn-primary" onclick="window.print()">📄 Download PDF</button>
+        <button class="btn btn-secondary" onclick="window.location.href='/calculator.html'">🧮 Advanced Calculators</button>
+        <button class="btn btn-secondary" onclick="window.location.href='/dashboard.html'">📊 My Portfolio</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateRebalance() {
+      const portfolioValue = parseFloat(document.getElementById('portfolioValue').value);
+      const targetEquity = parseFloat(document.getElementById('targetEquity').value);
+      const currentEquity = parseFloat(document.getElementById('currentEquity').value);
+      
+      if (!portfolioValue || !targetEquity || !currentEquity) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      const currentAllocation = (currentEquity / portfolioValue * 100).toFixed(2);
+      const drift = (currentAllocation - targetEquity).toFixed(2);
+      const targetEquityValue = (portfolioValue * targetEquity / 100).toFixed(2);
+      const difference = (currentEquity - targetEquityValue).toFixed(2);
+      
+      document.getElementById('currentAllocation').textContent = currentAllocation + '%';
+      document.getElementById('targetAllocation').textContent = targetEquity + '%';
+      document.getElementById('drift').textContent = drift + '% (' + (drift > 0 ? 'overweight' : 'underweight') + ')';
+      
+      let action = '';
+      if (Math.abs(drift) < 3) {
+        action = '✓ No action needed (drift < 3%)';
+      } else if (Math.abs(drift) < 5) {
+        action = '⚠ Consider rebalancing (drift 3-5%)';
+      } else {
+        if (difference > 0) {
+          action = `⚠ SELL $${Math.abs(difference)} in equities`;
+        } else {
+          action = `⚠ BUY $${Math.abs(difference)} in equities`;
+        }
+      }
+      
+      document.getElementById('action').textContent = action;
+      document.getElementById('resultDisplay').classList.add('show');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+@model SmartInvest.Services.Analytics.AnalyticsSummary
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <h1>Admin Dashboard</h1>
+    <p>Platform Overview and Analytics</p>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h5 class="stat-label">Total Users</h5>
+                    <p class="stat-number">@Model.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card">
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Payment Methods</h5>
+                    <span class="text-muted small">Unavailable methods are visible but disabled</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>M‑Pesa (Kenya)</strong>
+                                    <span class="badge bg-success">Live</span>
+                                </div>
+                                <p class="text-muted small mb-2">Local M‑Pesa payments are available.</p>
+                                <button id="mpesaPayBtn" class="btn btn-primary w-100">Pay now</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>KCB Bank (Kenya)</strong>
+                                    <span class="badge bg-success">Live</span>
+                                </div>
+                                <p class="text-muted small mb-2">Local KCB bank payments are available.</p>
+                                <button id="kcbPayBtn" class="btn btn-primary w-100">Pay now</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>M‑Pesa (International)</strong>
+                                    <span class="badge bg-secondary">Coming soon</span>
+                                </div>
+                                <p class="text-muted small mb-2">Not yet available for other countries.</p>
+                                <button class="btn btn-outline-secondary w-100" disabled aria-disabled="true" title="Unavailable">Unavailable</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Card (Visa/Mastercard)</strong>
+                                    <span class="badge bg-secondary">Coming soon</span>
+                                </div>
+                                <p class="text-muted small mb-2">Cards will be integrated later.</p>
+                                <button class="btn btn-outline-secondary w-100" disabled aria-disabled="true" title="Unavailable">Unavailable</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>PayPal</strong>
+                                    <span class="badge bg-secondary">Coming soon</span>
+                                </div>
+                                <p class="text-muted small mb-2">PayPal will be integrated later.</p>
+                                <button class="btn btn-outline-secondary w-100" disabled aria-disabled="true" title="Unavailable">Unavailable</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Stripe</strong>
+                                    <span class="badge bg-secondary">Coming soon</span>
+                                </div>
+                                <p class="text-muted small mb-2">Stripe will be integrated later.</p>
+                                <button class="btn btn-outline-secondary w-100" disabled aria-disabled="true" title="Unavailable">Unavailable</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="payment-method-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Flutterwave</strong>
+                                    <span class="badge bg-secondary">Coming soon</span>
+                                </div>
+                                <p class="text-muted small mb-2">Flutterwave will be integrated later.</p>
+                                <button class="btn btn-outline-secondary w-100" disabled aria-disabled="true" title="Unavailable">Unavailable</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                <div class="card-body text-center">
+                    <h5 class="stat-label">Active Users</h5>
+                    <p class="stat-number">@Model.ActiveUsers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+    
+    .payment-method-card {
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 8px;
+        padding: 12px;
+        block-size: 100%;
+        background: #fff;
+    }
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h5 class="stat-label">Total Investments</h5>
+                    <p class="stat-number">@Model.TotalInvestments.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h5 class="stat-label">Revenue</h5>
+                    <p class="stat-number">@Model.TotalRevenue.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a asp-action="Users" class="btn btn-primary mb-2 w-100">Manage Users</a>
+                    <a asp-action="Transactions" class="btn btn-secondary mb-2 w-100">View Transactions</a>
+                    <a asp-action="Partners" class="btn btn-secondary mb-2 w-100">Manage Partners</a>
+                    <a asp-action="Compliance" class="btn btn-secondary w-100">Compliance Review</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No recent activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: var(--gradient-corporate);
+        color: white;
+        margin-block-end: 20px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+        margin: 0;
+    }
+    
+    .stat-label {
+        opacity: 0.9;
+        margin-block-end: 10px;
+    }
+</style>
+
+<script>
+    // Simple feature flags (visibility only)
+    const paymentFlags = {
+        kenyaLive: true,
+        otherCountriesVisible: true
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const mpBtn = document.getElementById('mpesaPayBtn');
+        if (mpBtn) {
+            mpBtn.addEventListener('click', async () => {
+                try {
+                    const phone = prompt('Enter phone (2547XXXXXXXX)');
+                    if (!phone) return;
+                    const amtStr = prompt('Enter amount in KES', '1000');
+                    const amount = Number(amtStr || '1000');
+                    mpBtn.disabled = true; mpBtn.textContent = 'Sending...';
+                    const res = await fetch('/api/pay/mpesa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone, amount, accountReference: 'SmartInvest' })
+                    });
+                    let data = {};
+                    try { data = await res.json(); } catch {}
+                    if (res.ok) {
+                        alert('M-Pesa STK Push sent. Complete on your phone.');
+                    } else {
+                        alert('M-Pesa error: ' + (data.error || res.status));
+                    }
+                } catch (e) {
+                    alert('M-Pesa network error');
+                } finally {
+                    mpBtn.disabled = false; mpBtn.textContent = 'Pay now';
+                }
+            });
+        }
+
+        const kcbBtn = document.getElementById('kcbPayBtn');
+        if (kcbBtn) {
+            kcbBtn.addEventListener('click', async () => {
+                const name = prompt('Your full name');
+                const email = prompt('Your email');
+                const amtStr = prompt('Amount in KES', '1000');
+                const amount = Number(amtStr || '1000');
+                const reference = prompt('Reference (optional)', '');
+                if (!name || !email || !amount) { alert('Name, email and amount are required'); return; }
+                try {
+                    kcbBtn.disabled = true; kcbBtn.textContent = 'Recording...';
+                    const res = await fetch('/api/pay/kcb/manual', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, amount, reference })
+                    });
+                    let data = {};
+                    try { data = await res.json(); } catch {}
+                    if (res.ok && data.success) {
+                        alert('Transfer recorded. Please complete payment to the provided KCB account.');
+                    } else {
+                        alert('KCB error: ' + (data.error || res.status));
+                    }
+                } catch (e) {
+                    alert('KCB network error');
+                } finally {
+                    kcbBtn.disabled = false; kcbBtn.textContent = 'Pay now';
+                }
+            });
+        }
+    });
+</script>

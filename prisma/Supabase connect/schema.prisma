@@ -1,0 +1,1406 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// ===========================================
+// PRISMA SCHEMA - SmartInvestsi
+// Database: PostgreSQL on Supabase
+// ===========================================
+
+generator client {
+  provider = "prisma-client-js"
+  // Optimize for serverless/edge deployments
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  // Supabase PostgreSQL connection configuration
+  // DATABASE_URL: Use connection pooling (port 6543) for app queries
+  // DIRECT_URL: Use direct connection (port 5432) for migrations
+  // SSL/TLS enabled by default
+  // Example: postgresql://postgres.ref:pass@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true
+}
+
+// ===========================================
+// USER MANAGEMENT
+// ===========================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String?
+  emailVerified Boolean @default(false)
+  role      UserRole @default(VIEWER)
+  resetToken String?  @unique
+  resetExpires DateTime?
+  confirmToken String?  @unique
+  confirmExpires DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workflowsLocked     Workflow[]        @relation("LockedWorkflows")
+
+// new key/value store for application-wide configuration (used for fallback/crisis flag)
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+  workflowEvents      WorkflowEvent[]
+  approvals           WorkflowApproval[]
+  reportedIncidents   Incident[]        @relation("ReportedIncidents")
+  ownedIncidents      Incident[]        @relation("OwnedIncidents")
+  profile             UserProfile?
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  REVIEWER
+  ANALYST
+  INCIDENT_COMMANDER
+  VIEWER
+}
+
+// User Profile for Investment Dashboard Personalization
+model UserProfile {
+  id                String    @id @default(uuid())
+  userId            String?   @unique // Optional for guest profiles
+  email             String    @unique
+  investmentGoal    String?   // User's primary investment goal
+  timeHorizon       String?   // Investment time horizon (e.g., "short-term", "long-term")
+  riskTolerance     String?   // Risk profile (e.g., "conservative", "moderate", "aggressive")
+  preferredRegion   String?   // Preferred investment region
+  portfolioValue    Float?    // Current portfolio value
+  monthlyIncome     Float?    // Monthly income for savings tracking
+  preferences       Json?     // Flexible JSON for additional preferences
+  premiumAccess     Boolean   @default(false)
+  premiumExpiry     DateTime?
+  lastUpdated       DateTime  @updatedAt
+  createdAt         DateTime  @default(now())
+}
+
+model ContentItem {
+  id        String        @id @default(uuid())
+  state     WorkflowState @default(DRAFT)
+  version   Int           @default(1)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  workflow Workflow?
+}
+
+enum WorkflowState {
+  DRAFT
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  REJECTED
+}
+
+model Workflow {
+  id         String        @id @default(uuid())
+  contentId  String        @unique
+  state      WorkflowState @default(DRAFT)
+  lockedById String?
+  lockedAt   DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  content    ContentItem        @relation(fields: [contentId], references: [id])
+  lockedBy   User?              @relation("LockedWorkflows", fields: [lockedById], references: [id])
+  events     WorkflowEvent[]
+  approvals  WorkflowApproval[]
+}
+
+model WorkflowEvent {
+  id         String        @id @default(uuid())
+  workflowId String
+  actorId    String
+  fromState  WorkflowState
+  toState    WorkflowState
+  reason     String?
+  meta       Json?
+  createdAt  DateTime      @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+  actor    User     @relation(fields: [actorId], references: [id])
+}
+
+model WorkflowApproval {
+  id         String   @id @default(uuid())
+  workflowId String
+  reviewerId String
+  decision   String
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+  reviewer User     @relation(fields: [reviewerId], references: [id])
+}
+
+model Incident {
+  id           String           @id @default(uuid())
+  title        String
+  summary      String
+  severity     IncidentSeverity
+  status       IncidentStatus   @default(OPEN)
+  reportedById String
+  ownerId      String?
+  runbookKey   String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  mitigatedAt  DateTime?
+  resolvedAt   DateTime?
+  closedAt     DateTime?
+
+  reportedBy User            @relation("ReportedIncidents", fields: [reportedById], references: [id])
+  owner      User?           @relation("OwnedIncidents", fields: [ownerId], references: [id])
+  timeline   IncidentEvent[]
+  updates    IncidentUpdate[]
+}
+
+enum IncidentSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  MITIGATING
+  RESOLVED
+  CLOSED
+}
+
+model IncidentEvent {
+  id         String   @id @default(uuid())
+  incidentId String
+  message    String
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+model IncidentUpdate {
+  id           String         @id @default(uuid())
+  incidentId   String
+  status       IncidentStatus
+  publicNote   String?
+  internalNote String?
+  createdAt    DateTime       @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+model Partner {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  licenses DataLicense[]
+}
+
+model DataLicense {
+  id                 String            @id @default(uuid())
+  partnerId          String
+  status             LicenseStatus     @default(ACTIVE)
+  allowedPurposes    DataUsagePurpose[]
+  attributionRequired Boolean          @default(false)
+  attributionText    String?
+  allowRedistribution Boolean          @default(false)
+  rateLimitPerMin    Int?
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  partner      Partner            @relation(fields: [partnerId], references: [id])
+  entitlements DataEntitlement[]
+  usageLogs    DataUsageLog[]
+}
+
+enum LicenseStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum DataUsagePurpose {
+  ANALYTICS
+  DISPLAY
+  REDISTRIBUTION
+  INTERNAL
+}
+
+model DataEntitlement {
+  id        String   @id @default(uuid())
+  licenseId String
+  datasetKey String
+  createdAt DateTime @default(now())
+
+  license DataLicense @relation(fields: [licenseId], references: [id])
+}
+
+model DataUsageLog {
+  id          String            @id @default(uuid())
+  licenseId   String?
+  datasetKey  String
+  purpose     DataUsagePurpose
+  actorUserId String?
+  ip          String?
+  userAgent   String?
+  requestMeta Json?
+  createdAt   DateTime          @default(now())
+
+  license DataLicense? @relation(fields: [licenseId], references: [id])
+}
+
+// ===========================================
+// DIPLOMACY PORTAL
+// ===========================================
+
+model DiplomacyMission {
+  id           String        @id @default(uuid())
+  name         String
+  country      String
+  city         String
+  region       String?
+  type         MissionType
+  status       MissionStatus @default(ACTIVE)
+  contactEmail String?
+  contactPhone String?
+  focusArea    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum MissionType {
+  EMBASSY
+  HIGH_COMMISSION
+  CONSULATE
+  PERMANENT_MISSION
+  HONORARY_CONSULATE
+}
+
+enum MissionStatus {
+  ACTIVE
+  PAUSED
+  PLANNING
+}
+
+model DiplomacyTreaty {
+  id            String       @id @default(uuid())
+  title         String
+  partner       String
+  sector        String
+  status        TreatyStatus @default(NEGOTIATION)
+  signedAt      DateTime?
+  nextMilestone String?
+  summary       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum TreatyStatus {
+  NEGOTIATION
+  SIGNED
+  RATIFIED
+  IN_REVIEW
+  IMPLEMENTATION
+  EXPIRED
+}
+
+model DiplomacyDelegation {
+  id           String            @id @default(uuid())
+  name         String
+  focus        String
+  hostCity     String
+  hostCountry  String
+  leadMinistry String
+  status       DelegationStatus  @default(PLANNED)
+  startDate    DateTime
+  endDate      DateTime
+  objectives   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+enum DelegationStatus {
+  PLANNED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model DiplomacyDocument {
+  id             String            @id @default(uuid())
+  title          String
+  category       DocumentCategory
+  classification DocumentClass     @default(RESTRICTED)
+  ownerDept      String
+  summary        String?
+  linkUrl        String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+enum DocumentCategory {
+  BRIEFING_NOTE
+  PROTOCOL_GUIDE
+  TREATY_DRAFT
+  ECONOMIC_DIPLOMACY
+  OTHER
+}
+
+enum DocumentClass {
+  PUBLIC
+  RESTRICTED
+  CONFIDENTIAL
+}
+
+// ===========================================
+// SUBSCRIPTION & TIER MANAGEMENT (NEW)
+// ===========================================
+
+model SubscriptionTier {
+  id                String   @id @default(uuid())
+  name              String   @unique // FREE, PREMIUM, ENTERPRISE
+  displayName       String
+  monthlyPrice      Float
+  annualPrice       Float
+  description       String?
+  features          Json     // Array of feature names
+  limits            Json     // Portfolio limits, API calls, etc.
+  isActive          Boolean  @default(true)
+  displayOrder      Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  subscriptions     Subscription[]
+}
+
+model Subscription {
+  id                String           @id @default(uuid())
+  userEmail         String
+  tierId            String
+  status            SubscriptionStatus @default(ACTIVE)
+  startDate         DateTime         @default(now())
+  endDate           DateTime?
+  autoRenew         Boolean          @default(false)
+  paymentMethod     String?
+  lastPaymentDate   DateTime?
+  nextBillingDate   DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  tier              SubscriptionTier @relation(fields: [tierId], references: [id])
+  transactions      SubscriptionTransaction[]
+
+  @@index([userEmail, status])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+model SubscriptionTransaction {
+  id              String   @id @default(uuid())
+  subscriptionId  String
+  amount          Float
+  currency        String   @default("USD")
+  status          String   // SUCCESS, PENDING, FAILED
+  paymentMethod   String
+  transactionId   String?  // External payment gateway ID
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  subscription    Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+// ===========================================
+// PORTFOLIO MANAGEMENT (NEW)
+// ===========================================
+
+model Portfolio {
+  id                String   @id @default(uuid())
+  userEmail         String
+  name              String
+  description       String?
+  currency          String   @default("USD")
+  totalValue        Float    @default(0)
+  cashBalance       Float    @default(0)
+  isDefault         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  targetAllocation  Json?    // Asset allocation targets
+  rebalanceSettings Json?    // Rebalancing preferences
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  holdings          Holding[]
+  transactions      Transaction[]
+  performances      PortfolioPerformance[]
+  rebalances        Rebalance[]
+
+  @@index([userEmail])
+}
+
+model Holding {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  symbol            String   // Stock symbol (e.g., AAPL, TSLA)
+  assetType         AssetType
+  quantity          Float
+  averageCost       Float
+  currentPrice      Float    @default(0)
+  marketValue       Float    @default(0)
+  costBasis         Float    @default(0)
+  unrealizedGain    Float    @default(0)
+  unrealizedGainPct Float    @default(0)
+  allocation        Float    @default(0) // % of portfolio
+  lastPriceUpdate   DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  dividends         Dividend[]
+  
+  @@index([portfolioId, symbol])
+}
+
+enum AssetType {
+  STOCK
+  ETF
+  MUTUAL_FUND
+  BOND
+  CRYPTO
+  REIT
+  COMMODITY
+  CASH
+  OTHER
+}
+
+model Transaction {
+  id                String          @id @default(uuid())
+  portfolioId       String
+  symbol            String
+  type              TransactionType
+  quantity          Float
+  price             Float
+  fees              Float           @default(0)
+  totalAmount       Float
+  notes             String?
+  executedAt        DateTime        @default(now())
+  createdAt         DateTime        @default(now())
+
+  portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, executedAt])
+}
+
+enum TransactionType {
+  BUY
+  SELL
+  DIVIDEND
+  DEPOSIT
+  WITHDRAWAL
+  FEE
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+model PortfolioPerformance {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  date              DateTime
+  totalValue        Float
+  cashBalance       Float
+  investedAmount    Float
+  gainLoss          Float
+  gainLossPct       Float
+  dailyReturn       Float?
+  createdAt         DateTime @default(now())
+
+  portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, date])
+}
+
+model Rebalance {
+  id                String          @id @default(uuid())
+  portfolioId       String
+  status            RebalanceStatus @default(PROPOSED)
+  proposedTrades    Json            // Array of proposed trades
+  executedTrades    Json?           // Array of executed trades
+  reason            String?
+  proposedAt        DateTime        @default(now())
+  executedAt        DateTime?
+  createdAt         DateTime        @default(now())
+
+  portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}
+
+enum RebalanceStatus {
+  PROPOSED
+  APPROVED
+  EXECUTED
+  REJECTED
+  CANCELLED
+}
+
+// ===========================================
+// DIVIDEND TRACKING (NEW)
+// ===========================================
+
+model Dividend {
+  id                String   @id @default(uuid())
+  holdingId         String
+  symbol            String
+  amount            Float
+  currency          String   @default("USD")
+  exDate            DateTime
+  paymentDate       DateTime
+  declaredDate      DateTime?
+  frequency         String?  // MONTHLY, QUARTERLY, ANNUAL
+  isReinvested      Boolean  @default(false)
+  status            String   @default("PENDING") // PENDING, PAID, CANCELLED
+  createdAt         DateTime @default(now())
+
+  holding           Holding @relation(fields: [holdingId], references: [id], onDelete: Cascade)
+
+  @@index([symbol, exDate])
+}
+
+// ===========================================
+// PRICE ALERTS (NEW)
+// ===========================================
+
+model PriceAlert {
+  id                String      @id @default(uuid())
+  userEmail         String
+  symbol            String
+  targetPrice       Float
+  condition         AlertCondition // ABOVE, BELOW, CROSSES
+  isActive          Boolean     @default(true)
+  isTriggered       Boolean     @default(false)
+  notifyEmail       Boolean     @default(true)
+  notifySMS         Boolean     @default(false)
+  notifyApp         Boolean     @default(true)
+  triggeredAt       DateTime?
+  triggeredPrice    Float?
+  expiresAt         DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  notifications     AlertNotification[]
+
+  @@index([userEmail, isActive])
+  @@index([symbol, isActive])
+}
+
+enum AlertCondition {
+  ABOVE
+  BELOW
+  CROSSES
+  PERCENT_CHANGE
+}
+
+model AlertNotification {
+  id                String   @id @default(uuid())
+  alertId           String
+  channel           String   // EMAIL, SMS, PUSH, WHATSAPP
+  sentAt            DateTime @default(now())
+  status            String   // SENT, FAILED
+  errorMessage      String?
+
+  alert             PriceAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+}
+
+// ===========================================
+// NEWS & MARKET DATA (NEW)
+// ===========================================
+
+model NewsArticle {
+  id                String   @id @default(uuid())
+  title             String
+  summary           String?
+  content           String?
+  source            String
+  author            String?
+  publishedAt       DateTime
+  url               String
+  imageUrl          String?
+  symbols           String[] // Related stock symbols
+  categories        String[] // MARKET, CRYPTO, FOREX, etc.
+  sentiment         String?  // POSITIVE, NEGATIVE, NEUTRAL
+  sentimentScore    Float?
+  isBreaking        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([publishedAt])
+  @@index([symbols])
+}
+
+model MarketData {
+  id                String   @id @default(uuid())
+  symbol            String
+  exchange          String?
+  price             Float
+  open              Float?
+  high              Float?
+  low               Float?
+  close             Float?
+  volume            BigInt?
+  change            Float?
+  changePercent     Float?
+  marketCap         Float?
+  peRatio           Float?
+  dividendYield     Float?
+  week52High        Float?
+  week52Low         Float?
+  timestamp         DateTime
+  createdAt         DateTime @default(now())
+
+  @@index([symbol, timestamp])
+  @@unique([symbol, timestamp])
+}
+
+// ===========================================
+// SOCIAL TRADING & COPY TRADING (NEW)
+// ===========================================
+
+model Trader {
+  id                String   @id @default(uuid())
+  userEmail         String   @unique
+  displayName       String
+  bio               String?
+  avatarUrl         String?
+  isVerified        Boolean  @default(false)
+  isPublic          Boolean  @default(false)
+  totalReturn       Float    @default(0)
+  sharpeRatio       Float?
+  maxDrawdown       Float?
+  winRate           Float?
+  followerCount     Int      @default(0)
+  totalTrades       Int      @default(0)
+  riskLevel         Int      @default(3) // 1-5
+  preferredAssets   String[] // Asset types they trade
+  expertise         String[] // Tags like "day trading", "growth stocks"
+  joinedAt          DateTime @default(now())
+  lastActiveAt      DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  trades            TraderTrade[]
+  followers         CopyTrader[]
+  performance       TraderPerformance[]
+  socialPosts       SocialPost[]
+}
+
+model TraderTrade {
+  id                String   @id @default(uuid())
+  traderId          String
+  symbol            String
+  action            String   // BUY, SELL
+  quantity          Float
+  price             Float
+  profit            Float?
+  profitPct         Float?
+  strategy          String?
+  notes             String?
+  isPublic          Boolean  @default(true)
+  executedAt        DateTime @default(now())
+  closedAt          DateTime?
+  createdAt         DateTime @default(now())
+
+  trader            Trader @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  
+  @@index([traderId, executedAt])
+  @@index([symbol])
+}
+
+model CopyTrader {
+  id                String   @id @default(uuid())
+  followerEmail     String
+  traderId          String
+  allocatedAmount   Float    // Amount allocated to copy trading
+  maxTradeSize      Float?   // Max per trade
+  copyRatio         Float    @default(1.0) // Multiplier for trade sizes
+  isActive          Boolean  @default(true)
+  autoCopy          Boolean  @default(true)
+  startedAt         DateTime @default(now())
+  pausedAt          DateTime?
+  totalProfit       Float    @default(0)
+  totalTrades       Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  trader            Trader @relation(fields: [traderId], references: [id], onDelete: Cascade)
+
+  @@index([followerEmail, isActive])
+  @@index([traderId, isActive])
+}
+
+model TraderPerformance {
+  id                String   @id @default(uuid())
+  traderId          String
+  date              DateTime
+  portfolioValue    Float
+  dailyReturn       Float
+  cumulativeReturn  Float
+  tradesCount       Int
+  winCount          Int
+  lossCount         Int
+  createdAt         DateTime @default(now())
+
+  trader            Trader @relation(fields: [traderId], references: [id], onDelete: Cascade)
+
+  @@index([traderId, date])
+}
+
+model SocialPost {
+  id                String   @id @default(uuid())
+  traderId          String
+  content           String
+  symbols           String[]
+  sentiment         String?  // BULLISH, BEARISH, NEUTRAL
+  imageUrls         String[]
+  likeCount         Int      @default(0)
+  commentCount      Int      @default(0)
+  shareCount        Int      @default(0)
+  isEdited          Boolean  @default(false)
+  postedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  trader            Trader @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  comments          SocialComment[]
+  likes             SocialLike[]
+
+  @@index([postedAt])
+}
+
+model SocialComment {
+  id                String   @id @default(uuid())
+  postId            String
+  userEmail         String
+  content           String
+  postedAt          DateTime @default(now())
+
+  post              SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model SocialLike {
+  id                String   @id @default(uuid())
+  postId            String
+  userEmail         String
+  createdAt         DateTime @default(now())
+
+  post              SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userEmail])
+}
+
+// ===========================================
+// REFERRAL SYSTEM (NEW)
+// ===========================================
+
+model Referral {
+  id                String   @id @default(uuid())
+  referrerEmail     String
+  referredEmail     String?
+  referralCode      String   @unique
+  status            ReferralStatus @default(PENDING)
+  rewardAmount      Float?
+  rewardCurrency    String   @default("USD")
+  rewardPaid        Boolean  @default(false)
+  rewardPaidAt      DateTime?
+  convertedAt       DateTime?
+  expiresAt         DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([referrerEmail])
+  @@index([referralCode])
+}
+
+enum ReferralStatus {
+  PENDING
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+model ReferralReward {
+  id                String   @id @default(uuid())
+  userEmail         String
+  amount            Float
+  currency          String   @default("USD")
+  type              String   // SIGNUP_BONUS, REFERRAL_BONUS, TRADE_BONUS
+  referralCode      String?
+  status            String   @default("PENDING") // PENDING, PAID, CANCELLED
+  paidAt            DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([userEmail])
+}
+
+// ===========================================
+// EDUCATIONAL CONTENT (NEW)
+// ===========================================
+
+model Course {
+  id                String   @id @default(uuid())
+  title             String
+  description       String
+  instructor        String?
+  level             CourseLevel
+  duration          Int?     // Minutes
+  category          String
+  thumbnailUrl      String?
+  isPremium         Boolean  @default(false)
+  price             Float?
+  rating            Float?
+  enrollmentCount   Int      @default(0)
+  isPublished       Boolean  @default(true)
+  publishedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  lessons           Lesson[]
+  enrollments       CourseEnrollment[]
+  reviews           CourseReview[]
+
+  @@index([category, isPublished])
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model Lesson {
+  id                String   @id @default(uuid())
+  courseId          String
+  title             String
+  description       String?
+  content           String?
+  videoUrl          String?
+  duration          Int?     // Minutes
+  order             Int
+  isPremium         Boolean  @default(false)
+  isPreview         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress          LessonProgress[]
+
+  @@index([courseId, order])
+}
+
+model CourseEnrollment {
+  id                String   @id @default(uuid())
+  courseId          String
+  userEmail         String
+  progress          Float    @default(0) // 0-100
+  isCompleted       Boolean  @default(false)
+  completedAt       DateTime?
+  lastAccessedAt    DateTime @default(now())
+  enrolledAt        DateTime @default(now())
+
+  course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userEmail])
+  @@index([userEmail])
+}
+
+model LessonProgress {
+  id                String   @id @default(uuid())
+  lessonId          String
+  userEmail         String
+  isCompleted       Boolean  @default(false)
+  watchTime         Int      @default(0) // Seconds
+  completedAt       DateTime?
+  lastAccessedAt    DateTime @default(now())
+
+  lesson            Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, userEmail])
+}
+
+model CourseReview {
+  id                String   @id @default(uuid())
+  courseId          String
+  userEmail         String
+  rating            Int      // 1-5
+  comment           String?
+  isVerified        Boolean  @default(false)
+  postedAt          DateTime @default(now())
+
+  course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userEmail])
+}
+
+// ===========================================
+// TAX OPTIMIZATION (NEW)
+// ===========================================
+
+model TaxLot {
+  id                String   @id @default(uuid())
+  userEmail         String
+  symbol            String
+  quantity          Float
+  purchasePrice     Float
+  purchaseDate      DateTime
+  salePrice         Float?
+  saleDate          DateTime?
+  costBasis         Float
+  proceeds          Float?
+  gainLoss          Float?
+  holdingPeriod     String?  // SHORT_TERM, LONG_TERM
+  isClosed          Boolean  @default(false)
+  washSale          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([userEmail, symbol])
+  @@index([userEmail, isClosed])
+}
+
+model TaxReport {
+  id                String   @id @default(uuid())
+  userEmail         String
+  taxYear           Int
+  country           String   @default("US")
+  totalGains        Float    @default(0)
+  totalLosses       Float    @default(0)
+  netGainLoss       Float    @default(0)
+  shortTermGains    Float    @default(0)
+  longTermGains     Float    @default(0)
+  dividendIncome    Float    @default(0)
+  interestIncome    Float    @default(0)
+  reportData        Json?
+  generatedAt       DateTime @default(now())
+
+  @@unique([userEmail, taxYear])
+}
+
+// ===========================================
+// MULTI-CURRENCY WALLETS (NEW)
+// ===========================================
+
+model Wallet {
+  id                String   @id @default(uuid())
+  userEmail         String
+  currency          String   // USD, KES, EUR, GBP, etc.
+  balance           Float    @default(0)
+  availableBalance  Float    @default(0)
+  heldBalance       Float    @default(0)
+  isPrimary         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  transactions      WalletTransaction[]
+
+  @@unique([userEmail, currency])
+  @@index([userEmail])
+}
+
+model WalletTransaction {
+  id                String   @id @default(uuid())
+  walletId          String
+  type              WalletTransactionType
+  amount            Float
+  balanceBefore     Float
+  balanceAfter      Float
+  currency          String
+  description       String?
+  referenceId       String?  // External transaction ID
+  metadata          Json?
+  createdAt         DateTime @default(now())
+
+  wallet            Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  EXCHANGE
+  FEE
+  REFUND
+  DIVIDEND
+  INTEREST
+}
+
+model CurrencyExchange {
+  id                String   @id @default(uuid())
+  userEmail         String
+  fromCurrency      String
+  toCurrency        String
+  fromAmount        Float
+  toAmount          Float
+  exchangeRate      Float
+  fee               Float    @default(0)
+  status            String   @default("COMPLETED")
+  executedAt        DateTime @default(now())
+
+  @@index([userEmail, executedAt])
+}
+
+// ===========================================
+// BANK LINKING & AUTO-INVESTING (NEW)
+// ===========================================
+
+model BankAccount {
+  id                String   @id @default(uuid())
+  userEmail         String
+  bankName          String
+  accountNumber     String   // Last 4 digits only
+  accountType       String   // CHECKING, SAVINGS
+  currency          String   @default("USD")
+  isVerified        Boolean  @default(false)
+  isPrimary         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  plaidAccessToken  String?  // Encrypted
+  plaidAccountId    String?
+  lastSyncedAt      DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  transfers         BankTransfer[]
+  autoInvest        AutoInvestment?
+
+  @@index([userEmail])
+}
+
+model BankTransfer {
+  id                String   @id @default(uuid())
+  bankAccountId     String
+  walletId          String?
+  type              String   // DEPOSIT, WITHDRAWAL
+  amount            Float
+  currency          String
+  status            TransferStatus @default(PENDING)
+  scheduledAt       DateTime?
+  initiatedAt       DateTime @default(now())
+  completedAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  externalId        String?  // Bank transaction ID
+  metadata          Json?
+
+  bankAccount       BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  @@index([bankAccountId, initiatedAt])
+}
+
+enum TransferStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model AutoInvestment {
+  id                String   @id @default(uuid())
+  userEmail         String
+  bankAccountId     String   @unique
+  amount            Float
+  frequency         InvestmentFrequency
+  portfolioId       String?
+  nextExecutionDate DateTime
+  isActive          Boolean  @default(true)
+  lastExecutedAt    DateTime?
+  totalInvested     Float    @default(0)
+  executionCount    Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  bankAccount       BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  @@index([userEmail])
+  @@index([nextExecutionDate, isActive])
+}
+
+enum InvestmentFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+// ===========================================
+// ROBO-ADVISOR (NEW)
+// ===========================================
+
+model RoboPortfolio {
+  id                String   @id @default(uuid())
+  userEmail         String
+  name              String
+  strategy          RoboStrategy
+  riskLevel         Int      // 1-10
+  goalAmount        Float?
+  goalDate          DateTime?
+  initialDeposit    Float
+  currentValue      Float    @default(0)
+  totalReturn       Float    @default(0)
+  isActive          Boolean  @default(true)
+  rebalanceFreq     String   @default("QUARTERLY")
+  lastRebalanced    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  allocations       RoboAllocation[]
+  recommendations   RoboRecommendation[]
+
+  @@index([userEmail])
+}
+
+enum RoboStrategy {
+  CONSERVATIVE
+  MODERATE
+  BALANCED
+  GROWTH
+  AGGRESSIVE
+  INCOME
+  RETIREMENT
+  COLLEGE_SAVINGS
+}
+
+model RoboAllocation {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  assetClass        String   // STOCKS, BONDS, REAL_ESTATE, etc.
+  targetPercent     Float
+  currentPercent    Float
+  targetAmount      Float?
+  currentAmount     Float?
+  updatedAt         DateTime @updatedAt
+
+  portfolio         RoboPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId])
+}
+
+model RoboRecommendation {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  type              String   // REBALANCE, BUY, SELL, TAX_HARVEST
+  symbol            String?
+  action            String?
+  quantity          Float?
+  price             Float?
+  reason            String
+  priority          Int      @default(1)
+  isAccepted        Boolean?
+  acceptedAt        DateTime?
+  createdAt         DateTime @default(now())
+
+  portfolio         RoboPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, createdAt])
+}
+
+// ===========================================
+// NOTIFICATIONS (NEW)
+// ===========================================
+
+model Notification {
+  id                String          @id @default(uuid())
+  userEmail         String
+  type              NotificationType
+  title             String
+  message           String
+  channel           String          // EMAIL, SMS, PUSH, WHATSAPP
+  status            NotificationStatus @default(PENDING)
+  sentAt            DateTime?
+  readAt            DateTime?
+  metadata          Json?
+  priority          Int             @default(1)
+  expiresAt         DateTime?
+  createdAt         DateTime        @default(now())
+
+  @@index([userEmail, status])
+  @@index([status, priority, createdAt])
+}
+
+enum NotificationType {
+  PRICE_ALERT
+  DIVIDEND_PAYMENT
+  TRADE_EXECUTED
+  PORTFOLIO_MILESTONE
+  NEWS_ALERT
+  REBALANCE_NEEDED
+  TAX_DEADLINE
+  SECURITY_ALERT
+  SYSTEM_UPDATE
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+// ===========================================
+// MULTI-LANGUAGE SUPPORT (NEW)
+// ===========================================
+
+model Translation {
+  id                String   @id @default(uuid())
+  key               String   // Translation key
+  language          String   // en, sw, fr, ar, etc.
+  value             String   // Translated text
+  context           String?  // Page or feature context
+  isVerified        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([key, language])
+  @@index([language])
+}
+
+model UserLanguagePreference {
+  id                String   @id @default(uuid())
+  userEmail         String   @unique
+  language          String   @default("en")
+  timezone          String   @default("UTC")
+  dateFormat        String   @default("YYYY-MM-DD")
+  currency          String   @default("USD")
+  updatedAt         DateTime @updatedAt
+
+  @@index([language])
+}
+
+// ===========================================
+// FRACTIONAL SHARES (NEW)
+// ===========================================
+
+model FractionalOrder {
+  id                String   @id @default(uuid())
+  userEmail         String
+  portfolioId       String
+  symbol            String
+  dollarAmount      Float    // Amount in dollars to invest
+  shares            Float?   // Calculated fractional shares
+  executedPrice     Float?
+  fees              Float    @default(0)
+  status            OrderStatus
+  orderType         String   @default("MARKET")
+  scheduledAt       DateTime?
+  executedAt        DateTime?
+  cancelledAt       DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([userEmail, status])
+  @@index([portfolioId])
+}
+
+enum OrderStatus {
+  PENDING
+  QUEUED
+  EXECUTING
+  EXECUTED
+  FAILED
+  CANCELLED
+}
+
+// ===========================================
+// PERFORMANCE BENCHMARKING (NEW)
+// ===========================================
+
+model Benchmark {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  symbol            String
+  description       String?
+  category          String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  performance       BenchmarkPerformance[]
+}
+
+model BenchmarkPerformance {
+  id                String   @id @default(uuid())
+  benchmarkId       String
+  date              DateTime
+  value             Float
+  change            Float?
+  changePct         Float?
+  createdAt         DateTime @default(now())
+
+  benchmark         Benchmark @relation(fields: [benchmarkId], references: [id], onDelete: Cascade)
+
+  @@unique([benchmarkId, date])
+  @@index([benchmarkId, date])
+}
+
+model PortfolioBenchmark {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  benchmarkId       String?
+  benchmarkSymbol   String   // SPY, QQQ, etc.
+  isPrimary         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([portfolioId])
+}
+
+// ===========================================
+// FEATURE ACCESS TRACKING (NEW)
+// ===========================================
+
+model FeatureAccess {
+  id                String   @id @default(uuid())
+  userEmail         String
+  feature           String   // Feature name
+  tierRequired      String   // FREE, PREMIUM, ENTERPRISE
+  userTier          String
+  accessGranted     Boolean
+  reason            String?
+  ipAddress         String?
+  userAgent         String?
+  accessedAt        DateTime @default(now())
+
+  @@index([userEmail, feature])
+  @@index([accessedAt])
+}
+
+model ApiUsage {
+  id                String   @id @default(uuid())
+  userEmail         String
+  endpoint          String
+  method            String
+  statusCode        Int
+  responseTime      Int      // milliseconds
+  ipAddress         String?
+  userAgent         String?
+  requestedAt       DateTime @default(now())
+
+  @@index([userEmail, requestedAt])
+  @@index([endpoint])
+}

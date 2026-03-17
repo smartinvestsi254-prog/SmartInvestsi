@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Member Resources - SmartInvestsi</title>
+    <meta name="description" content="Exclusive brochures, guides, and resources for premium SmartInvest members. Access investment strategies, market analysis, and more.">
+    <link rel="canonical" href="https://smartinvestsi.netlify.app/premium-resources.html">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-corporate: #0B1F33;
+            --primary-light: #1a365d;
+            --accent-gold: #D4AF37;
+            --accent-light-gold: #f4d03f;
+            --accent-teal: #0891b2;
+            --text-light: #f8fafc;
+            --border-color: #1e3a5f;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body { background: #f8fafc; }
+        
+        /* Hero Section */
+        .resources-hero {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .resources-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+        }
+        
+        .resources-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .resources-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .resources-hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+        }
+        
+        .access-badge {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: var(--primary-corporate);
+            padding: 0.5rem 1.5rem;
+            border-radius: 24px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        
+        /* Tabs */
+        .resources-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            background: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+        
+        .tab-button:hover {
+            color: var(--accent-teal);
+        }
+        
+        .tab-button.active {
+            color: var(--accent-gold);
+            border-bottom-color: var(--accent-gold);
+        }
+        
+        /* Resource Cards */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .resource-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            border-color: var(--accent-gold);
+        }
+        
+        .resource-header {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            position: relative;
+        }
+        
+        .resource-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .resource-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--accent-gold);
+            color: var(--primary-corporate);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .resource-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .resource-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-corporate);
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .resource-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            flex: 1;
+            line-height: 1.5;
+        }
+        
+        .resource-footer {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1rem;
+        }
+        
+        .available-on {
+            font-size: 0.85rem;
+            color: #64748b;
+            flex: 1;
+        }
+        
+        .btn-download {
+            background: var(--accent-gold);
+            color: var(--primary-corporate);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .btn-download:hover {
+            background: var(--accent-light-gold);
+            transform: scale(1.05);
+        }
+        
+        .btn-preview {
+            background: transparent;
+            color: var(--accent-teal);
+            border: 2px solid var(--accent-teal);
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .btn-preview:hover {
+            background: var(--accent-teal);
+            color: white;
+        }
+        
+        /* Timeline */
+        .access-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-corporate);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .timeline-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .timeline-item {
+            text-align: center;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-light-gold) 100%);
+            border-radius: 50%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        
+        .timeline-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 1.8rem;
+        }
+        
+        .timeline-content {
+            padding-top: 5rem;
+        }
+        
+        .timeline-period {
+            font-size: 0.9rem;
+            color: var(--accent-teal);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-heading {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-corporate);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-description {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* Status Indicator */
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+        
+        .status-available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-unlocked {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-coming {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .cta-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+        
+        .btn-upgrade {
+            background: var(--accent-gold);
+            color: var(--primary-corporate);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-upgrade:hover {
+            background: var(--accent-light-gold);
+            transform: scale(1.05);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .resources-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .resources-tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+            
+            .tab-button {
+                border-bottom: 3px solid #e2e8f0;
+                margin-bottom: 0;
+                width: 100%;
+            }
+            
+            .tab-button.active {
+                border-bottom-color: var(--accent-gold);
+            }
+            
+            .timeline-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="resources-hero">
+        <div class="resources-hero-content">
+            <div class="access-badge">
+                <i class="fas fa-crown" style="margin-right: 0.5rem;"></i> Premium Member Resources
+            </div>
+            <h1>Exclusive Guides & Insights for Our Premium Members</h1>
+            <p>Access comprehensive brochures, investment strategies, and market analysis—tailored to help you make informed decisions</p>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 3rem; margin-bottom: 3rem;">
+        <!-- Tabs -->
+        <div class="resources-tabs">
+            <button class="tab-button active" onclick="switchTab('brochures')">
+                <i class="fas fa-book" style="margin-right: 0.5rem;"></i> Brochures
+            </button>
+            <button class="tab-button" onclick="switchTab('guides')">
+                <i class="fas fa-compass" style="margin-right: 0.5rem;"></i> Investment Guides
+            </button>
+            <button class="tab-button" onclick="switchTab('analysis')">
+                <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i> Market Analysis
+            </button>
+            <button class="tab-button" onclick="switchTab('webinars')">
+                <i class="fas fa-video" style="margin-right: 0.5rem;"></i> Webinars
+            </button>
+        </div>
+
+        <!-- Brochures Tab -->
+        <div id="tab-brochures" class="tab-content">
+            <!-- Timeline -->
+            <div class="access-timeline">
+                <h3 class="timeline-title">Premium Access Timeline</h3>
+                <div class="timeline-items">
+                    <div class="timeline-item">
+                        <div class="timeline-icon">📋</div>
+                        <div class="timeline-content">
+                            <div class="timeline-period">Week 1-2</div>
+                            <div class="timeline-heading">Welcome Package</div>
+                            <div class="timeline-description">Get started with our onboarding guide and platform tutorials</div>
+                            <span class="status-badge status-available">Immediate Access</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">📊</div>
+                        <div class="timeline-content">
+                            <div class="timeline-period">Week 2-3</div>
+                            <div class="timeline-heading">Strategy Brochure</div>
+                            <div class="timeline-description">Investment strategies tailored to your risk profile</div>
+                            <span class="status-badge status-unlocked">Unlocks Soon</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">🎯</div>
+                        <div class="timeline-content">
+                            <div class="timeline-period">Week 4-5</div>
+                            <div class="timeline-heading">Portfolio Optimization</div>
+                            <div class="timeline-description">Advanced portfolio management and rebalancing techniques</div>
+                            <span class="status-badge status-unlocked">Unlocks Soon</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">💡</div>
+                        <div class="timeline-content">
+                            <div class="timeline-period">Week 6+</div>
+                            <div class="timeline-heading">Market Insights</div>
+                            <div class="timeline-description">Monthly market analysis and investment opportunities</div>
+                            <span class="status-badge status-coming">Coming Soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brochures Grid -->
+            <div class="resources-grid">
+                <!-- Welcome Package -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">📋</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Welcome Brochure</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Getting Started with SmartInvest</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> Updated Monthly</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 2.4 MB</div>
+                        </div>
+                        <p class="resource-description">Complete introduction to the SmartInvest platform, features overview, account setup guide, and security best practices.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Added: Feb 11, 2026</span>
+                            <button class="btn-preview" onclick="previewResource('welcome')">Preview</button>
+                            <button class="btn-download" onclick="downloadResource('welcome')">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Strategy -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge" style="background: #fef3c7; color: #92400e;">WEEK 2-3</div>
+                        <div class="resource-icon">📊</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Strategy Guide</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Investment Strategy & Portfolio Building</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> 45 pages</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 3.8 MB</div>
+                        </div>
+                        <p class="resource-description">Deep dive into investment strategies, risk assessment, asset allocation, and diversification principles tailored for African markets.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Unlocks after 2 weeks</span>
+                            <button class="btn-preview" onclick="previewResource('strategy')">Preview</button>
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Analysis -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge" style="background: #fed7aa; color: #9a3412;">WEEK 4+</div>
+                        <div class="resource-icon">📈</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Market Analysis</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Monthly Market Analysis & Trends</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> Monthly</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 5.2 MB</div>
+                        </div>
+                        <p class="resource-description">Expert analysis of market trends, economic indicators, sector performance, and investment opportunities in major African markets.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Unlocks after 4 weeks</span>
+                            <button class="btn-preview" disabled style="opacity: 0.5;">Preview</button>
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Techniques -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge" style="background: #fed7aa; color: #9a3412;">WEEK 5+</div>
+                        <div class="resource-icon">🎯</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Advanced Guide</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Advanced Portfolio Optimization</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-calculator"></i> 60 pages</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 4.1 MB</div>
+                        </div>
+                        <p class="resource-description">Rebalancing strategies, tax optimization, risk management techniques, and advanced portfolio analytics for experienced investors.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Unlocks after 5 weeks</span>
+                            <button class="btn-preview" disabled style="opacity: 0.5;">Preview</button>
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax & Compliance -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge" style="background: #fed7aa; color: #9a3412;">WEEK 6+</div>
+                        <div class="resource-icon">⚖️</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Tax Guide</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Tax Optimization & Compliance</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-balance-scale"></i> 38 pages</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 2.9 MB</div>
+                        </div>
+                        <p class="resource-description">Tax implications of investments, reporting requirements, deductions, and strategies to optimize your tax position legally.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Unlocks after 6 weeks</span>
+                            <button class="btn-preview" disabled style="opacity: 0.5;">Preview</button>
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investment Sectors -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge" style="background: #fed7aa; color: #9a3412;">WEEK 7+</div>
+                        <div class="resource-icon">🏭</div>
+                        <h3 style="color: var(--primary-corporate); margin: 0; text-align: center;">Sectors Guide</h3>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">African Sectors Investment Guide</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-industry"></i> 52 pages</div>
+                            <div class="meta-item"><i class="fas fa-download"></i> 6.3 MB</div>
+                        </div>
+                        <p class="resource-description">In-depth analysis of key African sectors: technology, agriculture, finance, energy, and real estate with growth prospects.</p>
+                        <div class="resource-footer">
+                            <span class="available-on">Unlocks after 7 weeks</span>
+                            <button class="btn-preview" disabled style="opacity: 0.5;">Preview</button>
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Guides Tab -->
+        <div id="tab-guides" class="tab-content" style="display: none;">
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">💡</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Beginner's Investment Guide</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-book"></i> 28 pages</div>
+                        </div>
+                        <p class="resource-description">Start your investment journey with fundamental concepts, terminology, and first steps.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">🎓</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Understanding Bonds & Fixed Income</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-book"></i> 34 pages</div>
+                        </div>
+                        <p class="resource-description">Complete guide to bonds, yields, credit ratings, and how to build bond portfolios.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">WEEK 2+</div>
+                        <div class="resource-icon">🚀</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Crypto Investment Essentials</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-book"></i> 41 pages</div>
+                        </div>
+                        <p class="resource-description">Comprehensive guide to cryptocurrency investing, blockchain, digital wallets, and security.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Analysis Tab -->
+        <div id="tab-analysis" class="tab-content" style="display: none;">
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">📊</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Kenya Stock Exchange 2024 Analysis</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-chart-line"></i> 2024 Data</div>
+                        </div>
+                        <p class="resource-description">Comprehensive analysis of NSE performance, top performers, and investment opportunities.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">🌍</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">African Markets Overview</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="meta-item"><i class="fas fa-globe"></i> 10 Countries</div>
+                        </div>
+                        <p class="resource-description">Cross-border investment opportunities across major African stock exchanges.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webinars Tab -->
+        <div id="tab-webinars" class="tab-content" style="display: none;">
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-icon">🎥</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Getting Started Live Webinar</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-video"></i> Recorded</div>
+                            <div class="meta-item"><i class="fas fa-clock"></i> 60 minutes</div>
+                        </div>
+                        <p class="resource-description">Live Q&A session introducing SmartInvest platform and answering common questions.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download">
+                                <i class="fas fa-play" style="margin-right: 0.5rem;"></i> Watch
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-badge">WEEK 3+</div>
+                        <div class="resource-icon">🎓</div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Expert Market Analysis Webinar</div>
+                        <div class="resource-meta">
+                            <div class="meta-item"><i class="fas fa-video"></i> Recorded</div>
+                            <div class="meta-item"><i class="fas fa-clock"></i> 90 minutes</div>
+                        </div>
+                        <p class="resource-description">In-depth market analysis with professional traders and financial experts.</p>
+                        <div class="resource-footer">
+                            <button class="btn-download" disabled style="opacity: 0.5;">
+                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="container" style="margin-bottom: 3rem;">
+        <div class="cta-section">
+            <h2>Not Yet a Premium Member?</h2>
+            <p>Unlock full access to all guides, analysis, and exclusive insights</p>
+            <button class="btn-upgrade" onclick="window.location.href='/pricing.html'">
+                <i class="fas fa-crown" style="margin-right: 0.5rem;"></i> Upgrade to Premium
+            </button>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+            }
+            
+            // Add active class to clicked button
+            event.target.closest('.tab-button').classList.add('active');
+        }
+        
+        function previewResource(resourceId) {
+            alert(`Preview for ${resourceId}: Opening in new window...`);
+        }
+        
+        function downloadResource(resourceId) {
+            const resources = {
+                'welcome': 'SmartInvest_Welcome_Brochure.pdf',
+                'strategy': 'SmartInvest_Investment_Strategy.pdf'
+            };
+            const filename = resources[resourceId] || 'resource.pdf';
+            alert(`Download started: ${filename}`);
+        }
+    </script>
+</body>
+</html>

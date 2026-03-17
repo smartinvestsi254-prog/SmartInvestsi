@@ -1,0 +1,201 @@
+# .pre-commit-config.yaml (detailed alternative configuration)
+# Use this for stricter validation; rename existing pre-commit to pre-commit.yaml
+# and this to pre-commit to enable all checks
+
+repos:
+  # ============================================
+  # MANDATORY: Core Security & Validation
+  # ============================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # 🔐 Detect accidental commits of secrets
+      - id: detect-private-key
+        name: Detect Private Keys
+        description: Detect presence of private keys
+        exclude: ^(ENVIRONMENT_VARIABLES\.md|\.secrets\.baseline)$
+
+      # 🔀 Detect merge conflicts
+      - id: check-merge-conflict
+        name: Detect Merge Conflicts
+        description: Prevent merge conflict markers from being committed
+
+      # 📄 Auto-fix: Add newline to EOF
+      - id: end-of-file-fixer
+        name: Fix End of File
+        description: Ensure files end with a newline
+
+      # 🗑️ Auto-fix: Remove trailing whitespace
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Remove trailing whitespace
+        args: [--markdown-args=--markdown-args]
+
+      # ✅ Validate JSON files
+      - id: check-json
+        name: Check JSON
+        description: Validate JSON syntax
+        exclude: ^(package-lock\.json)$
+
+      # ✅ Validate YAML files
+      - id: check-yaml
+        name: Check YAML
+        description: Validate YAML syntax
+        args: ['--unsafe']
+
+      # ✅ Validate TOML files
+      - id: check-toml
+        name: Check TOML
+        description: Validate TOML syntax
+
+      # 📦 Detect large files
+      - id: check-added-large-files
+        name: Check Added Large Files
+        description: Prevent giant files from being committed
+        args: ['--maxkb=500']
+
+      # 🔍 Check for case conflicts
+      - id: check-case-conflict
+        name: Check Case Conflicts
+        description: Check for files with names that would conflict on case-insensitive filesystems
+
+      # 🚫 Check for broken symlinks
+      - id: check-symlinks
+        name: Check Symlinks
+        description: Check for broken symlinks
+
+  # ============================================
+  # HTML & Web Files Validation
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Prettier (HTML/JS/TS)
+        description: Auto-format web files with Prettier
+        types_or: [javascript, typescript, json, yaml, markdown, css, scss, html]
+        exclude: ^(node_modules|dist|build|package-lock\.json|\.netlify)$
+        additional_dependencies: ['prettier']
+
+  # ============================================
+  # TypeScript & JavaScript: Linting
+  # ============================================
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.0.0
+    hooks:
+      - id: eslint
+        name: ESLint
+        description: Run ESLint with auto-fix
+        entry: eslint --fix
+        language: node
+        types: [javascript, typescript]
+        exclude: ^(node_modules|dist|build|\.netlify|backend)$
+        additional_dependencies:
+          - 'eslint'
+          - '@typescript-eslint/parser'
+          - '@typescript-eslint/eslint-plugin'
+          - 'eslint-plugin-security'
+
+  # ============================================
+  # Security: Detect Secrets (Fintech Patterns)
+  # ============================================
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        description: Detect hardcoded secrets and credentials
+        args: ['--baseline', '.secrets.baseline']
+        entry: detect-secrets scan
+        language: python
+        exclude: ^(node_modules|dist|build|\.git|\.netlify|backend/obj|backend/bin)$
+
+  # ============================================
+  # .NET Code Quality (if needed)
+  # ============================================
+  - repo: https://github.com/dotnet/format
+    rev: v6.0.0
+    hooks:
+      - id: dotnet-format
+        name: .NET Code Formatting
+        description: Format .NET code
+        args: ['--folder', '--exclude', '**/obj/**', '--exclude', '**/bin/**']
+        files: \.(cs|vb)$
+        exclude: ^(backend/obj|backend/bin)$
+
+  # ============================================
+  # Additional Security Checks
+  # ============================================
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: forbid-crlf
+        name: Forbid CRLF Line Endings
+        description: Prevent Windows line endings in files
+        exclude: ^\.git$
+
+      - id: remove-tabs
+        name: Remove Tabs
+        description: Replace tabs with spaces
+        args: [--whitespaces-count, '2']
+        exclude: ^(Makefile|\.git|node_modules)
+
+  # ============================================
+  # Custom Validation Hooks (Windows Compatible)
+  # ============================================
+  - repo: local
+    hooks:
+      # Check for hardcoded credentials (Windows PowerShell version)
+      - id: check-hardcoded-credentials
+        name: Check Hardcoded Credentials
+        description: Detect hardcoded API keys, passwords, tokens
+        entry: powershell -Command "if (Select-String -Path @('src/**/*.ts','src/**/*.js') -Pattern '(api_key|apiKey|API_KEY|password|PASSWORD|secret|SECRET|token|TOKEN)\\s*[:=]\\s*[\"'']' -Recurse -ErrorAction SilentlyContinue) { exit 1 }; exit 0"
+        language: system
+        types: [typescript, javascript]
+        pass_filenames: false
+
+      # Validate environment variables are defined
+      - id: validate-environment-variables
+        name: Validate Environment Variables
+        description: Ensure all env vars used are defined
+        entry: powershell -Command "Get-Content ENVIRONMENT_VARIABLES.md | Select-String -Pattern '^\\|' | Measure-Object | ForEach-Object { if ($_.Count -gt 0) { Write-Output 'Environment variables validated' } else { exit 1 } }"
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # TypeScript type checking
+      - id: typescript-type-check
+        name: TypeScript Type Check
+        description: Type check TypeScript files
+        entry: powershell -Command "npm run build --silent 2>&1 | Select-String -Pattern 'error TS' | Measure-Object | ForEach-Object { if ($_.Count -gt 0) { Write-Output 'TypeScript errors found'; exit 1 } }"
+        language: system
+        types: [typescript]
+        pass_filenames: false
+        stages: [commit]
+
+      # Verify reconciliation service exists
+      - id: verify-reconciliation-service
+        name: Verify Reconciliation Service
+        description: Ensure reconciliation error handler is present
+        entry: powershell -Command "if ((Test-Path 'src/utils/reconciliation-error-handler.ts') -and (Select-String -Path 'src/server.ts' -Pattern 'autoReconcileTransactions')) { exit 0 } else { exit 1 }"
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # Verify error handling in server
+      - id: verify-error-handlers
+        name: Verify Error Handlers
+        description: Ensure reportCrisis and sendEmail are configured
+        entry: powershell -Command "if ((Select-String -Path 'src/server.ts' -Pattern 'reportCrisis|sendEmail' | Measure-Object).Count -ge 2) { exit 0 } else { exit 1 }"
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # Verify package.json integrity
+      - id: verify-package-json
+        name: Verify Package.json
+        description: Check package.json is valid JSON and has required fields
+        entry: powershell -Command "try { $pkg = Get-Content package.json | ConvertFrom-Json; if ($pkg.scripts -and $pkg.dependencies) { exit 0 } else { exit 1 } } catch { exit 1 }"
+        language: system
+        pass_filenames: false
+        always_run: true

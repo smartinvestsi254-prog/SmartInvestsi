@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Weekly Insights - SmartInvestsi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0B1F33;
+            line-height: 1.6;
+        }
+        
+        .brochure-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .brochure-header {
+            background: linear-gradient(135deg, #0B1F33 0%, #1a365d 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .brochure-header
+
+ .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #D4AF37;
+            margin-bottom: 10px;
+        }
+        
+        .brochure-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .brochure-header .date {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .premium-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .brochure-content {
+            padding: 50px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #0B1F33;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #D4AF37;
+        }
+        
+        .section h3 {
+            color: #1a365d;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0891b2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-color: #D4AF37;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #0891b2;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendation-list li {
+            background: #f8fafc;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #D4AF37;
+        }
+        
+        .recommendation-list strong {
+            color: #0B1F33;
+            font-size: 1.1rem;
+        }
+        
+        .action-item {
+            background: linear-gradient(135deg, #D4AF37 0%, #f4d03f 100%);
+            color: #0B1F33;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            font-weight: 600;
+        }
+        
+        .action-item h3 {
+            color: #0B1F33;
+            margin-bottom: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th {
+            background: #0B1F33;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .footer-info {
+            background: #f8fafc;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+            margin-top: 50px;
+            border-top: 2px solid #e2e8f0;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            margin: 20px 10px;
+            transition: all 0.3s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(8, 145, 178, 0.3);
+        }
+        
+        @media print {
+            .download-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="brochure-container">
+        <div class="brochure-header">
+            <div class="logo">SmartInvest Africa</div>
+            <h1>Weekly Market Insights</h1>
+            <div class="date">Week of February 10-14, 2026</div>
+            <div class="premium-badge">💎 PREMIUM MEMBERS ONLY</div>
+        </div>
+        
+        <div class="brochure-content">
+            <!-- Executive Summary -->
+            <div class="section">
+                <h2>📊 Executive Summary</h2>
+                <div class="highlight-box">
+                    <p><strong>Market Sentiment:</strong> Cautiously Optimistic</p>
+                    <p><strong>Key Theme:</strong> African tech stocks surge on infrastructure developments; commodity prices stabilize.</p>
+                    <p><strong>Our Recommendation:</strong> Selective accumulation in fintech and green energy sectors.</p>
+                </div>
+            </div>
+            
+            <!-- Market Statistics -->
+            <div class="section">
+                <h2>📈 This Week's Performance</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">+3.2%</div>
+                        <div class="stat-label">NSE All-Share Index</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">+5.8%</div>
+                        <div class="stat-label">JSE Top 40</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">-1.4%</div>
+                        <div class="stat-label">EGX 30 Index</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">+2.1%</div>
+                        <div class="stat-label">NGX Banking Index</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Movers -->
+            <div class="section">
+                <h2>🚀 Top Movers This Week</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Sector</th>
+                            <th>Price (KES)</th>
+                            <th>Change</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Safaricom PLC</strong></td>
+                            <td>Telecom</td>
+                            <td>42.50</td>
+                            <td style="color: #059669;">+8.2%</td>
+                            <td style="color: #0891b2; font-weight: 600;">BUY</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Equity Bank</strong></td>
+                            <td>Banking</td>
+                            <td>68.25</td>
+                            <td style="color: #059669;">+6.5%</td>
+                            <td style="color: #0891b2; font-weight: 600;">HOLD</td>
+                        </tr>
+                        <tr>
+                            <td><strong>KenGen</strong></td>
+                            <td>Energy</td>
+                            <td>8.90</td>
+                            <td style="color: #059669;">+12.1%</td>
+                            <td style="color: #059669; font-weight: 600;">STRONG BUY</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EABL</strong></td>
+                            <td>Consumer Goods</td>
+                            <td>215.00</td>
+                            <td style="color: #dc2626;">-2.3%</td>
+                            <td style="color: #64748b; font-weight: 600;">HOLD</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Sector Analysis -->
+            <div class="section">
+                <h2>🏭 Sector Deep Dive</h2>
+                
+                <h3>Fintech Revolution</h3>
+                <p>African fintech companies continue their impressive growth trajectory. M-Pesa's expansion into Ethiopia and new digital lending platforms show strong potential for sustained returns.</p>
+                
+                <ul class="recommendation-list">
+                    <li>
+                        <strong>Mobile Money Platforms:</strong> Expected 15-20% YoY growth as smartphone penetration reaches 65% in East Africa.
+                    </li>
+                    <li>
+                        <strong>Digital Banking:</strong> Neo-banks gaining traction with young professionals; consider early positions.
+                    </li>
+                    <li>
+                        <strong>Payment Gateways:</strong> Cross-border payment systems showing promise with new regulatory frameworks.
+                    </li>
+                </ul>
+                
+                <h3>Green Energy Boom</h3>
+                <p>Renewable energy investments surge as African nations commit to carbon neutrality targets.</p>
+                
+                <div class="highlight-box">
+                    <strong>Investment Opportunity:</strong> KenGen's new geothermal projects expected to deliver 18-25% ROI over 5 years. Current entry point attractive.
+                </div>
+            </div>
+            
+            <!-- Weekly Recommendations -->
+            <div class="section">
+                <h2>💡 This Week's Action Items</h2>
+                
+                <div class="action-item">
+                    <h3>🎯 Priority Investment Opportunities</h3>
+                    <ol>
+                        <li><strong>Accumulate:</strong> KenGen at current levels (KES 8.50-9.00)</li>
+                        <li><strong>Watch:</strong> Safaricom for pullback to KES 40.00 entry</li>
+                        <li><strong>Reduce:</strong> Consumer staples exposure - sector showing weakness</li>
+                        <li><strong>Research:</strong> Emerging fintech IPOs scheduled for Q2 2026</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Economic Calendar -->
+            <div class="section">
+                <h2>📅 Week Ahead - Key Events</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Event</th>
+                            <th>Expected Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Feb 17</td>
+                            <td>CBK Interest Rate Decision</td>
+                            <td>HIGH - Expected hold at 12.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 18</td>
+                            <td>Safaricom Q3 Results</td>
+                            <td>HIGH - Earnings beat expected</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 19</td>
+                            <td>Nigeria GDP Release</td>
+                            <td>MEDIUM - Regional impact</td>
+                        </tr>
+                        <tr>
+                            <td>Feb 20</td>
+                            <td>South Africa Inflation Data</td>
+                            <td>MEDIUM - Watch for trends</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Risk Assessment -->
+            <div class="section">
+                <h2>⚠️ Risk Factors to Monitor</h2>
+                
+                <ul class="recommendation-list">
+                    <li>
+                        <strong>Currency Volatility:</strong> USD/KES fluctuations due to global rate expectations. Hedge FX exposure for international positions.
+                    </li>
+                    <li>
+                        <strong>Political Events:</strong> Upcoming elections in 3 East African nations may cause short-term volatility.
+                    </li>
+                    <li>
+                        <strong>Commodity Prices:</strong> Oil price instability affecting transportation and manufacturing sectors.
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Portfolio Strategy -->
+            <div class="section">
+                <h2>📋 Recommended Portfolio Allocation</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">35%</div>
+                        <div class="stat-label">Fintech & Banking</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">25%</div>
+                        <div class="stat-label">Green Energy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">20%</div>
+                        <div class="stat-label">Infrastructure</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">20%</div>
+                        <div class="stat-label">Cash & Bonds</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conclusion -->
+            <div class="section">
+                <h2>🎯 Final Thoughts</h2>
+                <p>The African investment landscape continues to present compelling opportunities for informed investors. Focus remains on structural growth themes - fintech adoption, renewable energy transition, and infrastructure development.</p>
+                
+                <p><strong>Key Takeaway:</strong> Maintain disciplined approach with 60% growth assets, 40% defensive positioning until post-election clarity emerges.</p>
+            </div>
+            
+            <!-- Download Actions -->
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="#" class="download-btn" onclick="window.print(); return false;">
+                    📄 Download PDF
+                </a>
+                <a href="/marketplace.html" class="download-btn">
+                    🛍️ View More Brochures
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <p><strong>Disclaimer:</strong> This brochure is for informational purposes only and does not constitute financial advice. Always consult with a certified financial advisor before making investment decisions.</p>
+            <p style="margin-top: 15px;"><strong>© 2026 SmartInvest Africa.</strong> Premium Member Resource. Confidential - Do Not Distribute.</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">This brochure was delivered to you as part of your premium membership benefits. New brochures delivered weekly.</p>
+        </div>
+    </div>
+</body>
+</html>

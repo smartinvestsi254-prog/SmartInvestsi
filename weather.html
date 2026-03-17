@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weather Dashboard — SmartInvestsi</title>
+  <meta name="description" content="Corporate-styled weather dashboard using Open-Meteo API. Search a city and view current conditions, hourly and daily forecasts.">  
+  <meta name="theme-color" content="#6D28D9">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .gradient-text { background: linear-gradient(90deg, #6D28D9, #9333EA); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .card { background: #fff; border: 1px solid #E2E8F0; border-radius: 1rem; box-shadow: 0 10px 20px rgba(109,40,217,0.08); }
+  </style>
+</head>
+<body class="antialiased bg-gray-50">
+  <!-- Production Banner -->
+  <div class="bg-yellow-50 border-b border-yellow-200 text-yellow-900 text-sm text-center py-2 px-4">
+    Status: <strong>Production</strong> — The platform is live and fully available.
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold gradient-text">SmartInvestsi</a>
+      <nav class="text-sm text-gray-700">
+        <a href="/" class="hover:text-purple-700">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 py-8" id="main-content">
+    <section class="text-center mb-8">
+      <h1 class="text-4xl font-extrabold mb-2 gradient-text">Weather Dashboard</h1>
+      <p class="text-gray-600">Search any city and get current conditions, hourly temperature, and a 7-day forecast (powered by Open‑Meteo).</p>
+    </section>
+
+    <!-- Search Card -->
+    <section class="card p-6 mb-8">
+      <form id="cityForm" class="grid md:grid-cols-3 gap-3" aria-label="Search city">
+        <input id="cityInput" type="text" placeholder="Enter city (e.g., Nairobi)" required class="md:col-span-2 border rounded px-4 py-2 focus:outline-none focus:border-purple-600" aria-label="City name">
+        <button type="submit" class="bg-purple-600 text-white rounded px-4 py-2 font-semibold hover:bg-purple-700">Search</button>
+      </form>
+      <div id="searchStatus" class="text-sm text-gray-500 mt-2" aria-live="polite">Tip: Try city + country, e.g., "Lagos, NG"</div>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="grid lg:grid-cols-3 gap-6">
+      <!-- Current Conditions -->
+      <div class="card p-6">
+        <h2 class="text-2xl font-bold mb-4 text-slate-900">Current Conditions</h2>
+        <div id="currentWeather" class="text-sm text-gray-700">Search a city to load data.</div>
+      </div>
+
+      <!-- Hourly Temperature -->
+      <div class="card p-6 lg:col-span-2">
+        <h2 class="text-2xl font-bold mb-4 text-slate-900">Hourly Temperature (next 24h)</h2>
+        <div id="hourlyTemps" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm"></div>
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="card p-6 lg:col-span-3">
+        <h2 class="text-2xl font-bold mb-4 text-slate-900">7‑Day Forecast</h2>
+        <div id="dailyForecast" class="grid sm:grid-cols-2 lg:grid-cols-7 gap-3 text-sm"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-white py-8 px-4 mt-12">
+    <div class="max-w-7xl mx-auto text-center">
+      <p>&copy; 2026 SmartInvestsi. All rights reserved.</p>
+      <div class="mt-2 text-sm text-purple-100" id="weatherContactLine">Contact: --</div>
+      <div class="mt-1 text-xs text-purple-200">Status: Production</div>
+    </div>
+  </footer>
+
+  <script>
+    async function loadWeatherContact() {
+      try {
+        const res = await fetch('/api/public-config');
+        const data = await res.json();
+        const line = document.getElementById('weatherContactLine');
+        if (!line) return;
+        const parts = [data.supportPhone, data.supportEmail].filter(Boolean);
+        line.textContent = parts.length ? `Contact: ${parts.join(' • ')}` : 'Contact: --';
+      } catch (e) {
+        const line = document.getElementById('weatherContactLine');
+        if (line) line.textContent = 'Contact: --';
+      }
+    }
+
+    loadWeatherContact();
+  </script>
+  <script src="/public/js/weather-dashboard.js"></script>
+</body>
+</html>

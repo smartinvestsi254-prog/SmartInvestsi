@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kenya Diplomatic Documents</title>
+  <meta name="description" content="Diplomatic document repository for briefing notes, protocols, and agreements.">
+  <link rel="stylesheet" href="/public/css/diplomacy.css">
+  <script src="/public/js/diplomacy-data.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell header-inner">
+      <div class="brand">
+        Kenya Diplomacy Portal
+        <span>Documents and Briefing Notes</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="/diplomacy/index.html">Overview</a>
+        <a class="nav-link" href="/diplomacy/missions.html">Missions</a>
+        <a class="nav-link" href="/diplomacy/treaties.html">Treaties</a>
+        <a class="nav-link" href="/diplomacy/delegations.html">Delegations</a>
+        <a class="nav-link active" href="/diplomacy/documents.html">Documents</a>
+        <a class="nav-link" href="/index.html">SmartInvest</a>
+        <a class="cta" href="/contact.html">Engage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="page-shell hero-grid">
+        <div>
+          <div class="badge">Document Center</div>
+          <h1 class="hero-title">Diplomatic Briefings and Protocols</h1>
+          <p class="hero-subtitle">Central access to notes verbales, treaty drafts, and delegation briefings.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Quick Actions</h3>
+          <ul class="list">
+            <li>Prepare briefing packs for leadership visits</li>
+            <li>Share protocol guidance with mission teams</li>
+            <li>Track treaty implementation documentation</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell">
+        <h2 class="section-title">Document Libraries</h2>
+        <div id="documentCategoryCounts" class="grid" style="margin-top: 20px;">
+          <!-- Dynamic document category counts loaded here -->
+          <div class="card">
+            <h3>Loading documents...</h3>
+            <p>Please wait while we fetch document data.</p>
+          </div>
+        </div>
+        
+        <h2 class="section-title" style="margin-top: 40px;">Recent Documents</h2>
+        <div id="recentDocumentsList" style="margin-top: 20px;">
+          <!-- Recent documents table -->
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell grid">
+        <div class="card">
+          <h3>Document Upload Request</h3>
+          <p>Submit new documents for review and cataloging.</p>
+          <div class="form-grid" style="margin-top: 12px;">
+            <input class="input" type="text" placeholder="Document title">
+            <input class="input" type="text" placeholder="Owner department">
+            <select class="select">
+              <option>Category</option>
+              <option>Briefing Note</option>
+              <option>Protocol Guide</option>
+              <option>Treaty Draft</option>
+              <option>Economic Diplomacy</option>
+            </select>
+            <textarea class="textarea" placeholder="Summary and usage guidance"></textarea>
+            <button class="btn-primary" type="button">Submit for Review</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Governance</h3>
+          <p>Ensure document security and classification standards.</p>
+          <ul class="list">
+            <li>Review cadence: bi-weekly</li>
+            <li>Access tiers: public, restricted, confidential</li>
+            <li>Retention aligned with legal requirements</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer-grid">
+      <div>
+        <h3>Document Center</h3>
+        <p>One source of truth for diplomacy documentation.</p>
+      </div>
+      <div>
+        <h4>Portal</h4>
+        <ul class="list">
+          <li><a href="/diplomacy/index.html">Overview</a></li>
+          <li><a href="/diplomacy/missions.html">Missions</a></li>
+          <li><a href="/diplomacy/treaties.html">Treaties</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>SmartInvest</h4>
+        <ul class="list">
+          <li><a href="/index.html">SmartInvest Home</a></li>
+          <li><a href="/catalog.html">Products</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Load and display documents on page load
+    async function loadDocumentsPage() {
+      const categoryContainer = document.getElementById('documentCategoryCounts');
+      const recentContainer = document.getElementById('recentDocumentsList');
+      
+      try {
+        const documents = await window.DiplomacyAPI.loadDocuments();
+        
+        if (documents.length === 0) {
+          categoryContainer.innerHTML = `
+            <div class="card">
+              <h3>No documents found</h3>
+              <p>The document library is currently empty.</p>
+            </div>
+          `;
+          recentContainer.innerHTML = '';
+          return;
+        }
+        
+        // Count documents by category
+        const categoryCounts = documents.reduce((acc, doc) => {
+          const cat = doc.category || 'UNCATEGORIZED';
+          acc[cat] = (acc[cat] || 0) + 1;
+          return acc;
+        }, {});
+        
+        // Render category cards
+        categoryContainer.innerHTML = Object.entries(categoryCounts).map(([category, count]) => `
+          <div class="card">
+            <h3>${window.DiplomacyAPI.formatDocumentCategory(category)}</h3>
+            <p>${count} document${count !== 1 ? 's' : ''} available</p>
+            <button class="btn-primary" type="button" style="margin-top: 12px;" 
+                    onclick="filterByCategory('${category}')">View Library</button>
+          </div>
+        `).join('');
+        
+        // Show recent documents (most recent 10)
+        const recentDocs = documents
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10);
+        
+        recentContainer.innerHTML = `
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Classification</th>
+                  <th>Author</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recentDocs.map(doc => `
+                  <tr>
+                    <td>${doc.title || 'Untitled'}</td>
+                    <td>${window.DiplomacyAPI.formatDocumentCategory(doc.category)}</td>
+                    <td>${window.DiplomacyAPI.formatClassification(doc.classification)}</td>
+                    <td>${doc.author || 'Unknown'}</td>
+                    <td>${window.DiplomacyAPI.formatDate(doc.createdAt)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        
+      } catch (error) {
+        console.error('Failed to load documents:', error);
+        categoryContainer.innerHTML = `
+          <div class="card">
+            <h3>Error loading documents</h3>
+            <p>Unable to fetch document data at this time. Please try again later.</p>
+          </div>
+        `;
+        recentContainer.innerHTML = '';
+      }
+    }
+    
+    function filterByCategory(category) {
+      // Placeholder for future category filtering functionality
+      console.log('Filter by category:', category);
+      alert(`Viewing documents in category: ${window.DiplomacyAPI.formatDocumentCategory(category)}`);
+    }
+    
+    // Load on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadDocumentsPage);
+    } else {
+      loadDocumentsPage();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Trading Admin</title>
+  <style>table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px}</style>
+</head>
+<body>
+  <h2>Admin Ledger & Trades</h2>
+  <div id="admin"></div>
+  <h3>Trades</h3>
+  <table id="trades"><thead><tr><th>id</th><th>user</th><th>symbol</th><th>side</th><th>qty</th><th>price</th><th>fee</th><th>time</th></tr></thead><tbody></tbody></table>
+
+  <script>
+    async function load() {
+      const r = await fetch('/api/v1/admin/ledger');
+      const j = await r.json();
+      document.getElementById('admin').innerText = JSON.stringify(j.admin, null, 2);
+      const tb = document.querySelector('#trades tbody');
+      tb.innerHTML = '';
+      for (const t of j.trades) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${t.id}</td><td>${t.userId}</td><td>${t.symbol}</td><td>${t.side}</td><td>${t.qty}</td><td>${t.price}</td><td>${t.fee}</td><td>${t.timestamp}</td>`;
+        tb.appendChild(row);
+      }
+    }
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>

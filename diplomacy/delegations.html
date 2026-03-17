@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kenya Delegations Portal</title>
+  <meta name="description" content="Plan, schedule, and coordinate Kenya official delegations and protocol needs.">
+  <link rel="stylesheet" href="/public/css/diplomacy.css">
+  <script src="/public/js/diplomacy-data.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell header-inner">
+      <div class="brand">
+        Kenya Diplomacy Portal
+        <span>Delegations and Protocol</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="/diplomacy/index.html">Overview</a>
+        <a class="nav-link" href="/diplomacy/missions.html">Missions</a>
+        <a class="nav-link" href="/diplomacy/treaties.html">Treaties</a>
+        <a class="nav-link active" href="/diplomacy/delegations.html">Delegations</a>
+        <a class="nav-link" href="/diplomacy/documents.html">Documents</a>
+        <a class="nav-link" href="/index.html">SmartInvest</a>
+        <a class="cta" href="/contact.html">Engage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="page-shell hero-grid">
+        <div>
+          <div class="badge">Delegations</div>
+          <h1 class="hero-title">Plan Official Visits with Confidence</h1>
+          <p class="hero-subtitle">Coordinate schedules, protocol, and stakeholder briefings for incoming and outgoing delegations.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Protocol Readiness</h3>
+          <p>Track arrivals, security coordination, and briefing documents.</p>
+          <ul class="list">
+            <li>Arrival brief and transport plan</li>
+            <li>Engagement objectives and outcomes</li>
+            <li>Security and medical coverage</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell">
+        <h2 class="section-title">Upcoming Delegations</h2>
+        <div id="delegationCards" class="grid" style="margin-top: 20px;">
+          <!-- Dynamic delegation cards loaded here -->
+          <div class="card">
+            <h3>Loading delegations...</h3>
+            <p>Please wait while we fetch delegation data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell grid">
+        <div class="card">
+          <h3>Visit Planning Checklist</h3>
+          <ul class="list">
+            <li>Confirm objectives, KPIs, and briefing schedule.</li>
+            <li>Prepare protocol itinerary and protocol gifts.</li>
+            <li>Coordinate security, transport, and venue bookings.</li>
+            <li>Align media coverage and public diplomacy messaging.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Request Protocol Support</h3>
+          <p>Submit delegation details for centralized coordination.</p>
+          <div class="form-grid" style="margin-top: 12px;">
+            <input class="input" type="text" placeholder="Delegation name">
+            <input class="input" type="text" placeholder="Lead ministry">
+            <input class="input" type="text" placeholder="Dates">
+            <select class="select">
+              <option>Priority level</option>
+              <option>Critical</option>
+              <option>High</option>
+              <option>Standard</option>
+            </select>
+            <textarea class="textarea" placeholder="Objectives and support needs"></textarea>
+            <button class="btn-primary" type="button">Submit Request</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="page-shell">
+        <div class="notice">
+          <strong>Investment Diplomacy:</strong> Link visit agendas with SmartInvest opportunities to brief investors and sector partners.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer-grid">
+      <div>
+        <h3>Delegations Portal</h3>
+        <p>Protocol planning and stakeholder alignment for Kenya official visits.</p>
+      </div>
+      <div>
+        <h4>Portal</h4>
+        <ul class="list">
+          <li><a href="/diplomacy/index.html">Overview</a></li>
+          <li><a href="/diplomacy/missions.html">Missions</a></li>
+          <li><a href="/diplomacy/treaties.html">Treaties</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>SmartInvest</h4>
+        <ul class="list">
+          <li><a href="/index.html">SmartInvest Home</a></li>
+          <li><a href="/dashboard.html">Investor Dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Load and display delegations on page load
+    async function loadDelegationsPage() {
+      const cardsContainer = document.getElementById('delegationCards');
+      
+      try {
+        const delegations = await window.DiplomacyAPI.loadDelegations();
+        
+        if (delegations.length === 0) {
+          cardsContainer.innerHTML = `
+            <div class="card">
+              <h3>No delegations scheduled</h3>
+              <p>No delegation visits are currently planned.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Render delegation cards
+        cardsContainer.innerHTML = delegations.map(delegation => `
+          <div class="card">
+            <h3>${delegation.name || 'Unnamed Delegation'}</h3>
+            <p><strong>${window.DiplomacyAPI.formatDelegationType(delegation.type)}</strong></p>
+            <p>${delegation.purpose || 'Purpose not specified.'}</p>
+            <ul class="list">
+              ${delegation.startDate ? `<li>Date: ${window.DiplomacyAPI.formatDate(delegation.startDate)}</li>` : ''}
+              ${delegation.leadMinistry ? `<li>Lead: ${delegation.leadMinistry}</li>` : ''}
+              ${delegation.hostCountry ? `<li>Host: ${delegation.hostCountry}</li>` : ''}
+              ${delegation.status ? `<li>Status: ${window.DiplomacyAPI.formatDelegationStatus(delegation.status)}</li>` : ''}
+            </ul>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Failed to load delegations:', error);
+        cardsContainer.innerHTML = `
+          <div class="card">
+            <h3>Error loading delegations</h3>
+            <p>Unable to fetch delegation data at this time. Please try again later.</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Load on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadDelegationsPage);
+    } else {
+      loadDelegationsPage();
+    }
+  </script>
+</body>
+</html>
