@@ -204,3 +204,9 @@ netlify.toml
 *.old
 *.orig.env
 
+=======
+.env
+.env.local
+.env.*
+.env.example
+>>>>>>> 34f3c594b94c44c55c5916363ba1739f308622eb
