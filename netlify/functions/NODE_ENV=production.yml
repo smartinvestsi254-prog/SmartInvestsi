@@ -1,0 +1,33 @@
+NODE_ENV=production
+APP_URL=https://smartinvestsi.netlify.app
+
+# AUTH
+JWT_SECRET=...
+SESSION_SECRET=...
+
+# DATABASE
+DATABASE_URL=...
+
+# SUPABASE
+NEXT_PUBLIC_SUPABASE_URL=https://jgfwspohngwhfspgkfph.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+# PAYPAL
+PAYPAL_CLIENT_ID=...
+PAYPAL_CLIENT_SECRET=...
+PAYPAL_RETURN_URL=https://smartinvestsi.netlify.app/paypal/return
+PAYPAL_CANCEL_URL=https://smartinvestsi.netlify.app/paypal/cancel
+
+# MPESA
+MPESA_CONSUMER_KEY=...
+MPESA_CONSUMER_SECRET=...
+MPESA_CALLBACK_URL=https://smartinvestsi.netlify.app/api/pochi/callback
+
+# EMAIL
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=smartinvestsi254@gmail.com
+EMAIL_PASSWORD=...
+
+# API
+ALPHAVANTAGE_API_KEY=...
