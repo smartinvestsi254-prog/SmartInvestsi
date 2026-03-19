@@ -24,7 +24,6 @@
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
-    "postinstall": "prisma generate",
   },
 
   "dependencies": {
@@ -55,5 +54,6 @@
     "ts-jest": "^29.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0"
-  }
+  },
+    "postinstall": "prisma generate"
 }
