@@ -2,10 +2,10 @@
   "name": "smartinvestsi",
   "version": "1.0.0",
   "description": "SmartInvest - Investment Management Platform",
-  "main": "src/server.ts",
+  "main": "dist/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npx tsc && npm run prisma:generate && npx tsc -p netlify/tsconfig.json",
+    "build": "prisma generate && npx tsc",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
     "start:server.js": "node server.js",
@@ -23,7 +23,8 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "node prisma/seed.js"
+    "prisma:seed": "node prisma/seed.js",
+    "postinstall": "prisma generate",
   },
 
   "dependencies": {
