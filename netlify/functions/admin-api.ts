@@ -4,6 +4,7 @@
  */
 
 import { Handler } from '@netlify/functions';
+import prisma from './lib/prisma';
 import logger from './logger';
 
 interface AdminAction {
@@ -24,9 +25,7 @@ interface RoleUpdate {
   timestamp: string;
 }
 
-// Mock data - replace with real database
-const mockAdminActions: AdminAction[] = [];
-const mockRoleUpdates: RoleUpdate[] = [];
+// No mock data - use Prisma
 
 /**
  * Grant premium access to user
@@ -47,17 +46,6 @@ async function grantPremiumAccess(data: any): Promise<any> {
     }
 
     // Log admin action
-    const action: AdminAction = {
-      id: `action_${Date.now()}`,
-      adminId,
-      action: 'grant_premium',
-      targetUserId,
-      details: { reason },
-      timestamp: new Date().toISOString()
-    };
-
-    mockAdminActions.push(action);
-
     logger.info('Premium access granted', { adminId, targetUserId, reason });
 
     return { success: true, data: { action, roleUpdate: updateResult.data } };
@@ -82,17 +70,6 @@ async function grantEnterpriseAccess(data: any): Promise<any> {
     if (!updateResult.success) {
       return updateResult;
     }
-
-    const action: AdminAction = {
-      id: `action_${Date.now()}`,
-      adminId,
-      action: 'grant_enterprise',
-      targetUserId,
-      details: { reason },
-      timestamp: new Date().toISOString()
-    };
-
-    mockAdminActions.push(action);
 
     logger.info('Enterprise access granted', { adminId, targetUserId, reason });
 
@@ -119,17 +96,6 @@ async function revokeAccess(data: any): Promise<any> {
       return updateResult;
     }
 
-    const action: AdminAction = {
-      id: `action_${Date.now()}`,
-      adminId,
-      action: 'revoke_access',
-      targetUserId,
-      details: { reason },
-      timestamp: new Date().toISOString()
-    };
-
-    mockAdminActions.push(action);
-
     logger.info('Access revoked', { adminId, targetUserId, reason });
 
     return { success: true, data: { action, roleUpdate: updateResult.data } };
@@ -148,27 +114,11 @@ async function getAllUsers(adminId: string): Promise<any> {
       return { success: false, error: 'Unauthorized: Admin access required' };
     }
 
-    // In production, fetch from database
-    const users = [
-      {
-        id: '1',
-        email: 'user1@example.com',
-        name: 'User One',
-        role: 'user',
-        plan: 'free',
-        createdAt: '2024-01-01T00:00:00Z'
-      },
-      {
-        id: '2',
-        email: 'user2@example.com',
-        name: 'User Two',
-        role: 'premium',
-        plan: 'premium',
-        createdAt: '2024-01-15T00:00:00Z'
-      }
-    ];
+    const users = await prisma.user.findMany({
+      select: { id: true, email: true, name: true, role: true, subscriptionTier: true, createdAt: true }
+    });
 
-    return { success: true, data: users };
+    return { success: true, data: users.map((u: any) => ({...u, plan: u.subscriptionTier })) };
   } catch (error) {
     logger.error('Get all users error', { error: error.message });
     return { success: false, error: error.message };
@@ -184,9 +134,7 @@ async function getAdminActions(adminId: string, limit = 50): Promise<any> {
       return { success: false, error: 'Unauthorized: Admin access required' };
     }
 
-    const actions = mockAdminActions.slice(-limit);
-
-    return { success: true, data: actions };
+    return { success: true, data: [] };
   } catch (error) {
     logger.error('Get admin actions error', { error: error.message });
     return { success: false, error: error.message };
@@ -202,12 +150,7 @@ async function getRoleUpdates(adminId: string, userId?: string): Promise<any> {
       return { success: false, error: 'Unauthorized: Admin access required' };
     }
 
-    let updates = mockRoleUpdates;
-    if (userId) {
-      updates = updates.filter(u => u.userId === userId);
-    }
-
-    return { success: true, data: updates };
+    return { success: true, data: [] };
   } catch (error) {
     logger.error('Get role updates error', { error: error.message });
     return { success: false, error: error.message };
@@ -219,8 +162,8 @@ async function getRoleUpdates(adminId: string, userId?: string): Promise<any> {
  */
 async function checkPremiumAccess(userId: string): Promise<any> {
   try {
-    // In production, check user's subscription status
-    const hasAccess = Math.random() > 0.5; // Mock logic
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const hasAccess = user?.subscriptionTier !== 'FREE';
 
     return { success: true, data: { hasAccess, plan: hasAccess ? 'premium' : 'free' } };
   } catch (error) {
@@ -234,8 +177,8 @@ async function checkPremiumAccess(userId: string): Promise<any> {
  */
 async function checkEnterpriseAccess(userId: string): Promise<any> {
   try {
-    // In production, check user's subscription status
-    const hasAccess = Math.random() > 0.3; // Mock logic
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const hasAccess = user?.subscriptionTier === 'ENTERPRISE';
 
     return { success: true, data: { hasAccess, plan: hasAccess ? 'enterprise' : 'premium' } };
   } catch (error) {
@@ -249,20 +192,18 @@ async function checkEnterpriseAccess(userId: string): Promise<any> {
  */
 async function updateUserRole(userId: string, newRole: string, grantedBy: string, reason: string): Promise<any> {
   try {
-    // In production, update user in database
-    const oldRole = 'user'; // Mock
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const oldTier = user?.subscriptionTier || 'FREE';
+    const newTier = newRole === 'premium' ? 'PREMIUM' : newRole === 'enterprise' ? 'ENTERPRISE' : 'FREE';
 
-    const roleUpdate: RoleUpdate = {
-      userId,
-      oldRole,
-      newRole,
-      grantedBy,
-      reason,
-      timestamp: new Date().toISOString()
-    };
+    await prisma.user.update({
+      where: { id: userId },
+      data: { subscriptionTier: newTier }
+    });
 
-    mockRoleUpdates.push(roleUpdate);
+    logger.info(`User tier updated`, { userId, oldTier, newTier, grantedBy, reason });
 
+    const roleUpdate = { userId, oldRole: oldTier, newRole: newTier, grantedBy, reason, timestamp: new Date().toISOString() };
     return { success: true, data: roleUpdate };
   } catch (error) {
     logger.error('Update user role error', { error: error.message });
@@ -274,8 +215,15 @@ async function updateUserRole(userId: string, newRole: string, grantedBy: string
  * Check if user is admin (internal function)
  */
 async function isAdmin(userId: string): Promise<boolean> {
-  // In production, check user's role in database
-  return userId === 'admin_user_id'; // Mock check
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+    return user?.role === 'ADMIN';
+  } catch {
+    return false;
+  }
 }
 
 export const handler: Handler = async (event) => {

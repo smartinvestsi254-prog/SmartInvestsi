@@ -428,8 +428,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   // Send sanitized error to client
   res.status(statusCode).json({
     error: sanitized,
-  }
-  });
+})  
 });
 
 function requireUser(req: any) {

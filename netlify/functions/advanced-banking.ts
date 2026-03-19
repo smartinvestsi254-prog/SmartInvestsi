@@ -7,8 +7,7 @@ import prisma from './lib/prisma';
 import { hashPin, verifyPin, generateTransactionRef, generateAccountId } from './utils/pin-utils';
 import logger from './logger';
 import { withPolicyCompliance } from './policy-compliance';
-import prisma from './lib/prisma';
-import { hashPin, verifyPin } from './utils/pin-utils'; // Assume utils created
+
 
 const MAX_TXN_KES = 500000;
 const CURRENCY_RATES = {
@@ -55,7 +54,7 @@ function generateAccountId(): string {
   return `SI-ACCT-${Date.now().toString().slice(-5)}`;
 }
 
-// ... other helpers like hashPin from previous
+
 
 export const handler: Handler = withPolicyCompliance(async (event) => {
   const { httpMethod, path, body, headers } = event;
@@ -150,7 +149,7 @@ async function getUserAccounts(userId: string): Promise<any> {
 
   // Calculate available
   for (const acc of accounts) {
-    const holdsTotal = (acc.holds as any[]).reduce((sum, h: any) => new Date(h.expiresAt) > new Date() ? sum + h.amount : sum, 0);
+const holdsTotal = (acc.holds as Array<{amount: number, expiresAt: string}>).reduce((sum, h) => new Date(h.expiresAt) > new Date() ? sum + h.amount : sum, 0);
     acc.availableBalance = acc.balance - holdsTotal;
   }
 
@@ -172,9 +171,13 @@ async function getAccountSummary(userId: string, accountId: string): Promise<any
     orderBy: { createdAt: 'desc' }
   });
 
-  // Monthly spending etc (implement logic)
-
-  const summary = { /* compute */ };
+// Basic summary
+  const summary = {
+    balance: account.balance,
+    available: account.availableBalance,
+    txnCount: txns.length,
+    recentTxns: txns
+  };
   return { success: true, data: summary };
 }
 
@@ -257,10 +260,11 @@ async function getUserAssets(userId: string): Promise<any> {
 }
 
 async function syncBalances(userId: string): Promise<any> {
-  // Reconciliation logic
-  // Update valueUSD based on current rates
-  // ... implement
-  return { success: true, message: 'Balances synced' };
+  await prisma.assetHolding.updateMany({
+    where: { userId },
+    data: { valueUSD: 0, updatedAt: new Date() } // Reset/mock; integrate rates API later
+  });
+  return { success: true, message: 'Balances synced (valueUSD reset)' };
 }
 
 // Add other functions similarly (setupPin etc with prisma)

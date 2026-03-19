@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && npm run prisma:generate && tsc -p netlify/tsconfig.json",
+    "build": "npx tsc && npm run prisma:generate && npx tsc -p netlify/tsconfig.json",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
     "start:server.js": "node server.js",
