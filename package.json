@@ -23,7 +23,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "node prisma/seed.js",
+    "prisma:seed": "node prisma/seed.js"
   },
 
   "dependencies": {
