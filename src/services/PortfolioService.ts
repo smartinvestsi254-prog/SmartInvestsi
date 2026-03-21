@@ -1,8 +1,9 @@
 // src/services/PortfolioService.ts
 import { PrismaClient } from '@prisma/client';
 import { checkFeatureAccess, SubscriptionTier } from '../lib/tier-access-control';
+import { dbClient } from '../../lib/db-client';
 
-const prisma = new PrismaClient();
+const prisma = dbClient.getClient();
 
 export class PortfolioService {
   

@@ -7,9 +7,9 @@
 // ===========================================
 
 generator client {
-  provider = "prisma-client-js"
-  // Optimize for serverless/edge deployments
-  previewFeatures = ["jsonProtocol"]
+  provider  = "prisma-client-js"
+  engineType = "binary"  // v7: explicit serverless/edge
+  // Removed previewFeatures - stable in v7
 }
 
 datasource db {

@@ -1,6 +1,7 @@
 import { PrismaClient, DataUsagePurpose, IncidentSeverity, IncidentStatus, LicenseStatus, UserRole, WorkflowState } from "@prisma/client";
+import { dbClient } from '../src/lib/db-client';
 
-const prisma = new PrismaClient();
+const prisma = dbClient.getClient();
 
 async function upsertUser(params: { id: string; email: string; name: string; role: UserRole }) {
   return prisma.user.upsert({

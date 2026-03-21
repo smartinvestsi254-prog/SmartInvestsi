@@ -35,7 +35,8 @@ import paymentRouter from "./routes/payment-routes";
 import { autoReconcileTransactions, handleFailedTransaction } from "./utils/reconciliation-error-handler";
 import { sendEmail } from "./utils/mailer";
 
-const prisma = new PrismaClient();
+import { dbClient, dbHealth } from './lib/db-client';
+const prisma = dbClient.getClient();
 const app = express();
 app.set("trust proxy", 1);
 

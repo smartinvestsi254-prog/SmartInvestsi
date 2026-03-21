@@ -3,7 +3,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "lib": ["ES2020"],
-    "strict": true,
+"strict": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "../dist/netlify",

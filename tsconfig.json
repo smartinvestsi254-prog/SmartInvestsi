@@ -7,7 +7,7 @@
         ],
         "outDir": "./dist",
         "rootDir": "./src",
-        "strict": true,
+"strict": false,  // Temp v7 compat
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,

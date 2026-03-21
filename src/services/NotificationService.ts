@@ -1,7 +1,8 @@
 // src/services/NotificationService.ts
 import { PrismaClient } from '@prisma/client';
+import { dbClient } from '../../../lib/db-client';
 
-const prisma = new PrismaClient();
+const prisma = dbClient.getClient();
 
 export class NotificationService {
   

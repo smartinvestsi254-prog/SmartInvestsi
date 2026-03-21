@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider  = "prisma-client-js"
+  engineType = "binary"  // v7: explicit for serverless compat
 }
 
 datasource db {
@@ -10,77 +11,77 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  name             String?
-  role             Role     @default(USER)
-  termsAcceptedAt  DateTime?
-  emailVerifiedAt  DateTime?
-  failedLoginAttempts Int    @default(0)
-  isBanned         Boolean  @default(false)
-  twoFactorSecret  String?
-  lastFailedLogin  DateTime?
-  subscriptionTier String?  @default("FREE")
-  accounts         BankAccount[]
-  assets           AssetHolding[]
-  transactions     Transaction[]
-  subscriptions    Subscription[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  payments         Payment[]
+  id                  String         @id @default(cuid())
+  email               String         @unique
+  name                String?
+  role                Role           @default(USER)
+  termsAcceptedAt     DateTime?
+  emailVerifiedAt     DateTime?
+  failedLoginAttempts Int            @default(0)
+  isBanned            Boolean        @default(false)
+  twoFactorSecret     String?
+  lastFailedLogin     DateTime?
+  subscriptionTier    String?        @default("FREE")
+  accounts            BankAccount[]
+  assets              AssetHolding[]
+  transactions        Transaction[]
+  subscriptions       Subscription[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  payments            Payment[]
 
   @@index([email])
   @@index([isBanned])
 }
 
 model BankAccount {
-  id              String   @id @default(cuid())
-  accountId       String   @unique // SI-ACCT-XXXXX
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type            String   // checking/savings/investment
-  currency        String
-  balance         Float    @default(0)
-  availableBalance Float   @default(0)
-  status          String   @default("active") // active/frozen/closed
-  kycLevel        String   @default("basic")
-  transactionPin  String?  // hashed
-  pinAttempts     Int      @default(0)
-  pinLockedUntil  DateTime?
-  holds           Json[]
-  createdAt       DateTime @default(now())
-  lastActivity    DateTime @updatedAt
+  id               String    @id @default(cuid())
+  accountId        String    @unique // SI-ACCT-XXXXX
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type             String // checking/savings/investment
+  currency         String
+  balance          Float     @default(0)
+  availableBalance Float     @default(0)
+  status           String    @default("active") // active/frozen/closed
+  kycLevel         String    @default("basic")
+  transactionPin   String? // hashed
+  pinAttempts      Int       @default(0)
+  pinLockedUntil   DateTime?
+  holds            Json[]
+  createdAt        DateTime  @default(now())
+  lastActivity     DateTime  @updatedAt
 
-  transactions    Transaction[]
-  payments        Payment[]
+  transactions Transaction[]
+  payments     Payment[]
 
   @@index([userId])
 }
 
 model Payment {
-  id                String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId            String
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  bankAccountId     String
-  bankAccount       BankAccount @relation(fields: [bankAccountId], references: [id])
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
 
-  transactionId     String?   @unique
-  transaction       Transaction? @relation("PaymentTransaction", fields: [transactionId], references: [id])
+  transactionId String?      @unique
+  transaction   Transaction? @relation("PaymentTransaction", fields: [transactionId], references: [id])
 
-  checkoutRequestId String   @unique
-  mpesaReceipt      String?  @unique
+  checkoutRequestId String    @unique
+  mpesaReceipt      String?   @unique
   amount            Float
-  currency          String   @default("KES")
+  currency          String    @default("KES")
   phoneNumber       String
-  tillNumber        String   @default("5263811")
-  shortcode         String   @default("8038267")
-  status            String   @default("pending")
+  tillNumber        String    @default("5263811")
+  shortcode         String    @default("8038267")
+  status            String    @default("pending")
   subscriptionType  String?
   reference         String?
   callbackData      Json?
-  createdAt         DateTime @default(now())
+  createdAt         DateTime  @default(now())
   completedAt       DateTime?
 
   @@index([userId])
@@ -89,21 +90,21 @@ model Payment {
 }
 
 model Subscription {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan            String   // PREMIUM | ENTERPRISE
-  status          String   @default("active") // active | cancelled | expired | pending
-  startDate       DateTime @default(now())
-  endDate         DateTime?
-  nextBillingDate DateTime?
-  paymentMethod   String?  // mpesa | paypal | stripe | crypto
-  autoRenew       Boolean  @default(false)
-  currentPeriodStart DateTime @default(now())
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               String // PREMIUM | ENTERPRISE
+  status             String    @default("active") // active | cancelled | expired | pending
+  startDate          DateTime  @default(now())
+  endDate            DateTime?
+  nextBillingDate    DateTime?
+  paymentMethod      String? // mpesa | paypal | stripe | crypto
+  autoRenew          Boolean   @default(false)
+  currentPeriodStart DateTime  @default(now())
   currentPeriodEnd   DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  cancelledAt     DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  cancelledAt        DateTime?
 
   @@unique([userId, plan])
   @@index([userId])
@@ -112,40 +113,40 @@ model Subscription {
 }
 
 model Transaction {
-  id            String   @id @default(cuid())
-  transactionId String   @unique
+  id            String @id @default(cuid())
+  transactionId String @unique
 
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   fromAccountId String?
   toAccountId   String?
 
-  amount        Float
-  currency      String
-  description   String
-  status        String
-  fee           Float?
-  pinVerified   Boolean  @default(false)
-  autoApproved  Boolean  @default(false)
-  reference     String
-  createdAt     DateTime @default(now())
-  completedAt   DateTime?
+  amount       Float
+  currency     String
+  description  String
+  status       String
+  fee          Float?
+  pinVerified  Boolean   @default(false)
+  autoApproved Boolean   @default(false)
+  reference    String
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
 
   bankAccountId String
   bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
 
-  payment       Payment? @relation("PaymentTransaction")
+  payment Payment? @relation("PaymentTransaction")
 }
 
 model AssetHolding {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assetType String   // cash/crypto
-  symbol    String   // USD/BTC/ETH
+  assetType String // cash/crypto
+  symbol    String // USD/BTC/ETH
   quantity  Float
-  valueUSD  Float    // current value
+  valueUSD  Float // current value
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -157,4 +158,3 @@ enum Role {
   USER
   ADMIN
 }
-
