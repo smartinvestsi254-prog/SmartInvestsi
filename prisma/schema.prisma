@@ -28,7 +28,7 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   payments         Payment[]
-  
+
   @@index([email])
   @@index([isBanned])
 }
@@ -59,13 +59,16 @@ model BankAccount {
 
 model Payment {
   id                String   @id @default(cuid())
+
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bankAccountId      String
-  bankAccount        BankAccount  @relation(fields: [bankAccountId], references: [id])
-  
-  transaction       Transaction? @relation("PaymentTransaction")
-  
+
+  bankAccountId     String
+  bankAccount       BankAccount @relation(fields: [bankAccountId], references: [id])
+
+  transactionId     String?   @unique
+  transaction       Transaction? @relation("PaymentTransaction", fields: [transactionId], references: [id])
+
   checkoutRequestId String   @unique
   mpesaReceipt      String?  @unique
   amount            Float
@@ -73,8 +76,8 @@ model Payment {
   phoneNumber       String
   tillNumber        String   @default("5263811")
   shortcode         String   @default("8038267")
-  status            String   @default("pending") // pending/success/failed/cancelled
-  subscriptionType  String?  // premium/enterprise/one-time
+  status            String   @default("pending")
+  subscriptionType  String?
   reference         String?
   callbackData      Json?
   createdAt         DateTime @default(now())
@@ -110,15 +113,18 @@ model Subscription {
 
 model Transaction {
   id            String   @id @default(cuid())
-  transactionId String   @unique // TXN-XXXX
+  transactionId String   @unique
+
   userId        String
   user          User     @relation(fields: [userId], references: [id])
+
   fromAccountId String?
   toAccountId   String?
+
   amount        Float
   currency      String
   description   String
-  status        String   // pending/completed/failed
+  status        String
   fee           Float?
   pinVerified   Boolean  @default(false)
   autoApproved  Boolean  @default(false)
@@ -126,12 +132,10 @@ model Transaction {
   createdAt     DateTime @default(now())
   completedAt   DateTime?
 
-  bankAccountId  String
-  bankAccount    BankAccount  @relation(fields: [bankAccountId], references: [id])
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
 
-  payment        Payment?     @relation("PaymentTransaction")
-
-  @@index([userId, status])
+  payment       Payment? @relation("PaymentTransaction")
 }
 
 model AssetHolding {
