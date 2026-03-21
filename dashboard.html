@@ -152,11 +152,43 @@
                                 <h5 class="fw-bold mb-1">Personalized Plan</h5>
                                 <p class="text-muted mb-0">Share your goals to build a tailored investment path.</p>
                             </div>
-                            <span class="badge bg-info text-dark" id="onboardingStatus">Not started</span>
+<span class="badge bg-info text-dark" id="onboardingStatus">Not started</span>
                         </div>
                         <form id="onboardingForm" class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label class="form-label">Risk Tolerance</label>
+                                <select class="form-select" name="riskTolerance" id="riskTolerance" required>
+                                    <option value="CONSERVATIVE">Conservative</option>
+                                    <option value="MODERATE" selected>Moderate</option>
+                                    <option value="AGGRESSIVE">Aggressive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
                                 <label class="form-label">Primary Goal</label>
+                                <select class="form-select" name="investmentGoals" id="investmentGoals" required>
+                                    <option value="">Select goal</option>
+                                    <option value='["growth"]'>Growth</option>
+                                    <option value='["income"]'>Income</option>
+                                    <option value='["preservation"]'>Capital Preservation</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Crypto Interest</label>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="preferences[crypto]" id="cryptoPref" value="true">
+                                    <label class="form-check-label" for="cryptoPref">Include crypto</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Notifications</label>
+                                <select class="form-select" name="preferences[notification_freq]" id="notificationFreq">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Primary Goal (legacy)</label>
                                 <select class="form-select" name="goal" required>
                                     <option value="growth">Grow wealth</option>
                                     <option value="retirement">Retirement plan</option>
@@ -478,6 +510,55 @@
         });
 
         // other initialization code (payments, history) remains as before
+
+        // New Personalization integration
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target as HTMLFormDataElement);
+            const data = {
+                riskTolerance: document.getElementById('riskTolerance') as HTMLSelectElement)?.value,
+                investmentGoals: JSON.parse((document.getElementById('investmentGoals') as HTMLSelectElement)?.value || '[]'),
+                preferences: {
+                    crypto: (document.getElementById('cryptoPref') as HTMLInputElement)?.checked || false,
+                    notification_freq: (document.getElementById('notificationFreq') as HTMLSelectElement)?.value || 'weekly'
+                }
+            };
+
+            try {
+                const profileRes = await fetch('/.netlify/functions/personalization/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-user-id': await getCurrentUserId() }, // Assume getCurrentUserId from auth.js
+                    body: JSON.stringify(data)
+                });
+                const profile = await profileRes.json();
+
+                // Update status
+                document.getElementById('onboardingStatus').textContent = 'Saved';
+                document.getElementById('onboardingStatus').className = 'badge bg-success';
+
+                // Fetch and display recommendations
+                const recsRes = await fetch('/.netlify/functions/personalization/recommendations', {
+                    headers: { 'x-user-id': data.userId || await getCurrentUserId() }
+                });
+                const recs = await recsRes.json();
+                const actionsHtml = recs.data.map((rec: any) => `
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <h6>${rec.title}</h6>
+                            <p>${rec.description}</p>
+                            <a href="${rec.actionUrl}" class="btn btn-sm btn-primary">Take Action</a>
+                            ${rec.estimatedReturn ? `<span class="badge bg-success ms-2">${rec.estimatedReturn}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('onboardingActions').innerHTML = actionsHtml;
+                document.getElementById('onboardingSummary').textContent = `Your personalized plan is ready! Based on ${data.riskTolerance} risk tolerance.`;
+
+            } catch (err) {
+                alert('Save failed: ' + err);
+            }
+        });
+
     </script>
 </body>
 </html>

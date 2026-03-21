@@ -199,8 +199,8 @@ SMTP_PASS=your_app_password
 SMTP_FROM=noreply@smartinvest.africa
 
 # Application
-BASE_URL=https://smartinvest.africa
-SUPPORT_EMAIL=support@smartinvest.africa
+BASE_URL=https://smartinvestsi.netlify.app
+SUPPORT_EMAIL=support@smartinvestsi.africa
 ```
 
 ## Security Considerations

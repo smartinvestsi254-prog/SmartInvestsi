@@ -1,129 +1,115 @@
-// src/services/ReferralService.ts
 import { PrismaClient } from '@prisma/client';
-import crypto from 'crypto';
+import { dbClient } from '../../lib/db-client';
+import { personalizationService } from './PersonalizationService';
 
-const prisma = new PrismaClient();
+const prisma = dbClient.getClient();
 
 export class ReferralService {
-  
-  async generateReferralCode(userEmail: string): Promise<string> {
-    // Check if user already has a code
-    const existing = await prisma.referral.findFirst({
-      where: {
-        referrerEmail: userEmail,
-        status: { not: 'EXPIRED' }
-      }
-    });
-
-    if (existing) {
-      return existing.referralCode;
-    }
-
-    // Generate unique code
-    const code = this.createUniqueCode(userEmail);
-    
-    await prisma.referral.create({
+  /**
+   * Generate referral code/link for user
+   */
+  async generateReferralCode(userId: string): Promise<string> {
+    const code = `REF-${userId.slice(-6)}${Math.random().toString(36).substr(2,4).toUpperCase()}`;
+    // Store in user prefs or separate table if needed
+    await prisma.userProfile.update({
+      where: { userId },
       data: {
-        referrerEmail: userEmail,
-        referralCode: code,
-        status: 'PENDING'
+        preferences: {
+          update: {
+            referralCode: code,
+            referralLink: `/signup?ref=${code}`
+          }
+        }
       }
-    });
+    }).catch(() => {}); // Ignore if no profile
 
     return code;
   }
 
-  private createUniqueCode(email: string): string {
-    const hash = crypto.createHash('sha256').update(email + Date.now()).digest('hex');
-    return hash.substring(0, 8).toUpperCase();
+  /**
+   * Create new referral
+   */
+  async createReferral(userId: string, refereeEmail: string): Promise<any> {
+    // Check if referrer has active referrals limit (tier-based)
+    const count = await prisma.referral.count({ where: { referrerId: userId } });
+    if (count >= 10) throw new Error('Referral limit reached (10 max)');
+
+    const referral = await prisma.referral.create({
+      data: {
+        referrerId: userId,
+        refereeEmail,
+        status: 'PENDING',
+        rewardTier: 'PREMIUM' // Default, upgrade on signup
+      },
+      include: { referrer: { select: { email: true } } }
+    });
+
+    logger.info('Referral created', { referralId: referral.id, referrerId: userId, refereeEmail });
+    return referral;
   }
 
-  async applyReferralCode(referredEmail: string, referralCode: string) {
+  /**
+   * Complete referral when referee signs up
+   */
+  async completeReferral(referralId: string, refereeId: string): Promise<any> {
     const referral = await prisma.referral.findUnique({
-      where: { referralCode }
+      where: { id: referralId },
+      include: { referrer: true }
     });
 
-    if (!referral) {
-      throw new Error('Invalid referral code');
+    if (!referral || referral.status !== 'PENDING') {
+      throw new Error('Invalid or already completed referral');
     }
 
-    if (referral.status !== 'PENDING') {
-      throw new Error('Referral code already used or expired');
-    }
+    await prisma.$transaction(async (tx) => {
+      // Update referral status
+      await tx.referral.update({
+        where: { id: referralId },
+        data: {
+          status: 'REWARDED',
+          refereeId,
+          completedAt: new Date()
+        }
+      });
 
-    if (referral.referrerEmail === referredEmail) {
-      throw new Error('Cannot use your own referral code');
-    }
-
-    // Update referral
-    await prisma.referral.update({
-      where: { referralCode },
-      data: {
-        referredEmail,
-        status: 'CONVERTED',
-        convertedAt: new Date()
+      // Auto-grant reward to referrer (mock admin grant)
+      if (referral.rewardTier === 'PREMIUM') {
+        // Call admin logic or direct update
+        await tx.user.update({
+          where: { id: referral.referrerId },
+          data: { subscriptionTier: 'PREMIUM' } // Extend for expiry
+        });
       }
     });
 
-    // Grant rewards to both parties
-    await this.grantRewards(referral.referrerEmail, referredEmail);
-
-    return { success: true, message: 'Referral applied successfully' };
+    logger.info('Referral completed & rewarded', { referralId, referrerId: referral.referrerId, refereeId });
+    return { success: true, message: 'Referral completed, reward granted' };
   }
 
-  private async grantRewards(referrerEmail: string, referredEmail: string) {
-    // Reward for referrer
-    await prisma.referralReward.create({
-      data: {
-        userEmail: referrerEmail,
-        amount: 10, // $10 bonus
-        currency: 'USD',
-        type: 'REFERRAL_BONUS',
-        status: 'PENDING'
-      }
-    });
-
-    // Welcome bonus for referred user
-    await prisma.referralReward.create({
-      data: {
-        userEmail: referredEmail,
-        amount: 5, // $5 welcome bonus
-        currency: 'USD',
-        type: 'SIGNUP_BONUS',
-        status: 'PENDING'
-      }
-    });
-  }
-
-  async getReferralStats(userEmail: string) {
-    const referrals = await prisma.referral.findMany({
-      where: { referrerEmail: userEmail }
-    });
-
-    const rewards = await prisma.referralReward.findMany({
-      where: { userEmail, type: 'REFERRAL_BONUS' }
-    });
-
-    const totalReferred = referrals.filter(r => r.status === 'CONVERTED').length;
-    const pendingReferrals = referrals.filter(r => r.status === 'PENDING').length;
-    const totalEarned = rewards.reduce((sum, r) => sum + r.amount, 0);
-    const pendingEarnings = rewards
-      .filter(r => r.status === 'PENDING')
-      .reduce((sum, r) => sum + r.amount, 0);
-
-    return {
-      totalReferred,
-      pendingReferrals,
-      totalEarned,
-      pendingEarnings,
-      referralCode: referrals[0]?.referralCode || await this.generateReferralCode(userEmail)
-    };
-  }
-
-  async getMyRewards(userEmail: string) {
-    return await prisma.referralReward.findMany({
-      where: { userEmail },
+  /**
+   * Get user's referrals
+   */
+  async getUserReferrals(userId: string): Promise<any> {
+    return prisma.referral.findMany({
+      where: { referrerId: userId },
+      include: { referee: { select: { email: true, subscriptionTier: true } } },
       orderBy: { createdAt: 'desc' }
     });
   }
+
+  /**
+   * Get referral stats
+   */
+  async getReferralStats(userId: string): Promise<any> {
+    const [total, rewarded, pending] = await Promise.all([
+      prisma.referral.count({ where: { referrerId: userId } }),
+      prisma.referral.count({ where: { referrerId: userId, status: 'REWARDED' } }),
+      prisma.referral.count({ where: { referrerId: userId, status: 'PENDING' } })
+    ]);
+
+    return { total, rewarded, pending };
+  }
 }
+
+export const referralService = new ReferralService();
+

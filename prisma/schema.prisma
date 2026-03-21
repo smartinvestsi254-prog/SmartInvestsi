@@ -154,6 +154,165 @@ model AssetHolding {
   @@index([userId])
 }
 
+model UserProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  riskTolerance   String   @default("MODERATE") // CONSERVATIVE | MODERATE | AGGRESSIVE
+  investmentGoals Json?    // ["growth", "income", "preservation"]
+  preferences     Json?    // { "crypto": true, "stocks": false, "notification_freq": "daily" }
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Referral {
+  id           String   @id @default(cuid())
+  referrerId   String
+  refereeEmail String
+  refereeId    String?  // Set after signup
+  status       String   @default("PENDING") // PENDING | COMPLETED | REWARDED
+  rewardTier   String?  // FREE | PREMIUM | ENTERPRISE
+  rewardUsed   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  referrer     User     @relation("ReferrerReferrals", fields: [referrerId], references: [id])
+  referee      User?    @relation("RefereeReferrals", fields: [refereeId], references: [id])
+
+  @@index([referrerId])
+  @@index([refereeEmail])
+  @@index([status])
+}
+
+model SupportTicket {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject        String
+  description    String
+  status         String   @default("OPEN") // OPEN | ASSIGNED | RESOLVED | CLOSED
+  priority       String   @default("MEDIUM") // LOW | MEDIUM | HIGH | CRITICAL
+  adminId        String?  // Assigned admin
+  resolutionNotes String?
+  npsScore       Int?     // 0-10 feedback
+  autoGrantTier  String?  // PREMIUM | ENTERPRISE if granted on resolution
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+
+  assignedAdmin  User?    @relation("AdminTickets", fields: [adminId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model Portfolio {
+  id              String     @id @default(cuid())
+  userEmail       String
+  user            User       @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  name            String
+  description     String?
+  currency        String     @default("USD")
+  totalValue      Float      @default(0)
+  cashBalance     Float      @default(0)
+  targetAllocation Json?
+  isActive        Boolean    @default(true)
+  isDefault       Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  holdings        Holding[]
+  transactions    Transaction[]
+  performances    PortfolioPerformance[]
+  rebalances      Rebalance[]
+}
+
+model Holding {
+  id                String  @id @default(cuid())
+  portfolioId       String
+  portfolio         Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  symbol            String
+  assetType         String  // STOCK | BOND | CRYPTO | CASH
+  quantity          Float
+  averageCost       Float
+  costBasis         Float
+  currentPrice      Float?
+  marketValue       Float   @default(0)
+  unrealizedGain    Float   @default(0)
+  unrealizedGainPct Float   @default(0)
+  allocation        Float   @default(0)
+  lastPriceUpdate   DateTime?
+
+  @@index([portfolioId])
+  @@index([symbol])
+}
+
+model PortfolioPerformance {
+  id            String   @id @default(cuid())
+  portfolioId   String
+  portfolio     Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  date          DateTime @unique
+  totalValue    Float
+  cashBalance   Float
+  investedAmount Float
+  gainLoss      Float
+  gainLossPct   Float
+  dailyReturn   Float
+
+  @@index([portfolioId])
+  @@index([date])
+}
+
+model Rebalance {
+  id            String   @id @default(cuid())
+  portfolioId   String
+  portfolio     Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  status        String   @default("PROPOSED") // PROPOSED | EXECUTING | COMPLETED
+  proposedTrades Json[]
+  reason        String?
+  executedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([portfolioId])
+  @@index([status])
+}
+
+// Extend User relations
+model User {
+  id                  String          @id @default(cuid())
+  email               String          @unique
+  name                String?
+  role                Role            @default(USER)
+  termsAcceptedAt     DateTime?
+  emailVerifiedAt     DateTime?
+  failedLoginAttempts Int             @default(0)
+  isBanned            Boolean         @default(false)
+  twoFactorSecret     String?
+  lastFailedLogin     DateTime?
+  subscriptionTier    String?         @default("FREE")
+  profile             UserProfile?
+  referralsGiven      Referral[]      @relation("ReferrerReferrals")
+  referralsReceived   Referral[]      @relation("RefereeReferrals")
+  tickets             SupportTicket[]
+  portfolios          Portfolio[]
+  accounts            BankAccount[]
+  assets              AssetHolding[]
+  transactions        Transaction[]
+  subscriptions       Subscription[]
+  assignedTickets     SupportTicket[] @relation("AdminTickets")
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  payments            Payment[]
+
+  @@index([email])
+  @@index([isBanned])
+}
+
 enum Role {
   USER
   ADMIN

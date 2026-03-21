@@ -275,6 +275,123 @@ async function main() {
   console.log("   Workflows: content-draft (DRAFT), content-approved (APPROVED)");
   console.log("   License: license-demo for datasets market-data, risk-scores");
   console.log("   Diplomacy: missions, treaties, delegations, documents");
+
+  // Fintech advancements seed data
+  // UserProfiles
+  await prisma.userProfile.upsert({
+    where: { userId: admin.id },
+    update: { riskTolerance: "CONSERVATIVE", investmentGoals: ["preservation"] },
+    create: {
+      userId: admin.id,
+      riskTolerance: "CONSERVATIVE",
+      investmentGoals: ["preservation"],
+      preferences: { crypto: false, stocks: true, notifications: "weekly" }
+    }
+  });
+
+  await prisma.userProfile.upsert({
+    where: { userId: analyst.id },
+    update: { riskTolerance: "AGGRESSIVE", investmentGoals: ["growth"] },
+    create: {
+      userId: analyst.id,
+      riskTolerance: "AGGRESSIVE",
+      investmentGoals: ["growth"],
+      preferences: { crypto: true, stocks: true, notifications: "daily" }
+    }
+  });
+
+  // Referrals
+  await prisma.referral.upsert({
+    where: { id: "referral-1" },
+    update: {},
+    create: {
+      id: "referral-1",
+      referrerId: analyst.id,
+      refereeEmail: "newuser@example.com",
+      status: "PENDING",
+      rewardTier: "PREMIUM"
+    }
+  });
+
+  await prisma.referral.upsert({
+    where: { id: "referral-2" },
+    update: {},
+    create: {
+      id: "referral-2",
+      referrerId: admin.id,
+      refereeEmail: "referred@example.com",
+      status: "REWARDED",
+      rewardTier: "ENTERPRISE",
+      rewardUsed: true,
+      completedAt: new Date()
+    }
+  });
+
+  // SupportTickets
+  await prisma.supportTicket.upsert({
+    where: { id: "ticket-1" },
+    update: {},
+    create: {
+      id: "ticket-1",
+      userId: analyst.id,
+      subject: "Crypto trading issue",
+      description: "Order not executing - check integration",
+      status: "OPEN",
+      priority: "HIGH"
+    }
+  });
+
+  await prisma.supportTicket.upsert({
+    where: { id: "ticket-2" },
+    update: {},
+    create: {
+      id: "ticket-2",
+      userId: admin.id,
+      subject: "Premium grant request",
+      description: "Grant PREMIUM for testing",
+      status: "RESOLVED",
+      priority: "MEDIUM",
+      adminId: admin.id,
+      resolutionNotes: "Granted PREMIUM tier",
+      autoGrantTier: "PREMIUM",
+      npsScore: 9,
+      resolvedAt: new Date()
+    }
+  });
+
+  // Sample Portfolio (for consistency)
+  const portfolio = await prisma.portfolio.upsert({
+    where: { id: "portfolio-sample" },
+    update: {},
+    create: {
+      id: "portfolio-sample",
+      userEmail: analyst.email,
+      name: "Aggressive Growth Portfolio",
+      description: "High-risk crypto-heavy portfolio",
+      currency: "USD",
+      totalValue: 12500.50,
+      cashBalance: 2500.00
+    }
+  });
+
+  await prisma.holding.create({
+    data: {
+      id: "holding-btc",
+      portfolioId: portfolio.id,
+      symbol: "BTC",
+      assetType: "CRYPTO",
+      quantity: 0.25,
+      averageCost: 45000,
+      costBasis: 11250,
+      currentPrice: 50000,
+      marketValue: 12500,
+      unrealizedGain: 1250,
+      unrealizedGainPct: 11.11,
+      allocation: 100
+    }
+  });
+
+  console.log("   Fintech: UserProfiles, Referrals, SupportTickets, Sample Portfolio seeded");
 }
 
 main()
