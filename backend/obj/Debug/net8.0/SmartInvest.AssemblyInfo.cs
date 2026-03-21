@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartInvest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ee3964ddfe96c6bbe71874c5ca580327638fa94")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+892b98a1abe8cb5b809bb28259417ab21a5afdb3")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartInvest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartInvest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

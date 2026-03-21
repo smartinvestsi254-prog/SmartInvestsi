@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -28,7 +27,8 @@ model User {
   subscriptions    Subscription[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
+  payments         Payment[]
+  
   @@index([email])
   @@index([isBanned])
 }
@@ -61,7 +61,11 @@ model Payment {
   id                String   @id @default(cuid())
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankAccountId      String
+  bankAccount        BankAccount  @relation(fields: [bankAccountId], references: [id])
+  
   transaction       Transaction? @relation("PaymentTransaction")
+  
   checkoutRequestId String   @unique
   mpesaReceipt      String?  @unique
   amount            Float
@@ -121,6 +125,11 @@ model Transaction {
   reference     String
   createdAt     DateTime @default(now())
   completedAt   DateTime?
+
+  bankAccountId  String
+  bankAccount    BankAccount  @relation(fields: [bankAccountId], references: [id])
+
+  payment        Payment?     @relation("PaymentTransaction")
 
   @@index([userId, status])
 }

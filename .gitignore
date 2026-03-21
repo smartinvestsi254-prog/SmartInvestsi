@@ -208,3 +208,5 @@ netlify.toml
 .env.*
 .env.example
 
+
+.fake

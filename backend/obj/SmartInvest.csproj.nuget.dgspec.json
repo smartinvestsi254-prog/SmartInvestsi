@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\delij\\OneDrive\\Documents\\GitHub\\SmartInvest-\\SmartInvest.csproj": {}
+    "C:\\Projects\\SmartInvest-\\backend\\SmartInvest.csproj": {}
   },
   "projects": {
-    "C:\\Users\\delij\\OneDrive\\Documents\\GitHub\\SmartInvest-\\SmartInvest.csproj": {
+    "C:\\Projects\\SmartInvest-\\backend\\SmartInvest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\delij\\OneDrive\\Documents\\GitHub\\SmartInvest-\\SmartInvest.csproj",
+        "projectUniqueName": "C:\\Projects\\SmartInvest-\\backend\\SmartInvest.csproj",
         "projectName": "SmartInvest",
-        "projectPath": "C:\\Users\\delij\\OneDrive\\Documents\\GitHub\\SmartInvest-\\SmartInvest.csproj",
+        "projectPath": "C:\\Projects\\SmartInvest-\\backend\\SmartInvest.csproj",
         "packagesPath": "C:\\Users\\delij\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\delij\\OneDrive\\Documents\\GitHub\\SmartInvest-\\obj\\",
+        "outputPath": "C:\\Projects\\SmartInvest-\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\delij\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -104,7 +104,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
