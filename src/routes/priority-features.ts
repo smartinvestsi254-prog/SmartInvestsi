@@ -15,6 +15,12 @@ import {
 } from '../lib/tier-access-control';
 import { auditLogger, AuditEventType } from '../lib/audit-logger';
 
+import { dbClient } from '../lib/db-client';
+import { checkFeatureAccess, SubscriptionTier } from '../lib/tier-access-control';
+import { auditLogger, AuditEventType } from '../lib/audit-logger';
+
+const prisma = dbClient.getClient();
+
 // reusable error helper to enforce a consistent response schema
 function sendError(res: Response, status: number, message: string, code?: string, extras?: Record<string, any>) {
   const body: any = {
@@ -28,7 +34,7 @@ function sendError(res: Response, status: number, message: string, code?: string
 }
 
 const router = express.Router();
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 // middleware that wraps res.json so that we standardize error responses
 router.use((req: any, res: any, next: any) => {
