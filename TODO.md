@@ -1,33 +1,53 @@
-# TypeScript Fixes + Multi-DB Fallback Plan
-SmartInvest- Production Fintech Build (Prisma v7 + Supabase + MongoDB)
+,# SmartInvest Production TODO - Free Tier Live Trading/Banking
+Live services with 0-cost/free tiers. Phased implementation.
 
-Status: **PLAN APPROVED** | Keep both servers | Multi-DB fallback
 
-## Step 1: Fix TS Errors (Current) ✅
-- [ ] 1.1 `src/routes/priority-features.ts`: Define 4 helpers + dbClient
-- [ ] 1.2 `src/server-DESKTOP-5N5S14R.ts`: Fix login syntax + dbClient + Supabase/MongoDB fallback
-- [ ] 1.3 Test: `npm run build &amp;&amp; npm run start` (both servers)
+- [ ] 1.2 Create netlify/functions/utils/pin-utils.ts (hash/verify functions)
+- [ ] 1.3 Update advanced-banking.ts: Use real PIN hashing
+- [ ] 1.4 netlify/functions/auth.ts: Real JWT (jsonwebtoken)
+- [x] 1.5 Zod validation middleware created (netlify/functions/middleware/zod-validator.ts)
+- [x] 1.6 Frontend: hCaptcha integration stubbed in SECURITY_SETUP.md
 
-## Step 2: Multi-DB Architecture (Seamless Fallback)
+## Phase 2: Database Migration
+
+- [ ] 2.3 Replace mocks → Prisma in crypto-trading.ts, crypto-payments.ts
+- [ ] 2.4 Migrate trading-service data to Prisma
+
+## Phase 3: Fiat Payments (MPESA/PayPal Free Tiers)
+- [ ] 3.1 MPESA Sandbox → Production (get live shortcode/passkey)
+- [ ] 3.2 PayPal Sandbox → Live (basic account free)
+- [ ] 3.3 payment-routes.ts: Switch to live mode, webhook verification
+- [ ] 3.4 Banking reconciliation cron (Netlify scheduled functions)
+
+## Phase 4: Live Crypto Trading (Free Tiers)
+- [ ] 4.1 `npm i ccxt` - Binance testnet/Alpaca paper trading
+- [ ] 4.2 Update crypto-trading.ts: Real testnet orders
+- [ ] 4.3 CoinGecko Pro (free tier) + websocket prices
+- [ ] 4.4 CryptoWallet model + Infura ETH testnet RPC (free)
+- [ ] 4.5 User wallet deposits via QR/on-chain (no custody fees)
+
+## Phase 5: Compliance Stubs (Live-Ready Structure)
+- [ ] 5.1 KYC stub (manual admin approval)
+- [ ] 5.2 AML monitoring (transaction limits already in banking)
+- [ ] 5.3 User terms + verification flow
+
+## Phase 6: Infrastructure (Free)
+- [ ] 6.1 Upstash Redis free tier (sessions/rate limit)
+- [ ] 6.2 Netlify Analytics (monitoring)
+- [ ] 6.3 Load testing + optimization
+- [ ] 6.4 Deploy to prod alias
+
+## Commands to Run After Each Phase
 ```
-Primary: Prisma/PostgreSQL (Production)
-Fallback1: Prisma/Supabase (schema exists)
-Fallback2: MongoDB (Codespace connection)
+npm run build
+npx prisma generate
+netlify deploy --prod --alias prod
 ```
-- [ ] 2.1 Enhance `src/lib/db-client.ts`: Dynamic fallback (health check → switch)
-- [ ] 2.2 `src/server.ts`: Use enhanced dbClient
-- [ ] 2.3 `src/server-DESKTOP-5N5S14R.ts`: Supabase-first + Prisma/MongoDB fallback
-- [ ] 2.4 Netlify functions: Already Supabase-linked (prisma/Supabase connect/)
 
-## Step 3: MongoDB Integration
-- [ ] 3.1 Verify MongoDB connection (`lib/mongodb.ts`)
-- [ ] 3.2 Create `lib/mongodb-client.ts` (singleton)
-- [ ] 3.3 Hybrid queries: Prisma → MongoDB fallback for non-relational data
+## Progress Tracking
+**Current Phase: 1 (0/6 complete)**  
+**Est. Completion: 4 weeks**  
+**Success Metric: Live MPESA deposits → testnet BTC trades → P2P banking**
 
-## Step 4: Test & Deploy
-- [ ] 4.1 Unit tests: DB failover
-- [ ] 4.2 E2E: `npm run dev` → Load test
-- [ ] 4.3 Deploy: Netlify + Render (Supabase primary)
-
-**Next**: Fix TS errors → Multi-DB client → Test both servers
+*Updated: [2024-XX-XX]*
 

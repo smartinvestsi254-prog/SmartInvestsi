@@ -43,31 +43,11 @@ interface MarketData {
   lastUpdated: string;
 }
 
-// Mock data - replace with real trading engine
-const mockOrders: TradeOrder[] = [];
-const mockPositions: Position[] = [];
-const mockMarketData: { [symbol: string]: MarketData } = {
-  'BTC/USD': {
-    symbol: 'BTC/USD',
-    price: 45000,
-    change: 500,
-    changePercent: 1.12,
-    volume: 1250000,
-    high: 46000,
-    low: 44000,
-    lastUpdated: new Date().toISOString()
-  },
-  'ETH/USD': {
-    symbol: 'ETH/USD',
-    price: 3000,
-    change: -50,
-    changePercent: -1.64,
-    volume: 850000,
-    high: 3100,
-    low: 2950,
-    lastUpdated: new Date().toISOString()
-  }
-};
+import prisma from './lib/prisma';
+import { tradeSchema } from './middleware/zod-validator';
+
+// Real Prisma models (Phase 2.3)
+
 
 /**
  * Place trading order
