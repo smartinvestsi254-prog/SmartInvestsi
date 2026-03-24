@@ -56,4 +56,8 @@
     "typescript": "^5.0.0"
   },
 "postinstall": "prisma generate --no-engine && echo '✅ Prisma v7 client generated (engine lazy-loaded)'"
+
+"prisma": {
+  "schema": "prisma/schema.prisma"
+  }
 }
