@@ -1,21 +1,11 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 // ===========================================
-// PRISMA SCHEMA - SmartInvestsi
+// GENERATOR & DATASOURCE
 // Database: PostgreSQL on Supabase
 // ===========================================
 
 generator client {
   provider  = "prisma-client-js"
-  engineType = "binary"  // v7: explicit serverless/edge
-}
-
-// Example model
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
+  engineType = "binary"
 }
 
 datasource db {
@@ -47,13 +37,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   workflowsLocked     Workflow[]        @relation("LockedWorkflows")
-
-// new key/value store for application-wide configuration (used for fallback/crisis flag)
-model AppSetting {
-  key       String   @id
-  value     String
-  updatedAt DateTime @updatedAt
-}
   workflowEvents      WorkflowEvent[]
   approvals           WorkflowApproval[]
   reportedIncidents   Incident[]        @relation("ReportedIncidents")
@@ -87,6 +70,20 @@ model UserProfile {
   lastUpdated       DateTime  @updatedAt
   createdAt         DateTime  @default(now())
 }
+
+// ===========================================
+// APPLICATION SETTINGS
+// ===========================================
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ===========================================
+// WORKFLOW & CONTENT MANAGEMENT
+// ===========================================
 
 model ContentItem {
   id        String        @id @default(uuid())
@@ -149,6 +146,10 @@ model WorkflowApproval {
   reviewer User     @relation(fields: [reviewerId], references: [id])
 }
 
+// ===========================================
+// INCIDENT MANAGEMENT
+// ===========================================
+
 model Incident {
   id           String           @id @default(uuid())
   title        String
@@ -205,6 +206,10 @@ model IncidentUpdate {
 
   incident Incident @relation(fields: [incidentId], references: [id])
 }
+
+// ===========================================
+// PARTNER & DATA LICENSE MANAGEMENT
+// ===========================================
 
 model Partner {
   id        String   @id @default(uuid())
