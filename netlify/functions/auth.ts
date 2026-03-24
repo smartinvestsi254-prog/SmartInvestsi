@@ -5,7 +5,7 @@ import prisma from './lib/prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-prod';
 const JWT_EXPIRY = '15m'; // Short expiry, use refresh tokens later
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh-change-in-prod';
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET ?? (() => {\n  console.error('JWT_REFRESH_SECRET missing - admin fix via /api/crisis');\n  throw new Error('JWT_REFRESH_SECRET required');\n})();
 
 interface LoginData {
   email: string;

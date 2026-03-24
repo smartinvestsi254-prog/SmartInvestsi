@@ -1,5 +1,5 @@
 // src/server.ts
-import express from "express";
+import * as Sentry from "@sentry/node";\n\nSentry.init({\n  dsn: "https://932acfc8ce257a2cc55753590d838955@4511098961526784.ingest.de.sentry.io/4511098974568528",\n  // Setting this option to true will send default PII data to Sentry.\n  sendDefaultPii: true,\n});\n\n// Instruments (adapt path for src context)\nimport "../netlify/functions/instruments.js";\n\nimport express from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -303,10 +303,7 @@ const JWT_SECRET = (() => {
   }
   
   // In development, allow fallback but warn
-  if (!secret) {
-    console.warn('⚠️ WARNING: JWT_SECRET not set in .env — using insecure fallback (DEV ONLY)');
-    return 'INSECURE-DEV-SECRET-CHANGE-ME';
-  }
+  if (!secret) {\n    // Log to admin + crash detection (manual recovery via /api/auth/fallback)\n    reportCrisis('jwt_secret_missing', `JWT_SECRET missing in ${process.env.NODE_ENV}`);\n    throw new Error('JWT_SECRET required - admin: POST /api/auth/fallback/enable');\n  }
   
   return secret;
 })();
@@ -420,8 +417,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   const statusCode = err.statusCode || 500;
   const sanitized = sanitizeError(err);
   
-  // Log actual error internally (don't send to client)
-  console.error('[ERROR]', err);
+// Capture error in Sentry\n  Sentry.captureException(err);\n  \n  // Log actual error internally (don't send to client)\n  console.error('[ERROR]', err);
   
   // notify admin once for first crash
   reportCrisis('error', `${err.message || err}`).catch(e => console.error('reportCrisis failed', e));
@@ -704,41 +700,7 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     console.error('Primary login error:', error);
     // if primary flow crashes and fallback is enabled, try Supabase
-    if (await isFallbackEnabled()) {
-      try {
-        const supa = await attemptSupabaseLogin(normalizedEmail, password);
-        // record crisis request only once
-        const already = await getAppSetting('authFallbackRequested');
-        if (!already) {
-          await setAppSetting('authFallbackRequested', 'true');
-          const adminEmail = process.env.ADMIN_USER || process.env.ADMIN_EMAIL;
-          if (adminEmail) {
-            await sendEmail(
-              adminEmail,
-              '🚨 Crisis auth fallback triggered',
-              `Primary authentication failed and fallback to Supabase was invoked at ${new Date().toISOString()}. Please investigate and disable fallback when resolved.`
-            );
-          }
-        }
-
-        // upsert user locally so token generation works
-        let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-        if (!user) {
-          user = await prisma.user.create({ data: { email: normalizedEmail, password: '', emailVerified: true } });
-        }
-        const isAdmin = user.role === 'admin' || user.role === 'superadmin';
-        const token = jwt.sign({ userId: user.id, email: user.email, admin: isAdmin }, JWT_SECRET, { expiresIn: '7d' });
-        res.cookie('si_token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        return res.json({ success: true, message: 'Login successful (fallback)', user: { id: user.id, email: user.email, isAdmin }, token });
-      } catch (fbErr) {
-        console.error('Fallback login error:', fbErr);
-      }
-    }
+    // MANUAL FALLBACK ONLY: Admin must POST /api/auth/fallback/enable + use x-admin-fallback header\n    if (req.headers['x-admin-fallback'] === process.env.ADMIN_FALLBACK_KEY) {\n      try {\n        const supa = await attemptSupabaseLogin(normalizedEmail, password);\n        // upsert & token (same code)\n        let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });\n        if (!user) {\n          user = await prisma.user.create({ data: { email: normalizedEmail, password: '', emailVerified: true } });\n        }\n        const isAdmin = user.role === 'admin' || user.role === 'superadmin';\n        const token = jwt.sign({ userId: user.id, email: user.email, admin: isAdmin }, JWT_SECRET, { expiresIn: '7d' });\n        res.cookie('si_token', token, {\n          httpOnly: true,\n          secure: process.env.NODE_ENV === 'production',\n          sameSite: 'lax',\n          maxAge: 7 * 24 * 60 * 60 * 1000,\n        });\n        return res.json({ success: true, message: 'Login successful (manual fallback)', user: { id: user.id, email: user.email, isAdmin }, token });\n      } catch (fbErr) {\n        reportCrisis('manual_fallback_failed', fbErr.message);\n      }\n    }
     return res.status(500).json({ success: false, error: 'Login failed due to server error' });
   }
 });

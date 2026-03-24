@@ -1,0 +1,1 @@
+// Sentry verify snippet from task\nconst Sentry = require("@sentry/node");\n\ntry {\n    foo();\n} catch (e) {\n    Sentry.captureException(e);\n}\n\nconsole.log("Sentry verify example - check dashboard for foo() error if init'ed");\n\n// Run: tsx tools/sentry-verify.ts

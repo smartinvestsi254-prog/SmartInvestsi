@@ -26,7 +26,7 @@ import CONFIG from '../../src/config';
 const PAYPAL_MODE: string = CONFIG.PAYPAL.MODE;
 const PAYPAL_CLIENT_ID: string = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET: string = process.env.PAYPAL_CLIENT_SECRET || '';
-const TEST_MODE: boolean = CONFIG.TEST_MODE;
+const TEST_MODE: boolean = CONFIG.TEST_MODE;\n\nif (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {\n  logger.warn('PayPal credentials missing - using test mode');\n}
 const APP_URL: string = CONFIG.APP.URL;
 
 // Validate required env vars
@@ -141,7 +141,7 @@ async function createPayPalOrder(planId: string, userId?: string): Promise<PayPa
 /**
  * Main handler
  */
-export const handler = async function(event: any, context: any): Promise<any> {
+import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst CreateOrderSchema = z.object({\n  planId: z.string(),\n  userId: z.string().optional()\n});\n\nexport const handler = SentryInit.wrapHandler(async function(event: any, context: any): Promise<any> {
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {

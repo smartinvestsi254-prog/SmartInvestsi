@@ -56,7 +56,7 @@ function generateAccountId(): string {
 
 
 
-export const handler: Handler = withPolicyCompliance(async (event) => {
+import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst BankingSchema = z.object({\n  httpMethod: z.enum(['GET', 'POST', 'PUT', 'DELETE']),\n  path: z.string(),\n});\n\nexport const handler = SentryInit.wrapHandler(withPolicyCompliance(async (event) => {
   const { httpMethod, path, body, headers } = event;
   const clientUserId = getUserId(event);
 

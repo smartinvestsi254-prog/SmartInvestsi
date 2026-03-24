@@ -19,9 +19,6 @@ const logger = winston.createLogger({
   ]
 });
 
-// For production, you might want to add file transport or external logging service
-if (process.env.NODE_ENV === 'production') {
-  // Add additional transports if needed
-}
+// Sentry crash detection integration\nif (process.env.SENTRY_DSN) {\n  logger.error = (msg, meta) => {\n    const Sentry = require('@sentry/serverless');\n    Sentry.captureException(new Error(msg), { extra: meta });\n  };\n}\n\n// File transport prod\nif (process.env.NODE_ENV === 'production') {\n  logger.add(new winston.transports.File({ filename: '/tmp/prod.log' }));\n}
 
 export default logger;
