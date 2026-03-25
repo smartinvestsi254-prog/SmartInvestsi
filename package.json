@@ -2,13 +2,12 @@
   "name": "Smartinvest",
   "version": "1.0.0",
   "description": "SmartInvest - Investment Management Platform",
-  "main": "dist/server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && npx tsc",
+    "build": "prisma generate && tsc",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
-    "start:server.js": "node server.js",
     "monitor": "node Services/Scheduler.js",
     "test": "jest --runInBand",
     "test:functions": "jest netlify/functions",
@@ -28,7 +27,6 @@
   "dependencies": {
     "@netlify/functions": "^2.0.0",
     "@prisma/client": "^7.5.0",
-    "prisma": "^7.5.0",
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "express-rate-limit": "^7.1.0",
@@ -43,6 +41,7 @@
     "@sentry/node": "^8.28.0"
   },
   "devDependencies": {
+    "prisma": "^7.5.0",
     "@types/express": "^4.17.20",
     "@types/node": "^20.17.9",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
