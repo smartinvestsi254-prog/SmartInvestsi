@@ -1,11 +1,11 @@
 {
-  "name": "smartinvestsi",
+  "name": "Smartinvest",
   "version": "1.0.0",
   "description": "SmartInvest - Investment Management Platform",
   "main": "dist/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-"build":"prisma generate && npx tsc"
+    "build": "prisma generate && npx tsc",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
     "start:server.js": "node server.js",
@@ -25,10 +25,9 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js"
   },
-
   "dependencies": {
     "@netlify/functions": "^2.0.0",
-"@prisma/client": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "prisma": "^7.5.0",
     "express": "^4.18.2",
     "cors": "^2.8.5",
@@ -41,20 +40,20 @@
     "node-cron": "^3.0.2",
     "dotenv": "^16.3.1",
     "zod": "^3.24.2",
-"@sentry/node": "^8.28.0"
+    "@sentry/node": "^8.28.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.20",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.17.9",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.50.0",
     "eslint-plugin-security": "^2.1.0",
-    "jest": "^29.0.0",
+    "jest": "^29.7.0",
     "prettier": "^3.0.0",
-    "ts-jest": "^29.0.0",
+    "ts-jest": "^29.2.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.6.3"
   },
   "postinstall": "prisma generate --no-engine && echo '✅ Prisma v7 client generated (engine lazy-loaded)'",
   "prisma": {
