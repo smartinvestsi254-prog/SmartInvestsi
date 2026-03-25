@@ -1,0 +1,373 @@
+// ===========================================
+// GENERATOR & DATASOURCE
+// Database: PostgreSQL on Supabase
+// ===========================================
+
+generator client {
+  provider  = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===========================================
+// USER MANAGEMENT
+// ===========================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String?
+  emailVerified Boolean @default(false)
+  role      UserRole @default(VIEWER)
+  resetToken String?  @unique
+  resetExpires DateTime?
+  confirmToken String?  @unique
+  confirmExpires DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workflowsLocked     Workflow[]        @relation("LockedWorkflows")
+  workflowEvents      WorkflowEvent[]
+  approvals           WorkflowApproval[]
+  reportedIncidents   Incident[]        @relation("ReportedIncidents")
+  ownedIncidents      Incident[]        @relation("OwnedIncidents")
+  profile             UserProfile?
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  REVIEWER
+  ANALYST
+  INCIDENT_COMMANDER
+  VIEWER
+}
+
+// User Profile for Investment Dashboard Personalization
+model UserProfile {
+  id                String    @id @default(uuid())
+  user              User?     @relation(fields: [userId], references: [id])
+  userId            String?   @unique
+  email             String    @unique
+  investmentGoal    String?   // User's primary investment goal
+  timeHorizon       String?   // Investment time horizon (e.g., "short-term", "long-term")
+  riskTolerance     String?   // Risk profile (e.g., "conservative", "moderate", "aggressive")
+  preferredRegion   String?   // Preferred investment region
+  portfolioValue    Float?    // Current portfolio value
+  monthlyIncome     Float?    // Monthly income for savings tracking
+  preferences       Json?     // Flexible JSON for additional preferences
+  premiumAccess     Boolean   @default(false)
+  premiumExpiry     DateTime?
+  lastUpdated       DateTime  @updatedAt
+  createdAt         DateTime  @default(now())
+}
+
+// ===========================================
+// APPLICATION SETTINGS
+// ===========================================
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ===========================================
+// WORKFLOW & CONTENT MANAGEMENT
+// ===========================================
+
+model ContentItem {
+  id        String        @id @default(uuid())
+  state     WorkflowState @default(DRAFT)
+  version   Int           @default(1)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  workflow Workflow?
+}
+
+enum WorkflowState {
+  DRAFT
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+  REJECTED
+}
+
+model Workflow {
+  id         String        @id @default(uuid())
+  contentId  String        @unique
+  state      WorkflowState @default(DRAFT)
+  lockedById String?
+  lockedAt   DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  content    ContentItem        @relation(fields: [contentId], references: [id])
+  lockedBy   User?              @relation("LockedWorkflows", fields: [lockedById], references: [id])
+  events     WorkflowEvent[]
+  approvals  WorkflowApproval[]
+}
+
+model WorkflowEvent {
+  id         String        @id @default(uuid())
+  workflowId String
+  actorId    String
+  fromState  WorkflowState
+  toState    WorkflowState
+  reason     String?
+  meta       Json?
+  createdAt  DateTime      @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+  actor    User     @relation(fields: [actorId], references: [id])
+}
+
+model WorkflowApproval {
+  id         String   @id @default(uuid())
+  workflowId String
+  reviewerId String
+  decision   String
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+  reviewer User     @relation(fields: [reviewerId], references: [id])
+}
+
+// ===========================================
+// INCIDENT MANAGEMENT
+// ===========================================
+
+model Incident {
+  id           String           @id @default(uuid())
+  title        String
+  summary      String
+  severity     IncidentSeverity
+  status       IncidentStatus   @default(OPEN)
+  reportedById String
+  ownerId      String?
+  runbookKey   String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  mitigatedAt  DateTime?
+  resolvedAt   DateTime?
+  closedAt     DateTime?
+
+  reportedBy User            @relation("ReportedIncidents", fields: [reportedById], references: [id])
+  owner      User?           @relation("OwnedIncidents", fields: [ownerId], references: [id])
+  timeline   IncidentEvent[]
+  updates    IncidentUpdate[]
+}
+
+enum IncidentSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  MITIGATING
+  RESOLVED
+  CLOSED
+}
+
+model IncidentEvent {
+  id         String   @id @default(uuid())
+  incidentId String
+  message    String
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+model IncidentUpdate {
+  id           String         @id @default(uuid())
+  incidentId   String
+  status       IncidentStatus
+  publicNote   String?
+  internalNote String?
+  createdAt    DateTime       @default(now())
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+}
+
+// ===========================================
+// PARTNER & DATA LICENSE MANAGEMENT
+// ===========================================
+
+model Partner {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  licenses DataLicense[]
+}
+
+model DataLicense {
+  id                 String            @id @default(uuid())
+  partnerId          String
+  status             LicenseStatus     @default(ACTIVE)
+  allowedPurposes    DataUsagePurpose[]
+  attributionRequired Boolean          @default(false)
+  attributionText    String?
+  allowRedistribution Boolean          @default(false)
+  rateLimitPerMin    Int?
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  partner            Partner            @relation(fields: [partnerId], references: [id])
+  entitlements       DataEntitlement[]
+  usageLogs          DataUsageLog[]
+}
+
+enum LicenseStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum DataUsagePurpose {
+  ANALYTICS
+  DISPLAY
+  REDISTRIBUTION
+  INTERNAL
+}
+
+model DataEntitlement {
+  id        String   @id @default(uuid())
+  licenseId String
+  datasetKey String
+  createdAt DateTime @default(now())
+
+  license DataLicense @relation(fields: [licenseId], references: [id])
+}
+
+model DataUsageLog {
+  id          String            @id @default(uuid())
+  licenseId   String?
+  datasetKey  String
+  purpose     DataUsagePurpose
+  actorUserId String?
+  ip          String?
+  userAgent   String?
+  requestMeta Json?
+  createdAt   DateTime          @default(now())
+
+  license DataLicense? @relation(fields: [licenseId], references: [id])
+}
+
+// ===========================================
+// DIPLOMACY PORTAL
+// ===========================================
+
+model DiplomacyMission {
+  id           String        @id @default(uuid())
+  name         String
+  country      String
+  city         String
+  region       String?
+  type         MissionType
+  status       MissionStatus @default(ACTIVE)
+  contactEmail String?
+  contactPhone String?
+  focusArea    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum MissionType {
+  EMBASSY
+  HIGH_COMMISSION
+  CONSULATE
+  PERMANENT_MISSION
+  HONORARY_CONSULATE
+}
+
+enum MissionStatus {
+  ACTIVE
+  PAUSED
+  PLANNING
+}
+
+model DiplomacyTreaty {
+  id            String       @id @default(uuid())
+  title         String
+  partner       String
+  sector        String
+  status        TreatyStatus @default(NEGOTIATION)
+  signedAt      DateTime?
+  nextMilestone String?
+  summary       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum TreatyStatus {
+  NEGOTIATION
+  SIGNED
+  RATIFIED
+  IN_REVIEW
+  IMPLEMENTATION
+  EXPIRED
+}
+
+model DiplomacyDelegation {
+  id           String            @id @default(uuid())
+  name         String
+  focus        String
+  hostCity     String
+  hostCountry  String
+  leadMinistry String
+  status       DelegationStatus  @default(PLANNED)
+  startDate    DateTime
+  endDate      DateTime
+  objectives   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+enum DelegationStatus {
+  PLANNED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model DiplomacyDocument {
+  id             String            @id @default(uuid())
+  title          String
+  category       DocumentCategory
+  classification DocumentClass     @default(RESTRICTED)
+  ownerDept      String
+  summary        String?
+  linkUrl        String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+enum DocumentCategory {
+  BRIEFING_NOTE
+  PROTOCOL_GUIDE
+  TREATY_DRAFT
+  ECONOMIC_DIPLOMACY
+  OTHER
+}
+
+enum DocumentClass {
+  PUBLIC
+  RESTRICTED
+  CONFIDENTIAL
+}

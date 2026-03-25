@@ -1,11 +1,16 @@
-import { defineConfig } from "prisma/config";
+import { defineConfig } from "@prisma/config";
 
 export default defineConfig({
+  datasource: {
+    url: env("DATABASE_URL"),
+    directUrl: env("DIRECT_URL"),
+  },
   schema: "./prisma/schema.prisma",
-  log: ['query', 'warn', 'error'],  // v7: enhanced logging
+  log: ['query', 'warn', 'error'],
   migrate: {
     datasource: {
-      url: process.env.DATABASE_URL || 'postgresql://localhost:5432/dev',
+      url: env("DATABASE_URL"),
     },
   },
 });
+
