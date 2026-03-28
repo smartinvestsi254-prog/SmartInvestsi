@@ -11,7 +11,7 @@ class ModernPaymentInterface {
       theme: config.theme || 'modern',
       recordPayments: config.recordPayments !== false,
       currencies: config.currencies || ['KES', 'USD', 'GHS', 'NGN', 'ZAR'],
-      methods: config.methods || ['mpesa', 'paystack', 'stripe', 'paypal', 'flutterwave'],
+      methods: config.methods || ['mpesa', 'paystack', 'stripe', 'paypal', 'flutterwave', 'pesapal'],
       ...config
     };
     this.currentTransaction = null;
@@ -198,8 +198,10 @@ class ModernPaymentInterface {
       paystack: { name: 'Paystack', icon: '💳', color: '#0066FF' },
       stripe: { name: 'Stripe', icon: '💰', color: '#635BFF' },
       paypal: { name: 'PayPal', icon: '🅿️', color: '#003087' },
-      flutterwave: { name: 'Flutterwave', icon: '🌊', color: '#F00080' }
+      flutterwave: { name: 'Flutterwave', icon: '🌊', color: '#F00080' },
+      pesapal: { name: 'Pesapal', icon: '💳', color: '#00A651' }
     };
+
 
     return this.config.methods
       .map(method => {
@@ -363,22 +365,25 @@ class ModernPaymentInterface {
   /**
    * Process payment
    */
-  async processPayment() {
-    if (!this.currentTransaction) return;
+    async processPayment() {
+      if (!this.currentTransaction) return;
 
-    this.showProcessingState();
+      this.showProcessingState();
 
-    try {
-      const response = await fetch(`${this.config.apiBase}/payments/process`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...this.currentTransaction,
-          reference: this.generateReference()
-        })
-      });
+      const endpoint = this.currentTransaction.method === 'pesapal' ? '/.netlify/functions/pesapal' : `${this.config.apiBase}/payments/process`;
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            planId: 'PREM10', // default
+            userId: localStorage.getItem('userId') || undefined,
+            ...this.currentTransaction,
+            reference: this.generateReference()
+          })
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
       if (result.success) {
         this.currentTransaction.id = result.transactionId;

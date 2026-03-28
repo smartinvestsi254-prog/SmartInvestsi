@@ -6,6 +6,7 @@
 .env.example
 .env.backup
 .local.env
+.env.production.txt
 
 # Secrets and credentials
 secrets-patterns.json
