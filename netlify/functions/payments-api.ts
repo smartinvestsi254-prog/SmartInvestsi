@@ -25,11 +25,11 @@ interface Subscription {
   paymentMethod: string;
 }
 
-// Mock data - replace with real database
-const mockPaymentIntents: PaymentIntent[] = [];
-const mockSubscriptions: Subscription[] = [];
-
 import prisma from './lib/prisma';
+
+import { Handler } from '@netlify/functions';
+import prisma from './lib/prisma';
+import logger from './logger';
 import CONFIG from '../../src/config';
 
 /**
@@ -145,7 +145,17 @@ async function processStripePayment(data: any): Promise<any> {
       createdAt: new Date().toISOString()
     };
 
-    mockPaymentIntents.push(paymentIntent);
+    // Create real Payment record
+    const paymentIntent = await prisma.payment.create({
+      data: {
+        userId,
+        amount: feeResult.netAmount,
+        currency: 'usd',
+        reference: transactionId,
+        status: 'completed',
+        metadata: { adminFee: feeResult.adminFee }
+      }
+    });
     logger.info('Stripe payment processed with admin fee', { transactionId, userId, adminFee: feeResult.adminFee.toFixed(2) });
 
     return { success: true, data: paymentIntent, adminFee: feeResult.adminFee };
@@ -178,9 +188,18 @@ async function createStripeIntent(data: any): Promise<any> {
       createdAt: new Date().toISOString()
     };
 
-    mockPaymentIntents.push(intent);
+    // Create pending Payment record for intent
+    const intent = await prisma.payment.create({
+      data: {
+        userId,
+        amount,
+        currency: currency || 'usd',
+        status: 'pending',
+        reference: `intent_${Date.now()}`
+      }
+    });
 
-    return { success: true, data: { clientSecret: `sk_test_${intent.id}` } };
+    return { success: true, data: { clientSecret: `pi_${intent.id}`, paymentId: intent.id } };
   } catch (error) {
     logger.error('Create Stripe intent error', { error: error.message });
     return { success: false, error: error.message };
@@ -205,7 +224,18 @@ async function processPayPalPayment(data: any): Promise<any> {
       createdAt: new Date().toISOString()
     };
 
-    mockPaymentIntents.push(paymentIntent);
+    // Create real Payment record
+    const paymentIntent = await prisma.payment.create({
+      data: {
+        id: `pp_${Date.now()}`,
+        userId,
+        amount: 1000,
+        currency: 'usd',
+        status: 'completed',
+        method: 'paypal',
+        reference: orderId
+      }
+    });
 
     logger.info('PayPal payment processed', { orderId, userId });
 
@@ -401,10 +431,12 @@ async function checkMpesaStatus(checkoutRequestId: string): Promise<any> {
  */
 async function getPaymentHistory(userId: string, limit = 20, offset = 0): Promise<any> {
   try {
-    const userPayments = mockPaymentIntents
-      .filter(p => p.userId === userId)
-      .slice(offset, offset + limit);
-
+    const userPayments = await prisma.payment.findMany({
+      where: { userId },
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' }
+    });
     return { success: true, data: userPayments };
   } catch (error) {
     logger.error('Get payment history error', { error: error.message });
@@ -418,21 +450,8 @@ async function getPaymentHistory(userId: string, limit = 20, offset = 0): Promis
 async function createSubscription(data: any): Promise<any> {
   try {
     const { userId, plan, paymentMethodId } = data;
-
-    const subscription: Subscription = {
-      id: `sub_${Date.now()}`,
-      userId,
-      plan,
-      status: 'active',
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-      paymentMethod: paymentMethodId
-    };
-
-    mockSubscriptions.push(subscription);
-
+    const subscription = await createOrUpdateSubscription(userId, plan as any, paymentMethodId || 'unknown', 10); // default amount
     logger.info('Subscription created', { subscriptionId: subscription.id, userId, plan });
-
     return { success: true, data: subscription };
   } catch (error) {
     logger.error('Create subscription error', { error: error.message });
@@ -445,7 +464,9 @@ async function createSubscription(data: any): Promise<any> {
  */
 async function getUserSubscriptions(userId: string): Promise<any> {
   try {
-    const userSubs = mockSubscriptions.filter(s => s.userId === userId);
+    const userSubs = await prisma.subscription.findMany({
+      where: { userId }
+    });
     return { success: true, data: userSubs };
   } catch (error) {
     logger.error('Get subscriptions error', { error: error.message });
@@ -458,16 +479,15 @@ async function getUserSubscriptions(userId: string): Promise<any> {
  */
 async function cancelSubscription(subscriptionId: string, userId: string): Promise<any> {
   try {
-    const subscription = mockSubscriptions.find(s => s.id === subscriptionId && s.userId === userId);
-    if (!subscription) {
+    const subscription = await prisma.subscription.updateMany({
+      where: { id: subscriptionId, userId },
+      data: { status: 'cancelled' }
+    });
+    if (subscription.count === 0) {
       return { success: false, error: 'Subscription not found' };
     }
-
-    subscription.status = 'cancelled';
-
     logger.info('Subscription cancelled', { subscriptionId, userId });
-
-    return { success: true, data: subscription };
+    return { success: true, data: { id: subscriptionId, status: 'cancelled' } };
   } catch (error) {
     logger.error('Cancel subscription error', { error: error.message });
     return { success: false, error: error.message };

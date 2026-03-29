@@ -1,0 +1,169 @@
+/* Shared Trading UI Styles - Binance/Bitget inspired */
+/* For spot-trading.html, futures-trading.html, crypto-trading.html, wallet.html, earn.html */
+
+:root {
+  --trading-bg: #0f0f23;
+  --panel-bg: #131722;
+  --panel-border: #2a2e39;
+  --text-primary: #f0f4f8;
+  --text-secondary: #a0a6b1;
+  --buy-green: #158a5f;
+  --sell-red: #e12534;
+  --accent-gold: #f0b90b;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  --hover-glow: rgba(240,185,11,0.2);
+}
+
+.trading-dark-theme {
+  background: var(--trading-bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.trading-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.orderbook-container {
+  height: 400px;
+  overflow-y: auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+}
+
+.orderbook-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.orderbook-row:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.orderbook-bid { color: var(--buy-green); }
+.orderbook-ask { color: var(--sell-red); }
+.orderbook-center { 
+  font-weight: 700; 
+  color: var(--accent-gold); 
+  font-size: 14px;
+  text-align: center;
+  background: rgba(240,185,11,0.1);
+  padding: 8px;
+}
+
+.leverage-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.leverage-btn {
+  padding: 8px 4px;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.leverage-btn:hover, .leverage-btn.active {
+  background: var(--accent-gold);
+  color: #000;
+  border-color: var(--accent-gold);
+  box-shadow: 0 2px 8px var(--hover-glow);
+}
+
+.wallet-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.spot-wallet { background: linear-gradient(135deg, var(--buy-green), #059669); }
+.futures-wallet { background: linear-gradient(135deg, var(--accent-gold), #d97706); }
+.earn-wallet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+.earn-product {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.earn-product:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(139,92,246,0.3);
+}
+
+.quick-trade-btn {
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.quick-trade-buy { background: var(--buy-green) !important; }
+.quick-trade-sell { background: var(--sell-red) !important; }
+
+.trading-pair-selector {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.position-pnl {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.pnl-profit { color: var(--buy-green) !important; }
+.pnl-loss { color: var(--sell-red) !important; }
+
+.tab-trading .nav-link {
+  padding: 12px 24px;
+  margin: 0 4px;
+  border-radius: 25px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+  transition: all 0.3s;
+}
+
+.tab-trading .nav-link.active {
+  background: var(--accent-gold);
+  color: #000;
+  box-shadow: 0 4px 12px var(--hover-glow);
+}
+
+@media (max-width: 768px) {
+  .trading-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  
+  .leverage-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Animations */
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px var(--hover-glow); }
+  50% { box-shadow: 0 0 40px var(--hover-glow); }
+}
+
+.glow-active { animation: glow 2s infinite; }
+

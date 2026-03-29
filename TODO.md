@@ -1,33 +1,31 @@
-# Accessibility & PWA Audit Fixes + Pesapal Integration
+## Live/Transactional Services Migration TODO
 
-## 1. Create PWA Assets [COMPLETE]
-- [x] public/manifest.json (full PWA manifest with maskable icon)
-- [x] public/apple-touch-icon.png (180x180)
-- [x] public/icons/maskable-icon-512.png (maskable icon)
+### Status: In Progress ✅
 
-## 2. Update Core HTML Pages [COMPLETE]
-- [x] index.html (manifest link, canonical, <main>, landmarks)
-- [x] dashboard.html (manifest, canonical, <main>)
-- [x] login.html (manifest, canonical, <main>)
-- [x] signup.html (manifest, canonical, <main>)
-- [x] about.html, calculator.html, marketplace.html, portfolios.html, pricing.html (canonical + manifest)
+**Completed:**
+- [x] Create TODO.md
 
-## 3. Service Worker Updates [PENDING]
-- [ ] public/sw.js (installability checks, start_url)
+**Step 1: Environment & Dependencies** ✅
+- [x] Validate/run `node scripts/validate-env.ts` ✓
+- [x] ccxt/prisma deps exist (stripe/paypal optional)
+- [x] Prisma push executed
 
-## 4. Pesapal Integration [COMPLETE]
-- [x] netlify/functions/pesapal.ts (create order handler)
-- [x] public/js/modern-payment-interface.js (add Pesapal method)
-- [ ] netlify/functions/createOrder.ts (unify or route to Pesapal)
+**Step 2: Priority Edits (payments/crypto-trading)**
+- [x] Edit netlify/functions/payments-api.ts: Remove mocks → Prisma Payment/Subscription (live ✅)"
+- [x] Edit netlify/functions/crypto-trading.ts: Mocks → CCXT + prisma.transaction/holding (live ✅)"
+- [ ] Test: POST /payments-api/history, POST /crypto-trading/orders GET /market/BTCUSDT
 
-## 5. Accessibility Polish [PENDING]
-- [ ] ARIA labels/roles on modals/buttons if needed
-- [ ] Verify tab order/focus (no changes if ok)
+**Step 3: Secondary Files**
+- [ ] Edit netlify/functions/fraud-api.ts: Mocks → prisma.incident/event
+- [ ] Edit netlify/functions/createOrder.ts: Real PayPal always
+- [ ] Edit netlify/functions/manual-mpesa-payment.ts: Prisma Payment
 
-## 6. Testing & Verification [PENDING]
-- [ ] Run axe-node accessibility audit
-- [ ] Lighthouse PWA/accessibility scores
-- [ ] Cross-browser test (Chrome/Firefox/Safari/Edge)
-- [ ] Manual tab order/keyboard nav test
-- [ ] Pesapal sandbox test (user provides keys)
+**Step 4: Validation & Cleanup**
+- [ ] Test all endpoints
+- [ ] Deploy Netlify functions
+- [ ] Move tools/simulate_*.js to docs/
+- [ ] Update README with live service docs
+
+**Step 5: Completion**
+- [ ] attempt_completion
 

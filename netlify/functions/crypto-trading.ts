@@ -43,10 +43,15 @@ interface MarketData {
   lastUpdated: string;
 }
 
+import * as ccxt from 'ccxt';
 import prisma from './lib/prisma';
 import { tradeSchema } from './middleware/zod-validator';
 
 // Real Prisma models (Phase 2.3)
+const binance = new ccxt.binance({
+  enableRateLimit: true,
+  sandbox: process.env.NODE_ENV === 'development'
+});
 
 
 /**
@@ -94,18 +99,16 @@ async function placeOrder(data: any): Promise<any> {
       }
     }
 
-    mockOrders.push(order);
-
     logger.info('Order placed', {
-      orderId: order.id,
+      transactionId: transaction.id,
       userId,
       symbol,
       side,
       quantity,
-      type
+      execPrice
     });
 
-    return { success: true, data: order };
+    return { success: true, data: transaction };
   } catch (error) {
     logger.error('Place order error', { error: error.message });
     return { success: false, error: error.message };
@@ -143,12 +146,12 @@ async function cancelOrder(orderId: string, userId: string): Promise<any> {
  */
 async function getUserOrders(userId: string, status?: string): Promise<any> {
   try {
-    let orders = mockOrders.filter(o => o.userId === userId);
-
-    if (status) {
-      orders = orders.filter(o => o.status === status);
-    }
-
+    const where: any = { portfolioId: userId };
+    if (status) where.notes = { contains: status };
+    const orders = await prisma.transaction.findMany({
+      where,
+      orderBy: { createdAt: 'desc' }
+    });
     return { success: true, data: orders };
   } catch (error) {
     logger.error('Get orders error', { error: error.message });
@@ -161,8 +164,11 @@ async function getUserOrders(userId: string, status?: string): Promise<any> {
  */
 async function getUserPositions(userId: string): Promise<any> {
   try {
-    // In production, calculate from actual trades
-    return { success: true, data: mockPositions };
+    const holdings = await prisma.holding.findMany({
+      where: { portfolioId: userId },
+      include: { dividends: true }
+    });
+    return { success: true, data: holdings };
   } catch (error) {
     logger.error('Get positions error', { error: error.message });
     return { success: false, error: error.message };
@@ -175,14 +181,32 @@ async function getUserPositions(userId: string): Promise<any> {
 async function getMarketData(symbol?: string): Promise<any> {
   try {
     if (symbol) {
-      const data = mockMarketData[symbol];
-      if (!data) {
-        return { success: false, error: 'Symbol not found' };
-      }
+      const ticker = await binance.fetchTicker(symbol);
+      const data: MarketData = {
+        symbol,
+        price: ticker.last,
+        change: ticker.change || 0,
+        changePercent: ticker.percentage || 0,
+        volume: parseFloat(ticker.baseVolume || '0'),
+        high: ticker.high || 0,
+        low: ticker.low || 0,
+        lastUpdated: new Date().toISOString()
+      };
       return { success: true, data };
     }
 
-    return { success: true, data: Object.values(mockMarketData) };
+    const tickers = await binance.fetchTickers();
+    const data = Object.values(tickers).map((t: any) => ({
+      symbol: t.symbol,
+      price: t.last,
+      change: t.change || 0,
+      changePercent: t.percentage || 0,
+      volume: parseFloat(t.baseVolume || '0'),
+      high: t.high || 0,
+      low: t.low || 0,
+      lastUpdated: new Date().toISOString()
+    })).slice(0, 20);
+    return { success: true, data };
   } catch (error) {
     logger.error('Get market data error', { error: error.message });
     return { success: false, error: error.message };
@@ -194,22 +218,13 @@ async function getMarketData(symbol?: string): Promise<any> {
  */
 async function getOrderBook(symbol: string): Promise<any> {
   try {
-    // Mock order book data
+    const book = await binance.fetchOrderBook(symbol, 20);
     const orderBook = {
       symbol,
-      bids: [
-        [mockMarketData[symbol]?.price - 10, 1.5],
-        [mockMarketData[symbol]?.price - 20, 2.0],
-        [mockMarketData[symbol]?.price - 30, 1.8]
-      ],
-      asks: [
-        [mockMarketData[symbol]?.price + 10, 1.2],
-        [mockMarketData[symbol]?.price + 20, 2.5],
-        [mockMarketData[symbol]?.price + 30, 1.9]
-      ],
-      lastUpdated: new Date().toISOString()
+      bids: book.bids.slice(0, 15),
+      asks: book.asks.slice(0, 15),
+      timestamp: Date.now()
     };
-
     return { success: true, data: orderBook };
   } catch (error) {
     logger.error('Get order book error', { error: error.message });

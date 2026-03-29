@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spot Trading - SmartInvest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        :root {
+            --primary: #1a365d; --accent: #d4af37; --success: #38a169; --danger: #e53e3e;
+            --bg-dark: #1a1f2e; --bg-card: #2a2f3e; --text-light: #f1f3f6;
+        }
+        body { background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); color: var(--text-light); }
+        .trading-layout { height: 100vh; display: grid; grid-template: "sidebar chart orderpanel" 1fr / 300px 1fr 350px; gap: 1px; background: var(--bg-dark); }
+        .panel { background: var(--bg-card); padding: 15px; overflow: auto; }
+        .trading-pair { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .orderbook { height: 400px; overflow: auto; }
+        .orderbook-row { display: flex; justify-content: space-between; padding: 8px 4px; cursor: pointer; border-radius: 4px; }
+        .orderbook-row:hover { background: rgba(255,255,255,0.05); }
+        .bid { color: var(--success); } .ask { color: var(--danger); }
+        .order-form input, .order-form select { background: #3a404c; border: 1px solid #4a505c; color: white; }
+        .order-btn { padding: 12px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; }
+        .buy-btn { background: var(--success); color: white; } .buy-btn:hover { background: #2f855a; }
+        .sell-btn { background: var(--danger); color: white; } .sell-btn:hover { background: #c53030; }
+        #tradingview { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="trading-layout">
+        <!-- Left Sidebar: Orderbook -->
+        <div class="panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Order Book <i class="fas fa-sync-alt" onclick="refreshOrderbook()"></i></h5>
+                <select id="symbolSelect" onchange="changeSymbol()" class="form-select form-select-sm">
+                    <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
+                </select>
+            </div>
+            <div class="orderbook" id="orderbook">
+                <!-- Dynamic orderbook -->
+            </div>
+        </div>
+
+        <!-- Center: Trading Chart -->
+        <div class="panel" style="grid-area: chart; display: flex; flex-direction: column;">
+            <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom">
+                <div>
+                    <div class="trading-pair" id="currentPair">BTC / USDT</div>
+                    <small id="priceChange" class="text-success">+2.34% (+$1,234.56)</small>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-light" onclick="setInterval1h()">1H</button>
+                    <button class="btn btn-sm btn-outline-light active" onclick="setInterval4h()">4H</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setInterval1d()">1D</button>
+                </div>
+            </div>
+            <div id="tradingview"></div>
+        </div>
+
+        <!-- Right Panel: Order Form -->
+        <div class="panel">
+            <h6 class="mb-3">New Order</h6>
+            <div class="order-form">
+                <div class="mb-3">
+                    <label>Order Type</label>
+                    <select id="orderType" class="form-select form-select-sm" onchange="toggleOrderFields()">
+                        <option value="market">Market</option>
+                        <option value="limit">Limit</option>
+                        <option value="stop_limit">Stop Limit</option>
+                        <option value="oco">OCO</option>
+                    </select>
+                </div>
+                <div class="mb-2"><input type="number" id="price" class="form-control form-control-sm" placeholder="Price" style="display:none;"></div>
+                <div class="mb-2"><input type="number" id="stopPrice" class="form-control form-control-sm" placeholder="Stop Price" style="display:none;"></div>
+                <div class="mb-3"><input type="number" id="amount" class="form-control form-control-sm" placeholder="Amount"></div>
+                <div class="mb-3"><input type="range" id="slider" min="0" max="100" value="25" class="form-range"></div>
+                <div>Total: <span id="total">$0.00</span></div>
+                <div class="d-grid gap-2 mt-3">
+                    <button class="order-btn buy-btn" onclick="placeOrder('buy')">BUY</button>
+                    <button class="order-btn sell-btn" onclick="placeOrder('sell')">SELL</button>
+                </div>
+            </div>
+            <hr>
+            <h6>Open Orders (3)</h6>
+            <div id="openOrders"><!-- Dynamic --></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSymbol = 'BTCUSDT';
+        let tvWidget;
+
+        // Initialize TradingView
+        function initChart() {
+            tvWidget = new TradingView.widget({
+                container_id: "tradingview",
+                width: "100%",
+                height: "100%",
+                symbol: `BINANCE:${currentSymbol}`,
+                interval: "5",
+                timezone: "Etc/UTC",
+                theme: "dark",
+                style: "1",
+                locale: "en",
+                toolbar_bg: "#f1f3f6",
+                enable_publishing: false,
+                hide_top_toolbar: false,
+                hide_legend: true,
+                save_image: false
+            });
+        }
+
+        // Mock orderbook data
+        const mockOrderbook = {
+            BTCUSDT: {
+                bids: [[45000, 2.5], [44990, 1.8], [44980, 3.2], [44970, 0.9]],
+                asks: [[45010, 1.2], [45020, 2.1], [45030, 1.5], [45040, 0.8]]
+            }
+        };
+
+        function refreshOrderbook() {
+            const book = mockOrderbook[currentSymbol] || mockOrderbook.BTCUSDT;
+            const container = document.getElementById('orderbook');
+            let html = '<div class="mb-2 text-center fw-bold">24hr Volume: $1.2B</div>';
+            // Bids
+            book.bids.slice(0,10).forEach(([price, qty], i) => {
+                html += `<div class="orderbook-row bid"><span>${price.toLocaleString()}</span><span>${qty.toFixed(4)}</span></div>`;
+            });
+            html += '<div class="text-center py-2"><div class="trading-pair">45,000</div></div>';
+            // Asks
+            book.asks.slice(0,10).forEach(([price, qty]) => {
+                html += `<div class="orderbook-row ask"><span>${price.toLocaleString()}</span><span>${qty.toFixed(4)}</span></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function placeOrder(side) {
+            const amount = document.getElementById('amount').value || 0;
+            if (!amount) return alert('Enter amount');
+            
+            // Mock API call
+            fetch('/.netlify/functions/crypto-trading/orders', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    symbol: currentSymbol,
+                    side,
+                    type: document.getElementById('orderType').value,
+                    quantity: parseFloat(amount)
+                })
+            }).then(r => r.json()).then(data => {
+                alert(`${side.toUpperCase()} order placed! ${data.data?.id}`);
+                loadOpenOrders();
+            });
+        }
+
+        function toggleOrderFields() {
+            const type = document.getElementById('orderType').value;
+            document.getElementById('price').style.display = type !== 'market' ? 'block' : 'none';
+            document.getElementById('stopPrice').style.display = type.includes('stop') ? 'block' : 'none';
+        }
+
+        function changeSymbol() {
+            const pair = document.getElementById('symbolSelect').value;
+            currentSymbol = pair.replace('/', '');
+            document.getElementById('currentPair').textContent = pair;
+            if (tvWidget) tvWidget.setSymbol(`BINANCE:${currentSymbol}`, '5');
+            refreshOrderbook();
+        }
+
+        function loadOpenOrders() {
+            // Mock
+            document.getElementById('openOrders').innerHTML = `
+                <div class="p-2 border-bottom small">
+                    <div>Market BUY 0.025 BTC @ $45,000 <span class="float-end text-success">FILLED</span></div>
+                </div>
+                <div class="p-2 border-bottom small">
+                    <div>Limit SELL 1.5 ETH @ $2,800 <span class="float-end text-warning">ACTIVE</span></div>
+                </div>
+            `;
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            refreshOrderbook();
+            loadOpenOrders();
+            document.getElementById('slider').oninput = (e) => {
+                document.getElementById('amount').value = (e.target.value / 100 * 0.1).toFixed(4);
+                updateTotal();
+            };
+            document.getElementById('amount').oninput = updateTotal;
+        });
+
+        function updateTotal() {
+            const price = 45000; // Mock
+            document.getElementById('total').textContent = `$${(parseFloat(document.getElementById('amount').value || 0) * price).toLocaleString()}`;
+        }
+
+        function setInterval1h() { if (tvWidget) tvWidget.setResolution('60'); }
+        function setInterval4h() { if (tvWidget) tvWidget.setResolution('240'); }
+        function setInterval1d() { if (tvWidget) tvWidget.setResolution('1D'); }
+    </script>
+</body>
+</html>
+

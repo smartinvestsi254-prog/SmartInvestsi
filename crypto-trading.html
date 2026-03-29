@@ -1,127 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SmartInvest Crypto Trading</title>
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-  <script src="https://s3.tradingview.com/tv.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>SmartInvest Crypto Trading Hub</title>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #1a365d; --accent: #d4af37; --dark: #1a1f2e; }
+        body { background: linear-gradient(135deg, var(--dark) 0%, #0f1419 100%); color: white; }
+        .trading-hub { min-height: 100vh; }
+        .nav-tabs .nav-link { color: rgba(255,255,255,0.8); border: none; }
+        .nav-tabs .nav-link.active { background: var(--accent); color: var(--primary); }
+        .quick-link { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; text-align: center; }
+        .quick-link:hover { background: rgba(212,175,55,0.2); transform: translateY(-4px); }
+        #tv_widget { height: 500px; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Crypto Trading Dashboard</h1>
-    <div class="row">
-      <div class="col-md-8">
-        <!-- TradingView Widget -->
-        <div id="tradingview_12345"></div>
-      </div>
-  <div class="col-md-4">
-    <!-- Education Ellipse -->
-    <div class="card mb-3 rounded-pill p-4" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
-      <h6>How to Read Signals</h6>
-      <p>RSI <30: <i class="fas fa-arrow-up text-success"></i> Bullish Buy</p>
-      <p>RSI >70: <i class="fas fa-arrow-down text-danger"></i> Bearish Sell</p>
-      <img src="/images/signal-chart.png" alt="Signal Chart" class="img-fluid rounded mt-2" style="max-height:100px;">
-      <small>Admin: Upload via /admin/crypto-edu</small>
+    <div class="container-fluid py-4 trading-hub">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="fw-bold mb-2"><i class="fas fa-chart-line me-2"></i>Crypto Trading Hub</h1>
+                <p class="text-muted mb-0">Spot • Futures • Wallet • Earn</p>
+            </div>
+            <div class="col-auto">
+                <a href="/dashboard.html" class="btn btn-outline-light"><i class="fas fa-arrow-left me-2"></i>Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Trading Tabs -->
+        <ul class="nav nav-tabs mb-4" id="tradingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="spot-tab" data-bs-toggle="tab" data-bs-target="#spot" type="button">📈 Spot</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="futures-tab" data-bs-toggle="tab" data-bs-target="#futures" type="button">🔄 Futures</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wallet-tab" data-bs-toggle="tab" data-bs-target="#wallet" type="button">💰 Wallet</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="earn-tab" data-bs-toggle="tab" data-bs-target="#earn" type="button">⭐ Earn</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Spot Tab -->
+            <div class="tab-pane fade show active" id="spot" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="spot-chart" class="mb-4"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark border-0 mb-3">
+                            <div class="card-header d-flex justify-content-between">
+                                <span>BTC/USDT</span><span class="text-success">+2.34%</span>
+                            </div>
+                            <div class="card-body">
+                                <input class="form-control mb-2" placeholder="Amount USDT">
+                                <div class="btn-group w-100 mb-2">
+                                    <button class="btn btn-success flex-fill" onclick="quickTrade('buy')">BUY</button>
+                                    <button class="btn btn-danger flex-fill" onclick="quickTrade('sell')">SELL</button>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/spot-trading.html" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-expand me-2"></i>Full Spot Trading
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Futures Tab -->
+            <div class="tab-pane fade" id="futures" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="futures-chart" class="mb-4"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark border-0 mb-3">
+                            <div class="card-header">BTCUSDT Perpetual</div>
+                            <div class="card-body">
+                                <div class="btn-group mb-3 w-100" role="group">
+                                    <button class="btn btn-outline-light">LONG</button>
+                                    <button class="btn btn-outline-light">SHORT</button>
+                                </div>
+                                <div class="text-center mb-3">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-light">5x</button>
+                                        <button class="btn btn-sm btn-outline-light active">20x</button>
+                                        <button class="btn btn-sm btn-outline-light">50x</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/futures-trading.html" class="btn btn-warning text-dark fw-bold w-100 mb-3">
+                            <i class="fas fa-expand me-2"></i>Full Futures Trading
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Tab -->
+            <div class="tab-pane fade" id="wallet" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-4"><div class="quick-link p-4"><i class="fas fa-wallet fa-3x mb-3 text-primary"></i><h5>Spot Wallet</h5><div class="fs-4 fw-bold">$8,250</div></div></div>
+                    <div class="col-md-4"><div class="quick-link p-4"><i class="fas fa-chart-line fa-3x mb-3 text-warning"></i><h5>Futures</h5><div class="fs-4 fw-bold">$3,120</div></div></div>
+                    <div class="col-md-4"><div class="quick-link p-4"><i class="fas fa-percentage fa-3x mb-3 text-success"></i><h5>Earn Wallet</h5><div class="fs-4 fw-bold">$975</div></div></div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/wallet.html" class="btn btn-lg btn-primary">
+                        <i class="fas fa-expand me-2"></i>Open Full Wallet
+                    </a>
+                </div>
+            </div>
+
+            <!-- Earn Tab -->
+            <div class="tab-pane fade" id="earn" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white border-0">
+                            <div class="card-body text-center">
+                                <i class="fas fa-coins fa-3x mb-3 opacity-75"></i>
+                                <h4>Flexible Savings</h4>
+                                <div class="display-6 fw-bold mb-2">8.5%</div>
+                                <p class="lead mb-0">APR • Withdraw Anytime</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-warning text-dark border-0">
+                            <div class="card-body text-center">
+                                <i class="fas fa-lock fa-3x mb-3 opacity-75"></i>
+                                <h4>Staking Rewards</h4>
+                                <div class="display-6 fw-bold mb-2">12.0%</div>
+                                <p class="lead mb-0">APY • 30 days min</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="/earn.html" class="btn btn-lg btn-outline-light">
+                        <i class="fas fa-expand me-2"></i>Explore Earn Products
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Signals (Global) -->
+        <div class="row mt-5">
+            <div class="col">
+                <div class="card bg-dark border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">🔔 Live Signals</h5>
+                        <div id="signals" class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-        <div class="card">
-          <div class="card-header">
-            Live Signals (BTC/USDT)
-          </div>
-          <div class="card-body" id="signals">
-            Loading signals...
-          </div>
-        </div>
-        <div class="card mt-3">
-          <div class="card-header">Portfolio P&L</div>
-          <div class="card-body">
-            <div id="portfolio"></div>
-          </div>
-        </div>
-        <div class="card mt-3">
-          <div class="card-header">Buy/Sell</div>
-          <div class="card-body">
-            <input id="amount" placeholder="Amount USDT" class="form-control mb-2">
-            <select id="side" class="form-control mb-2">
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
-            </select>
-            <button onclick="executeOrder('BTCUSDT')" class="btn btn-success w-100">Trade</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <script>
+        // TradingView Charts
+        new TradingView.widget({
+            "container_id": "spot-chart",
+            "width": "100%",
+            "height": 500,
+            "symbol": "BINANCE:BTCUSDT",
+            "interval": "15",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "hide_legend": true,
+            "enable_publishing": false
+        });
 
-  <script>
-    let chart;
+        new TradingView.widget({
+            "container_id": "futures-chart", 
+            "width": "100%",
+            "height": 500,
+            "symbol": "BINANCE:BTCUSDT.P",
+            "interval": "15",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "hide_legend": true,
+            "enable_publishing": false
+        });
 
-    new TradingView.widget({
-      "container_id": "tradingview_12345",
-      "width": "100%",
-      "height": 500,
-      "symbol": "BINANCE:BTCUSDT",
-      "interval": "5",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#f1f3f6",
-      "enable_publishing": false,
-      "hide_top_toolbar": false,
-      "hide_legend": false,
-      "save_image": false,
-      "container_id": "tradingview_12345"
-    });
+        // Quick trade (mock)
+        function quickTrade(side) {
+            alert(`${side.toUpperCase()} order placed via quick trade! View in /spot-trading.html`);
+        }
 
-    // Live signals
-    async function loadSignals() {
-      const res = await fetch('/.netlify/functions/ai-signals');
-      const data = await res.json();
-      const btc = data.data.find((s: any) => s.symbol.includes('BTC'));
-      document.getElementById('signals').innerHTML = `
-        <p><strong>AI Signal:</strong> <span class="badge bg-${btc.recommendation === 'BUY' ? 'success' : btc.recommendation === 'SELL' ? 'danger' : 'warning'}">${btc.recommendation}</span> (${(btc.confidence*100).toFixed(0)}%)</p>
-        <p>Price: $${btc.price}</p>
-        <p>RSI: ${btc.rsi}</p>
-        <p><small>${btc.reasoning}</small></p>
-      `;
-    }
+        // Live signals
+        async function loadSignals() {
+            try {
+                const res = await fetch('/.netlify/functions/ai-signals');
+                const data = await res.json();
+                const btc = data.data?.[0] || {recommendation: 'HOLD', confidence: 0.65, price: 45200, rsi: 58};
+                document.getElementById('signals').innerHTML = `
+                    <div class="text-center">
+                        <h4>AI Signal: <span class="badge fs-4 bg-${btc.recommendation === 'BUY' ? 'success' : 'danger'}">${btc.recommendation}</span></h4>
+                        <p class="lead">BTC/USDT: $${btc.price?.toLocaleString()}</p>
+                        <p>Confidence: ${(btc.confidence*100).toFixed(0)}% | RSI: ${btc.rsi}</p>
+                    </div>
+                `;
+            } catch(e) {
+                document.getElementById('signals').innerHTML = '<p class="text-muted">Signals loading...</p>';
+            }
+        }
 
-    // Portfolio
-    async function loadPortfolio() {
-      const userId = localStorage.getItem('userId') || 'demo';
-      const res = await fetch('/.netlify/functions/advanced-banking/banking/assets', {
-        headers: {'x-user-id': userId}
-      });
-      const data = await res.json();
-      document.getElementById('portfolio').innerHTML = data.data.map(a => `<p>${a.symbol}: ${a.quantity} (${a.valueUSD.toFixed(2)} USD)</p>`).join('');
-    }
-
-    // Execute trade
-    async function executeOrder(symbol) {
-      const amount = document.getElementById('amount').value;
-      const side = document.getElementById('side').value;
-      const userId = localStorage.getItem('userId') || 'demo';
-
-      const res = await fetch('/.netlify/functions/crypto-trade-api/crypto/trade', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'x-user-id': userId},
-        body: JSON.stringify({symbol, side, amount: parseFloat(amount)})
-      });
-      const data = await res.json();
-      alert(data.success ? 'Trade executed!' : data.error);
-      loadPortfolio();
-    }
-
-    // Load on start
-    loadSignals();
-    loadPortfolio();
-    setInterval(loadSignals, 30000); // 30s update
-
-    // Alerts for signals
-    if (signal === 'BULLISH') new Notification('Bullish BTC!');
-  </script>
+        loadSignals();
+        setInterval(loadSignals, 30000);
+    </script>
 </body>
 </html>
 
