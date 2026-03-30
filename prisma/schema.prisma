@@ -19,7 +19,7 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String?
+  passwordHash  String?  @db.VarChar(255)
   emailVerified Boolean @default(false)
   role      UserRole @default(VIEWER)
   resetToken String?  @unique

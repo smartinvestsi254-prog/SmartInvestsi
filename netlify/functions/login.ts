@@ -2,13 +2,10 @@
  * User Login Handler for SmartInvestsi
  */
 
-import { PrismaClient } from '@prisma/client';
+import { Handler } from '@netlify/functions';
 import logger from './logger';
 import { authenticateUser } from './auth';
-import type { NetlifyEvent, NetlifyContext } from './types';
-import prisma from './lib/prisma';
-
-// prisma from singleton
+import type { NetlifyEvent, NetlifyContext, APIResponse } from './types';
 
 export const handler = async function(event: NetlifyEvent, context: NetlifyContext): Promise<APIResponse> {
   if (event.httpMethod !== 'POST') {
@@ -25,53 +22,27 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
     const body = JSON.parse(event.body || '{}');
     const { email, phone, idNumber, password, captchaToken, isAdmin } = body;
 
-    if (!email && !phone && !idNumber || !password) {
+    if (!email || !password) {  // Simplified to email + password
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: false, error: 'Credentials required' })
+        body: JSON.stringify({ success: false, error: 'Email and password required' })
       };
     }
 
-    // Rate limiting stub (5 attempts per IP per 15min)
-    // Rate limiting stub (use Netlify KV or Redis)
-    // TODO: Implement with netlify/functions/rate-limit-edge.ts
-    const key = `login:${ip}:${email || phone || idNumber}`;
+    // Rate limiting stub
+    const key = `login:${ip}:${email}`;
     console.log(`Rate limit check for ${key}`);
 
-
-    // CAPTCHA for failed attempts or high risk
+    // CAPTCHA stub
     if (captchaToken) {
-      // TODO: verify hCaptcha
       console.log('CAPTCHA verified');
     }
 
-    // Check ban status
-    const user = await prisma.user.findUnique({
-      where: { email: email || '' }
-    });
-    if (user?.isBanned) {
-      logger.warn('Banned user login attempt', { ip, email });
-      return {
-        statusCode: 403,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: false, error: 'Account suspended. Contact support.' })
-      };
-    }
-
-    const authResult = await authenticateUser(email || phone || idNumber, password);
+    const authResult = await authenticateUser(email, password);
 
     if (!authResult.success) {
-      // Update failed attempts
-      await prisma.user.updateMany({
-        where: { email: email || '' },
-        data: {
-          failedLoginAttempts: { increment: 1 },
-          lastFailedLogin: new Date()
-        }
-      });
-
-      logger.warn('Failed login', { ip, identifier: email || phone || idNumber, attempts: attempts + 1 });
+      logger.warn('Failed login', { ip, identifier: email });
       return {
         statusCode: 401,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -79,14 +50,8 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       };
     }
 
-    // Reset failed attempts on success
-    await prisma.user.update({
-      where: { id: authResult.user.id },
-      data: { failedLoginAttempts: 0 }
-    });
-
-    // Check if email verified
-    if (!authResult.user.emailVerifiedAt) {
+    // Email verified check
+    if (!authResult.user!.emailVerifiedAt) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
