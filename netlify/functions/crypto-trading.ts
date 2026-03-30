@@ -45,7 +45,7 @@ interface MarketData {
 
 import * as ccxt from 'ccxt';
 import prisma from './lib/prisma';
-import { tradeSchema } from './middleware/zod-validator';
+// tradeSchema unused - kept for future
 
 // Real Prisma models (Phase 2.3)
 const binance = new ccxt.binance({

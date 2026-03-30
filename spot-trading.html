@@ -109,27 +109,22 @@
     </div>
 
     <script>
+        let charts = [];
         let currentSymbol = 'BTCUSDT';
-        let tvWidget;
+        let tvWidget; 
 
-        // Initialize TradingView
+        // Initialize TradingCharts
         function initChart() {
-            tvWidget = new TradingView.widget({
-                container_id: "tradingview",
-                width: "100%",
-                height: "100%",
+            const chart = new TradingCharts('tradingview', {
                 symbol: `BINANCE:${currentSymbol}`,
-                interval: "5",
-                timezone: "Etc/UTC",
-                theme: "dark",
-                style: "1",
-                locale: "en",
-                toolbar_bg: "#f1f3f6",
-                enable_publishing: false,
-                hide_top_toolbar: false,
-                hide_legend: true,
-                save_image: false
+                interval: '5',
+                studies: ['MASimple@tv-basicstudies']
             });
+            charts.push(chart);
+            TradingCharts.syncCharts(charts);
+            initIndicatorToggles('#spotIndicators');
+            initTimeframes(['1', '5', '15', '60', '240', '1D'], '#spotTimeframes');
+            tvWidget = chart.tvWidget;
         }
 
         // Mock orderbook data

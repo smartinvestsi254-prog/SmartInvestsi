@@ -55,7 +55,11 @@
     "tsx": "^4.21.0",
     "typescript": "^5.6.3"
   },
-  "postinstall": "prisma generate --no-engine && echo '✅ Prisma v7 client generated (engine lazy-loaded)'",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.12.1"
+  }
+} "postinstall": "prisma generate --no-engine && echo '✅ Prisma v7 client generated (engine lazy-loaded)'",
   "prisma": {
     "schema": "prisma/schema.prisma"
   }

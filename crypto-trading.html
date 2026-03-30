@@ -194,20 +194,9 @@
 
     <script>
         // TradingView Charts
-        new TradingView.widget({
-            "container_id": "spot-chart",
-            "width": "100%",
-            "height": 500,
-            "symbol": "BINANCE:BTCUSDT",
-            "interval": "15",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#f1f3f6",
-            "hide_legend": true,
-            "enable_publishing": false
-        });
+// Legacy widget replaced by TradingCharts below
+
+let charts = [];
 
         // Enhanced charts with TA
         const spotChart = new TradingCharts('spot-chart', {
@@ -226,14 +215,14 @@
         TradingCharts.syncCharts(charts);
 
         initIndicatorToggles('#spotIndicators');
-        initTimeframes(['1', '5', '15', '60', '240', '1D']);
+        initTimeframes(['1', '5', '15', '60', '240', '1D'], '#spotTimeframes'); 
 
-        // Symbol change handler
+// Symbol change handler
         document.getElementById('spotSymbol').onchange = (e) => {
             const sym = 'BINANCE:' + e.target.value.replace('/', '');
             spotChart.setSymbol(sym);
-            loadTASummary('BTC/USDT');
-        };
+            loadTASummary(e.target.value);
+        }; 
 
         // Load live TA summary
         async function loadTASummary(symbol = 'BTC/USDT') {
