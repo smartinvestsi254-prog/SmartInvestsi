@@ -1,76 +1,70 @@
-{
-    "name": "Smartinvest",
-      "version": "1.0.0",
-        "description": "SmartInvest - Investment Management Platform",
-          "main": "dist/server.js",
+  {
+      "name": "Smartinvest",
+        "version": "1.0.0",
+          "description": "SmartInvest - Investment Management Platform",
+            "main": "dist/server.js",
+              "scripts": {
+                  "dev": "tsx watch src/server.ts",
+                      "build": "prisma generate && tsc",
+                          "build:functions": "tsc -p netlify/tsconfig.json",
+                              "start": "node dist/server.js",
+                                  "monitor": "node Services/Scheduler.js",
+                                      "test": "jest --runInBand",
+                                          "test:functions": "jest netlify/functions",
+                                              "lint": "eslint '{src,netlify}/**/*.{ts,js}'",
+                                                  "lint:fix": "eslint '{src,netlify}/**/*.{ts,js}' --fix",
+                                                      "format": "prettier --write '{src,netlify}/**/*.{ts,js,json,md}'",
 
-            "scripts": {
-                "dev": "tsx watch src/server.ts",
-                    "build": "prisma generate && tsc",
-                        "build:functions": "tsc -p netlify/tsconfig.json",
-                            "start": "node dist/server.js",
-                                "monitor": "node Services/Scheduler.js",
-                                    "test": "jest --runInBand",
-                                        "test:functions": "jest netlify/functions",
-                                            "lint": "eslint '{src,netlify}/**/*.{ts,js}'",
-                                                "lint:fix": "eslint '{src,netlify}/**/*.{ts,js}' --fix",
-                                                    "format": "prettier --write '{src,netlify}/**/*.{ts,js,json,md}'",
+                                                          "secrets:baseline": "detect-secrets scan --baseline .secrets.baseline",
+                                                              "pre-commit:install": "pre-commit install",
+                                                                  "pre-commit:run": "pre-commit run --all-files",
 
-                                                        "secrets:baseline": "detect-secrets scan --baseline .secrets.baseline",
-                                                            "pre-commit:install": "pre-commit install",
-                                                                "pre-commit:run": "pre-commit run --all-files",
+                                                                      "prisma:generate": "prisma generate",
+                                                                          "prisma:migrate:dev": "prisma migrate dev",
+                                                                              "prisma:migrate:deploy": "prisma migrate deploy",
+                                                                                  "prisma:migrate:reset": "prisma migrate reset --force",
+                                                                                      "prisma:studio": "prisma studio",
+                                                                                          "prisma:seed": "node prisma/seed.js",
 
-                                                                    "prisma:generate": "prisma generate",
-                                                                        "prisma:migrate:dev": "prisma migrate dev",
-                                                                            "prisma:migrate:deploy": "prisma migrate deploy",
-                                                                                "prisma:migrate:reset": "prisma migrate reset --force",
-                                                                                    "prisma:studio": "prisma studio",
-                                                                                        "prisma:seed": "node prisma/seed.js",
-
-                                                                                            "postinstall": "prisma generate --no-engine && echo \"Prisma v7 client generated\""
-                                                                                              },
-
-                                                                                                "dependencies": {
-                                                                                                    "@netlify/functions": "^2.0.0",
-                                                                                                        "@prisma/client": "^7.5.0",
-                                                                                                            "@sentry/node": "^8.28.0",
-                                                                                                                "axios": "^1.4.0",
-                                                                                                                    "ccxt": "^4.5.45",
-                                                                                                                        "cookie-parser": "^1.4.6",
-                                                                                                                            "cors": "^2.8.5",
-                                                                                                                                "dotenv": "^16.6.1",
-                                                                                                                                    "express": "^4.18.2",
-                                                                                                                                        "express-rate-limit": "^7.1.0",
-                                                                                                                                            "helmet": "^7.0.0",
-                                                                                                                                                "jsonwebtoken": "^9.0.0",
-                                                                                                                                                    "node-cron": "^3.0.2",
-                                                                                                                                                        "nodemailer": "^8.0.4",
-                                                                                                                                                            "zod": "^3.24.2",
-
-                                                                                                                                                                "prisma": "^7.5.0"
-                                                                                                                                                                  },
-
-                                                                                                                                                                    "devDependencies": {
-                                                                                                                                                                        "@types/express": "^4.17.20",
-                                                                                                                                                                            "@types/node": "^20.17.9",
-                                                                                                                                                                                "@typescript-eslint/eslint-plugin": "^6.0.0",
-                                                                                                                                                                                    "@typescript-eslint/parser": "^6.0.0",
-                                                                                                                                                                                        "eslint": "^8.50.0",
-                                                                                                                                                                                            "eslint-plugin-security": "^2.1.0",
-                                                                                                                                                                                                "jest": "^29.7.0",
-                                                                                                                                                                                                    "prettier": "^3.0.0",
-                                                                                                                                                                                                        "ts-jest": "^29.2.5",
-                                                                                                                                                                                                            "tsx": "^4.21.0",
-                                                                                                                                                                                                                "typescript": "^5.6.3"
-                                                                                                                                                                                                                  },
-
-                                                                                                                                                                                                                    "engines": {
-                                                                                                                                                                                                                        "node": ">=24.0.0",
-                                                                                                                                                                                                                            "npm": ">=11.12.1"
-                                                                                                                                                                                                                              },
-
-                                                                                                                                                                                                                                "prisma": {
-                                                                                                                                                                                                                                    "schema": "prisma/schema.prisma"
-                                                                                                                                                                                                                                      }
-                                                                                                                                                                                                                                      }
-}
+                                                                                              "postinstall": "prisma generate --no-engine && echo \"Prisma v7 client generated\""
+                                                                                                },
+                                                                                                  "dependencies": {
+                                                                                                      "@netlify/functions": "^2.0.0",
+                                                                                                          "@prisma/client": "^7.5.0",
+                                                                                                              "@sentry/node": "^8.28.0",
+                                                                                                                  "axios": "^1.4.0",
+                                                                                                                      "ccxt": "^4.5.45",
+                                                                                                                          "cookie-parser": "^1.4.6",
+                                                                                                                              "cors": "^2.8.5",
+                                                                                                                                  "dotenv": "^16.6.1",
+                                                                                                                                      "express": "^4.18.2",
+                                                                                                                                          "express-rate-limit": "^7.1.0",
+                                                                                                                                              "helmet": "^7.0.0",
+                                                                                                                                                  "jsonwebtoken": "^9.0.0",
+                                                                                                                                                      "node-cron": "^3.0.2",
+                                                                                                                                                          "nodemailer": "^8.0.4",
+                                                                                                                                                              "zod": "^3.24.2",
+                                                                                                                                                                  "prisma": "^7.5.0"
+                                                                                                                                                                    },
+                                                                                                                                                                      "devDependencies": {
+                                                                                                                                                                          "@types/express": "^4.17.20",
+                                                                                                                                                                              "@types/node": "^20.17.9",
+                                                                                                                                                                                  "@typescript-eslint/eslint-plugin": "^6.0.0",
+                                                                                                                                                                                      "@typescript-eslint/parser": "^6.0.0",
+                                                                                                                                                                                          "eslint": "^8.50.0",
+                                                                                                                                                                                              "eslint-plugin-security": "^2.1.0",
+                                                                                                                                                                                                  "jest": "^29.7.0",
+                                                                                                                                                                                                      "prettier": "^3.0.0",
+                                                                                                                                                                                                          "ts-jest": "^29.2.5",
+                                                                                                                                                                                                              "tsx": "^4.21.0",
+                                                                                                                                                                                                                  "typescript": "^5.6.3"
+                                                                                                                                                                                                                    },
+                                                                                                                                                                                                                      "engines": {
+                                                                                                                                                                                                                          "node": ">=24.0.0",
+                                                                                                                                                                                                                              "npm": ">=11.12.1"
+                                                                                                                                                                                                                                },
+                                                                                                                                                                                                                                  "prisma": {
+                                                                                                                                                                                                                                      "schema": "prisma/schema.prisma"
+                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                        }
+  }                                                                                                                                                                                                                                                                   
