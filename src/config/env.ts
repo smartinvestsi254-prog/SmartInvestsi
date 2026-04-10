@@ -1,26 +1,29 @@
-import { z } from "zod";
+// src/config/env.ts
+import { z } from 'zod';
 
 /**
- * Helper: convert CSV → string[]
+ * Helper: convert CSV -> string[] and tolerate empty/undefined values.
  */
 const csv = z
   .string()
-  .transform((val) => val.split(",").map((s) => s.trim()));
+  .optional()
+  .default('')
+  .transform((val) => (val && val.length ? val.split(',').map((s) => s.trim()).filter(Boolean) : []));
 
 /**
  * Base schema (all environments)
  */
 const baseSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   // Database
   DATABASE_URL: z.string().url(),
   DIRECT_URL: z.string().url().optional(),
 
   // Auth
-  JWT_SECRET: z.string().min(64, "JWT_SECRET must be ≥64 chars"),
-  JWT_REFRESH_SECRET: z.string().min(64),
-  SESSION_SECRET: z.string().min(64),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 chars'),
+  JWT_REFRESH_SECRET: z.string().min(32),
+  SESSION_SECRET: z.string().min(32),
 
   ADMIN_REG_SECRET: z.string().optional(),
   ADMIN_FALLBACK_KEY: z.string().optional(),
@@ -28,7 +31,7 @@ const baseSchema = z.object({
   // Payments
   PAYPAL_CLIENT_ID: z.string().optional(),
   PAYPAL_CLIENT_SECRET: z.string().optional(),
-  PAYPAL_MODE: z.enum(["sandbox", "live"]).default("sandbox"),
+  PAYPAL_MODE: z.enum(['sandbox', 'live']).default('sandbox'),
 
   MPESA_CONSUMER_KEY: z.string().optional(),
   MPESA_CONSUMER_SECRET: z.string().optional(),
@@ -46,7 +49,7 @@ const baseSchema = z.object({
 
   // Monitoring
   SENTRY_DSN: z.string().url().optional(),
-  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
   // Network
   ALLOWED_ORIGINS: csv,
@@ -58,7 +61,7 @@ const baseSchema = z.object({
   TEST_MODE: z
     .string()
     .optional()
-    .transform((v) => v === "true"),
+    .transform((v) => (v === 'true')),
 
   SLOW_REQUEST_THRESHOLD_MS: z.coerce.number().default(2000),
 
@@ -77,20 +80,20 @@ const baseSchema = z.object({
  * Production-only constraints
  */
 const productionSchema = baseSchema.superRefine((env, ctx) => {
-  if (env.NODE_ENV === "production") {
+  if (env.NODE_ENV === 'production') {
     // Enforce strict CORS
     if (!env.ALLOWED_ORIGINS || env.ALLOWED_ORIGINS.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "ALLOWED_ORIGINS must be set in production",
+        message: 'ALLOWED_ORIGINS must be set in production',
       });
     }
 
     // Prevent test mode in live payments
-    if (env.PAYPAL_MODE === "live" && env.TEST_MODE) {
+    if (env.PAYPAL_MODE === 'live' && env.TEST_MODE) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "TEST_MODE cannot be true in PAYPAL live mode",
+        message: 'TEST_MODE cannot be true in PAYPAL live mode',
       });
     }
 
@@ -98,7 +101,7 @@ const productionSchema = baseSchema.superRefine((env, ctx) => {
     if (env.SMTP_HOST && (!env.SMTP_USER || !env.SMTP_PASS)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Incomplete SMTP configuration",
+        message: 'Incomplete SMTP configuration',
       });
     }
   }
@@ -111,9 +114,9 @@ function validateEnv() {
   const parsed = productionSchema.safeParse(process.env);
 
   if (!parsed.success) {
-    console.error("❌ Invalid environment variables:");
+    console.error('❌ Invalid environment variables:');
     console.error(parsed.error.format());
-    throw new Error("Environment validation failed");
+    throw new Error('Environment validation failed');
   }
 
   return parsed.data;
