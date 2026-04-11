@@ -8,7 +8,7 @@
                   "dev": "tsx watch src/server.ts",
                       "build": "prisma generate && tsc",
                           "build:functions": "tsc -p netlify/tsconfig.json",
-                              "start": "node dist/server.js",
+                              "start": "dist/server.js",
                                   "monitor": "node Services/Scheduler.js",
                                       "test": "jest --runInBand",
                                           "test:functions": "jest netlify/functions",
@@ -68,6 +68,4 @@
                                                                                                                                                                                                                                 },
                                                                                                                                                                                                                                   "prisma": {
                                                                                                                                                                                                                                       "schema": "prisma/schema.prisma"
-                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                        }
-}
+                                                                                                                                                                                                                                  }
