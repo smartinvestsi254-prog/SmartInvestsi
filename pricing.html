@@ -1,8 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="canonical" href="https://smartinvestsi.netlify.app/pricing.html">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing</title>
 
-    <meta charset="UTF
+<style>
+body {
+  margin: 0;
+    font-family: Arial, sans-serif;
+      background: #0f172a;
+        color: #fff;
+        }
+
+        .pricing {
+          text-align: center;
+            padding: 60px 20px;
+            }
+
+            .pricing h1 {
+              font-size: 2.5rem;
+                margin-bottom: 10px;
+                }
+
+                .pricing p {
+                  color: #94a3b8;
+                    margin-bottom: 40px;
+                    }
+
+                    .pricing-container {
+                      display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                          gap: 25px;
+                            max-width: 1100px;
+                              margin: auto;
+                              }
+
+                              .card {
+                                background: #1e293b;
+                                  padding: 30px;
+                                    border-radius: 16px;
+                                      transition: 0.3s;
+                                        border: 1px solid #334155;
+                                        }
+
+                                        .card:hover {
+                                          transform: translateY(-10px);
+                                            border-color: #16a34a;
+                                            }
+
+                                            .card h2 {
+                                              margin-bottom: 10px;
+                                              }
+
+                                              .price {
+                                                font-size: 2rem;
+                                                  margin: 20px 0;
+                                                    color: #16a34a;
+                                                    }
+
+                                                    .features {
+                                                      list-style: none;
+                                                        padding: 0;
+                                                          margin: 20px 0;
+                                                          }
+
+                                                          .features li {
+                                                            margin: 10px 0;
+                                                              color: #cbd5f5;
+                                                              }
+
+                                                              .btn {
+                                                                display: inline-block;
+                                                                  padding: 12px 25px;
+                                                                    background: #16a34a;
+                                                                      color: white;
+                                                                        border-radius: 8px;
+                                                                          text-decoration: none;
+                                                                            transition: 0.3s;
+                                                                            }
+
+                                                                            .btn:hover {
+                                                                              background: #15803d;
+                                                                              }
+
+                                                                              .popular {
+                                                                                border: 2px solid #16a34a;
+                                                                                  transform: scale(1.05);
+                                                                                  }
+                                                                                  </style>
+                                                                                  </head>
+
+                                                                                  <body>
+
+                                                                                  <section class="pricing">
+                                                                                    <h1>Pricing Plans</h1>
+                                                                                      <p>Choose the plan that fits your investment goals</p>
+
+                                                                                        <div class="pricing-container">
+
+                                                                                            <!-- Basic -->
+                                                                                                <div class="card">
+                                                                                                      <h2>Starter</h2>
+                                                                                                            <div class="price">$0 / month</div>
+                                                                                                                  <ul class="features">
+                                                                                                                          <li>Basic Portfolio Tracking</li>
+                                                                                                                                  <li>Market Insights</li>
+                                                                                                                                          <li>Email Support</li>
+                                                                                                                                                </ul>
+                                                                                                                                                      <a href="#" class="btn">Get Started</a>
+                                                                                                                                                          </div>
+
+                                                                                                                                                              <!-- Pro -->
+                                                                                                                                                                  <div class="card popular">
+                                                                                                                                                                        <h2>Pro</h2>
+                                                                                                                                                                              <div class="price">$19 / month</div>
+                                                                                                                                                                                    <ul class="features">
+                                                                                                                                                                                            <li>Advanced Analytics</li>
+                                                                                                                                                                                                    <li>AI Investment Suggestions</li>
+                                                                                                                                                                                                            <li>Priority Support</li>
+                                                                                                                                                                                                                  </ul>
+                                                                                                                                                                                                                        <a href="#" class="btn">Choose Plan</a>
+                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                                <!-- Premium -->
+                                                                                                                                                                                                                                    <div class="card">
+                                                                                                                                                                                                                                          <h2>Premium</h2>
+                                                                                                                                                                                                                                                <div class="price">$49 / month</div>
+                                                                                                                                                                                                                                                      <ul class="features">
+                                                                                                                                                                                                                                                              <li>Automated Trading</li>
+                                                                                                                                                                                                                                                                      <li>Real-time Alerts</li>
+                                                                                                                                                                                                                                                                              <li>Dedicated Manager</li>
+                                                                                                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                                                                                                          <a href="#" class="btn">Go Premium</a>
+                                                                                                                                                                                                                                                                                              </div>
+
+                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                </section>
+
+                                                                                                                                                                                                                                                                                                </body>
+                                                                                                                                                                                                                                                                                                </html>
