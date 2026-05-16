@@ -1,7 +1,13 @@
 [build]
-  command = "npm run build && npm run build:functions"
-  functions = "netlify/functions"
+  command = "npm run netlify-build"
   publish = "dist"
+
+[build.environment]
+  NODE_ENV= "development"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[redirects]]
   from = "/"
