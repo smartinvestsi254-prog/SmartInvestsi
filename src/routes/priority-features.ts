@@ -13,11 +13,7 @@ import {
   getUserTier,
   FEATURES 
 } from '../lib/tier-access-control';
-import { auditLogger, AuditEventType } from '../lib/audit-logger';
-
 import { dbClient } from '../lib/db-client';
-import { checkFeatureAccess, SubscriptionTier } from '../lib/tier-access-control';
-import { auditLogger, AuditEventType } from '../lib/audit-logger';
 
 const prisma = dbClient.getClient();
 
@@ -72,54 +68,78 @@ router.use(extractUserEmail);
 // ============================================
 
 // Create portfolio (Free tier - limited to 1, Premium - 5, Enterprise - unlimited)
-router.post('/portfolios', requireFeatureWithAdminBypass('portfolio.create'), async (req: Request, res: Response) => {
-  try {
-    const { name, description, currency } = req.body;
-    const userEmail = (req as any).userEmail;
-    const userTier = (req as any).userTier;
+router.post(
+  '/portfolios',
+  requireFeatureWithAdminBypass('portfolio.create'),
+  async (req: Request, res: Response) => {
+    try {
+      const { name, description, currency } = req.body;
+      const userEmail = (req as any).userEmail;
+      const userTier = (req as any).userTier;
 
-    // Check portfolio limit for non-admin users
-    if (!(req as any).bypassedTierCheck) {
-      const limits = FEATURES['portfolio.create'].limits;
-      if (limits) {
-        const tierKey = userTier.toLowerCase() as 'free' | 'premium' | 'enterprise';
-        const portfolioLimit = limits[tierKey as keyof typeof limits];
-        
-        if (portfolioLimit && portfolioLimit !== -1) {
-          const existingCount = await prisma.portfolio.count({
-            where: { userEmail, isActive: true }
-          });
+      // Check portfolio limit for non-admin users
+      if (!(req as any).bypassedTierCheck) {
+        const limits = FEATURES['portfolio.create'].limits;
 
-          if (existingCount >= portfolioLimit) {
-            return res.status(402).json({
-              success: false,
-              error: `Portfolio limit reached (${existingCount}/${portfolioLimit})`,
-              tier: userTier,
-              limit: portfolioLimit,
-              current: existingCount,
-              upgrade_url: '/pricing.html',
-              code: 'PORTFOLIO_LIMIT_EXCEEDED',
-              timestamp: new Date().toISOString()
+        if (limits) {
+          const tierKey = userTier.toLowerCase() as
+            | 'free'
+            | 'premium'
+            | 'enterprise';
+
+          const portfolioLimit =
+            limits[tierKey as keyof typeof limits];
+
+          if (portfolioLimit && portfolioLimit !== -1) {
+            const existingCount = await prisma.portfolio.count({
+              where: {
+                userEmail,
+                isActive: true
+              }
             });
+
+            if (existingCount >= portfolioLimit) {
+              return res.status(402).json({
+                success: false,
+                error: `Portfolio limit reached (${existingCount}/${portfolioLimit})`,
+                tier: userTier,
+                limit: portfolioLimit,
+                current: existingCount,
+                upgrade_url: '/pricing.html',
+                code: 'PORTFOLIO_LIMIT_EXCEEDED',
+                timestamp: new Date().toISOString()
+              });
+            }
           }
+        }
       }
+
+      const portfolio = await prisma.portfolio.create({
+        data: {
+          userEmail,
+          name,
+          description,
+          currency: currency || 'USD',
+          isDefault:
+            (await prisma.portfolio.count({
+              where: { userEmail }
+            })) === 0
+        }
+      });
+
+      res.json({
+        success: true,
+        portfolio
+      });
+
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: (error as Error).message
+      });
     }
-
-    const portfolio = await prisma.portfolio.create({
-      data: {
-        userEmail,
-        name,
-        description,
-        currency: currency || 'USD',
-        isDefault: (await prisma.portfolio.count({ where: { userEmail } })) === 0
-      }
-    });
-
-    return res.json({ success: true, portfolio });
-  } catch (error) {
-    res.status(400).json({ success: false, error: (error as Error).message });
   }
-});
+);
 
 // Get all portfolios
 router.get('/portfolios', async (req: Request, res: Response) => {
