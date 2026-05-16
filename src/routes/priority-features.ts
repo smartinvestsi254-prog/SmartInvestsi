@@ -13,6 +13,8 @@ import {
   getUserTier,
   FEATURES 
 } from '../lib/tier-access-control';
+import { auditLogger } from "../lib/audit-logger";
+import { AuditLogEventType } from "@prisma/client"; // Or wherever your AuditEventType is defined
 import { dbClient } from '../lib/db-client';
 
 const prisma = dbClient.getClient();
