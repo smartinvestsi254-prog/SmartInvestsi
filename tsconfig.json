@@ -7,7 +7,7 @@
         ],
         "outDir": "./dist",
         "rootDir": "./src",
-"strict": false,  // Temp v7 compat
+        "strict": false,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
@@ -21,12 +21,10 @@
         "src/**/*"
     ],
     "exclude": [
-        {
-  "exclude": [
-    "src/routes/priority-features.ts",
-    "src/incidents/**/*",
-    "src/lib/audit-logger.ts",
-    "node_modules",
-    "dist"
+        "src/routes/priority-features.ts",
+        "src/incidents/**/*",
+        "src/lib/audit-logger.ts",
+        "node_modules",
+        "dist"
     ]
 }
