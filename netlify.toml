@@ -3,29 +3,17 @@
   publish = "dist"
 
 [build.environment]
-  NODE_ENV= "development"
+  NODE_ENV = "development"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
 [[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# API Routes
-[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Static redirects for legacy URLs
 [[redirects]]
   from = "/dashboard"
   to = "/enhanced-dashboard.html"
@@ -41,9 +29,14 @@
   to = "/dashboard.html"
   status = 301
 
-# Security headers
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
+
   [headers.values]
     Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.plot.ly https://cdn.socket.io; style-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; img-src 'self' https: data:; connect-src 'self' https: ws: wss:;"
     X-Content-Type-Options = "nosniff"
@@ -53,72 +46,42 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
-# API routes with specific headers
 [[headers]]
   for = "/api/*"
+
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization, X-API-Key"
     Cache-Control = "public, max-age=3600"
 
-# Static asset caching
 [[headers]]
   for = "/*.{js,css,png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,eot}"
+
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# HTML caching (short cache)
 [[headers]]
   for = "/*.html"
+
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# JSON files
 [[headers]]
   for = "/*.json"
+
   [headers.values]
     Content-Type = "application/json"
     Cache-Control = "public, max-age=300"
 
-# Context-specific builds
-[context.production]
-  command = "npm run build && npm run build:functions && npm run validate"
-  environment = { NODE_ENV = "production", LOG_LEVEL = "info" }
+[context.production.environment]
+  NODE_ENV = "production"
+  LOG_LEVEL = "info"
 
-[context.staging]
-  command = "npm run build && npm run build:functions"
-  environment = { NODE_ENV = "staging", LOG_LEVEL = "debug" }
+[context.staging.environment]
+  NODE_ENV = "staging"
+  LOG_LEVEL = "debug"
 
-[context.develop]
-  command = "npm run build:functions"
-  environment = { NODE_ENV = "development", LOG_LEVEL = "debug" }
-
-# Environment variables (set in Netlify dashboard for security)
-# PAYPAL_CLIENT_ID
-# PAYPAL_CLIENT_SECRET
-# PAYPAL_MODE (sandbox|live)
-# MPESA_CONSUMER_KEY
-# MPESA_CONSUMER_SECRET
-# MPESA_ENV (production|sandbox)
-# STRIPE_SECRET_KEY
-# STRIPE_PUBLISHABLE_KEY
-# CHATBASE_API_KEY
-# CHATBASE_BOT_ID
-# DATABASE_URL
-# REDIS_URL
-# JWT_SECRET
-# APP_URL
-# SENTRY_DSN
-# ADMIN_EMAIL
-
-# Ignored paths
-[[headers]]
-  for = "/.env*"
-  force = true
-  status = 403
-
-[[headers]]
-  for = "/.git*"
-  force = true
-  status = 403
+[context.develop.environment]
+  NODE_ENV = "development"
+  LOG_LEVEL = "debug"
