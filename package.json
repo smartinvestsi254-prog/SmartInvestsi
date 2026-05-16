@@ -31,7 +31,6 @@
   "prisma:studio": "prisma studio",
   "prisma:seed": "node prisma/seed.js",
   "postinstall": "prisma generate && echo 'Prisma client generated successfully'"
-  }
   },
   "dependencies": {
     "@netlify/functions": "^2.0.0",
