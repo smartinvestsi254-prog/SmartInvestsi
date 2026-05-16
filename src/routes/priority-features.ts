@@ -115,7 +115,7 @@ router.post('/portfolios', requireFeatureWithAdminBypass('portfolio.create'), as
       }
     });
 
-    res.json({ success: true, portfolio });
+    return res.json({ success: true, portfolio });
   } catch (error) {
     res.status(400).json({ success: false, error: (error as Error).message });
   }
