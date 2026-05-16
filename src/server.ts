@@ -31,7 +31,7 @@ import { BankingService } from "./services/BankingService";
 import { WalletService } from "./services/WalletService";
 import { NotificationService } from "./services/NotificationService";
 import { AutoInvestService } from "./services/AutoInvestService";
-import priorityFeaturesRouter from "./routes/priority-features";
+// import priorityFeaturesRouter from "./routes/priority-features";
 import paymentRouter from "./routes/payment-routes";
 
 import { autoReconcileTransactions } from "./utils/reconciliation-error-handler";
@@ -174,7 +174,7 @@ app.use(express.raw({ limit: '1mb' }));
 app.use(cookieParser());
 
 // Wire priority feature modules and routers
-app.use("/api/priority", priorityFeaturesRouter);
+// app.use("/api/priority", priorityFeaturesRouter);
 app.use("/api/payments", paymentRouter);
 
 // Chat support integration
