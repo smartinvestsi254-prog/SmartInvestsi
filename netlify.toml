@@ -1,9 +1,11 @@
 [build]
   command = "npm run netlify-build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
-  NODE_ENV = "development"
+  NODE_ENV = "production"
+  NPM_CONFIG_PRODUCTION = "false"
 
 [functions]
   directory = "netlify/functions"
@@ -38,7 +40,7 @@
   for = "/*"
 
   [headers.values]
-    Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com https://cdn.plot.ly https://cdn.socket.io; style-src 'self' https: 'unsafe-inline'; font-src 'self' https: data:; img-src 'self' https: data:; connect-src 'self' https: ws: wss:;"
+    Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "SAMEORIGIN"
     X-XSS-Protection = "1; mode=block"
@@ -50,38 +52,6 @@
   for = "/api/*"
 
   [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization, X-API-Key"
-    Cache-Control = "public, max-age=3600"
-
-[[headers]]
-  for = "/*.{js,css,png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,eot}"
-
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.html"
-
-  [headers.values]
-    Cache-Control = "public, max-age=3600"
-
-[[headers]]
-  for = "/*.json"
-
-  [headers.values]
     Content-Type = "application/json"
-    Cache-Control = "public, max-age=300"
-
-[context.production.environment]
-  NODE_ENV = "production"
-  LOG_LEVEL = "info"
-
-[context.staging.environment]
-  NODE_ENV = "staging"
-  LOG_LEVEL = "debug"
-
-[context.develop.environment]
-  NODE_ENV = "development"
-  LOG_LEVEL = "debug"
+    X-Content-Type-Options = "nosniff"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
