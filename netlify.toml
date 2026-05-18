@@ -1,0 +1,57 @@
+[build]
+  command = "npm run netlify-build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_ENV = "production"
+  NPM_CONFIG_PRODUCTION = "false"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/enhanced-dashboard.html"
+  status = 301
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 301
+
+[[redirects]]
+  from = "/trading"
+  to = "/dashboard.html"
+  status = 301
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://code.jquery.com"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+[[headers]]
+  for = "/api/*"
+
+  [headers.values]
+    Content-Type = "application/json"
+    X-Content-Type-Options = "nosniff"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

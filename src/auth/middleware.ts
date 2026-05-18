@@ -1,55 +1,40 @@
-import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/request";
 
-const prisma = new PrismaClient();
+// Define protected URL sub-trees
+const PROTECTED_ROUTES = ["/admin", "/api/admin", "/api/diplomacy"];
 
-export interface AuthUser {
-  id: string;
-  role: string;
-}
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-export async function validateAuthToken(token: string): Promise<AuthUser> {
-  if (!token || typeof token !== "string") {
-    throw new Error("Invalid token format");
-  }
+  // Check if the route requires authorization
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
-  // Remove any whitespace
-  const cleanToken = token.trim();
-
-  // Validate token format (alphanumeric, hyphens, underscores only)
-  if (!/^[a-zA-Z0-9_-]+$/.test(cleanToken)) {
-    throw new Error("Invalid token characters");
-  }
-
-  // ✅ FIXED: Implemented JWT verification with fallback to user lookup
-  // Try JWT verification first
-  let user: AuthUser | null = null;
-  
-  try {
-    // Attempt JWT decode (implementation would depend on JWT library)
-    // For now, validate against database
-    const userRecord = await prisma.user.findFirst({
-      where: { 
-        OR: [
-          { email: cleanToken },
-          { id: cleanToken }
-        ]
-      },
-      select: { id: true, role: true },
-    });
+  if (isProtectedRoute) {
+    // Extract token from HttpOnly cookies or the Auth Header
+    const sessionToken = request.cookies.get("si_token")?.value;
+    const authHeader = request.headers.get("authorization");
     
-    if (userRecord) {
-      user = {
-        id: userRecord.id,
-        role: userRecord.role as string
-      };
+    // If no token exists at all, block the transition instantly
+    if (!sessionToken && !authHeader) {
+      // If it's an API request, return a clean HTTP 401 JSON packet
+      if (pathname.startsWith("/api/")) {
+        return new NextResponse(
+          JSON.stringify({ success: false, error: "Authentication required" }),
+          { status: 401, headers: { "content-type": "application/json" } }
+        );
+      }
+      
+      // If it's a page navigation request, bounce them instantly to sign-in
+      const loginUrl = new URL("/login", request.url);
+      return NextResponse.redirect(loginUrl);
     }
-  } catch (error) {
-    console.error('Token validation error:', error);
   }
 
-  if (!user) {
-    throw new Error("Invalid or expired token");
-  }
-
-  return user;
+  return NextResponse.next();
 }
+
+// Optimize middleware execution scope via matchers
+export const config = {
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/diplomacy/:path*"],
+};

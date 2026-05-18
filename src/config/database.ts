@@ -16,7 +16,7 @@ export const DATABASE_URL = resolveDatabaseUrl();
 export async function checkDatabase() {
   try {
     // Placeholder - replace with actual Prisma client check
-    const response = await fetch(`${DATABASE_URL}/health`, { method: 'HEAD', timeout: 5000 });
+    const response = await fetch(`${DATABASE_URL}/health`, { signal: AbortSignal.timeout(5000) });
     return response.ok;
   } catch {
     return false;
