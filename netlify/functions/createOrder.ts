@@ -4,6 +4,7 @@
  */
 
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 interface Plan {
   name: string;
@@ -142,6 +143,7 @@ async function createPayPalOrder(planId: string, userId?: string): Promise<PayPa
  * Main handler
  */
 import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst CreateOrderSchema = z.object({\n  planId: z.string(),\n  userId: z.string().optional()\n});\n\nexport const handler = SentryInit.wrapHandler(async function(event: any, context: any): Promise<any> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
@@ -181,7 +183,7 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Creat
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify({
         orderId: order.id,

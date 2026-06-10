@@ -5,6 +5,7 @@
  */
 
 const bcryptjs = require('bcryptjs');
+const crypto = require('crypto');
 
 class UserService {
   /**
@@ -70,7 +71,7 @@ class UserService {
         id: userId,
         email,
         phone,
-        passwordHash: this.hashPassword(password),
+        passwordHash: await this.hashPassword(password),
         name: name || email.split('@')[0],
         isPremium: false,
         premiumExpiresAt: null,
@@ -109,8 +110,8 @@ class UserService {
         return { success: false, error: 'User account is not active' };
       }
 
-      const passwordHash = this.hashPassword(password);
-      if (user.passwordHash !== passwordHash) {
+      const isValid = await this.verifyPassword(password, user.passwordHash);
+      if (!isValid) {
         return { success: false, error: 'Invalid password' };
       }
 
@@ -266,7 +267,7 @@ class UserService {
         return { success: false, error: 'User not found' };
       }
 
-      user.passwordHash = this.hashPassword(newPassword);
+      user.passwordHash = await this.hashPassword(newPassword);
       this.passwordResetTokens = this.passwordResetTokens.filter(t => t.token !== resetToken);
 
       console.log(`✓ Password reset for user: ${user.email}`);

@@ -57,6 +57,8 @@ function generateAccountId(): string {
 
 
 import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst BankingSchema = z.object({\n  httpMethod: z.enum(['GET', 'POST', 'PUT', 'DELETE']),\n  path: z.string(),\n});\n\nexport const handler = SentryInit.wrapHandler(withPolicyCompliance(async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
+import { getCorsHeaders } from './lib/cors';
   const { httpMethod, path, body, headers } = event;
   const clientUserId = getUserId(event);
 
@@ -103,7 +105,7 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Banki
 
     return {
       statusCode: result.success ? 200 : 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       body: JSON.stringify(result)
     };
   } catch (error) {

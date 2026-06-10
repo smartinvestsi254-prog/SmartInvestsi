@@ -5,6 +5,7 @@
 
 import { Handler } from '@netlify/functions';
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 interface Course {
   id: string;
@@ -430,6 +431,7 @@ async function searchCourses(query: string): Promise<any> {
 }
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
 
   try {
@@ -486,7 +488,7 @@ export const handler: Handler = async (event) => {
       statusCode: result.success ? 200 : 400,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
       },

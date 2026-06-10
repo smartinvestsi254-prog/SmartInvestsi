@@ -7,6 +7,7 @@ import { Handler } from '@netlify/functions';
 import * as ccxt from 'ccxt';
 import { PrismaClient } from '@prisma/client';
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 const prisma = new PrismaClient();
 const binance = new ccxt.binance({
@@ -34,6 +35,7 @@ interface LiveTicker {
 }
 
 const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
   const data = body ? JSON.parse(body) : {};
   const symbol = (data.symbol || path.split('/')[3] || 'BTC/USDT').toUpperCase().replace('USDT', 'USDT');
@@ -44,7 +46,7 @@ const handler: Handler = async (event) => {
       if (Date.now() - orderbookCache.timestamp < CACHE_TTL) {
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           body: JSON.stringify(orderbookCache.data)
         };
       }
@@ -58,7 +60,7 @@ const handler: Handler = async (event) => {
       orderbookCache = { data: result, timestamp: Date.now() };
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify(result)
       };
     }
@@ -68,7 +70,7 @@ const handler: Handler = async (event) => {
       const book = await binance.fetchOrderBook(symbol);
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({
           symbol,
           bids: book.bids.slice(0, 10),
@@ -82,7 +84,7 @@ const handler: Handler = async (event) => {
       if (Date.now() - tickerCache.timestamp < CACHE_TTL) {
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           body: JSON.stringify(tickerCache.data)
         };
       }
@@ -96,7 +98,7 @@ const handler: Handler = async (event) => {
       tickerCache = { data: result, timestamp: Date.now() };
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify(result)
       };
     }
@@ -139,7 +141,7 @@ const handler: Handler = async (event) => {
 
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({
           success: true,
           data: {
@@ -161,7 +163,7 @@ const handler: Handler = async (event) => {
     logger.error('Spot API error', { error: error.message, path });
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       body: JSON.stringify({ error: 'API error: ' + error.message })
     };
   } finally {

@@ -1,7 +1,9 @@
 import type { Handler } from '@netlify/functions';
 import { getChatManager } from '../../chat-support.js';
+import { getCorsHeaders } from './lib/cors';
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { headers } = event;
   
   // Auth (from cookie/header)
@@ -23,7 +25,7 @@ export const handler: Handler = async (event) => {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+      ...getCorsHeaders(origin)
     },
     body: JSON.stringify({ 
       success: true, 

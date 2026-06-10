@@ -133,14 +133,7 @@ export const handler: Handler = async function(event) {
       };
     }
 
-    // Email verified check
-    if (!authResult.user!.emailVerified) {
-      return {
-        statusCode: 403,
-        headers: secureHeaders,
-        body: JSON.stringify({ success: false, error: 'Please verify your email first.' }),
-      };
-    }
+    const emailVerified = authResult.user!.emailVerified ?? false;
 
     return {
       statusCode: 200,
@@ -151,6 +144,7 @@ export const handler: Handler = async function(event) {
       body: JSON.stringify({
         success: true,
         user: authResult.user,
+        emailVerified,
       }),
     };
   } catch (error: any) {

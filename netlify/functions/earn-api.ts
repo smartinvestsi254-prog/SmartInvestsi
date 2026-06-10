@@ -7,6 +7,7 @@ import { Handler } from '@netlify/functions';
 import * as ccxt from 'ccxt';
 import { PrismaClient } from '@prisma/client';
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 const prisma = new PrismaClient();
 const binance = new ccxt.binance({
@@ -29,6 +30,7 @@ interface StakeProduct {
 }
 
 const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
   const data = body ? JSON.parse(body) : {};
   const { symbol, userEmail } = data;
@@ -39,7 +41,7 @@ const handler: Handler = async (event) => {
       if (Date.now() - productsCache.timestamp < CACHE_TTL) {
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           body: JSON.stringify({ success: true, data: productsCache.data })
         };
       }
@@ -57,7 +59,7 @@ const handler: Handler = async (event) => {
       productsCache = { data: products, timestamp: Date.now() };
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({ success: true, data: products })
       };
     }
@@ -98,7 +100,7 @@ const handler: Handler = async (event) => {
 
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({
           success: true,
           data: {
@@ -119,7 +121,7 @@ const handler: Handler = async (event) => {
       });
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({ success: true, data: rewards })
       };
     }
@@ -129,7 +131,7 @@ const handler: Handler = async (event) => {
     logger.error('Earn API error', { error: error.message, path });
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       body: JSON.stringify({ error: 'API error: ' + error.message })
     };
   } finally {

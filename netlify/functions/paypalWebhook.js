@@ -1,3 +1,4 @@
+const { getCorsHeaders } = require('./lib/cors');
 
 /**
  * PayPal Webhook Handler for SmartInvestsi
@@ -100,6 +101,7 @@ async function handlePaymentDenied(payment) {
  * Main webhook handler
  */
 exports.handler = async function(event, context) {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
@@ -145,7 +147,7 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify(result)
     };

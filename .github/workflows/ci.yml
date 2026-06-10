@@ -85,8 +85,8 @@ jobs:
       run: pip install detect-secrets
 
     - name: Scan for secrets
-      run: detect-secrets scan --baseline .secrets.baseline
-      continue-on-error: true
+      run: detect-secrets scan --baseline .secrets.baseline || detect-secrets scan
+      continue-on-error: true  # No .secrets.baseline exists yet
 
   deploy-preview:
     runs-on: ubuntu-latest

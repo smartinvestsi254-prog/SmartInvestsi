@@ -45,6 +45,7 @@ interface MarketData {
 
 import * as ccxt from 'ccxt';
 import prisma from './lib/prisma';
+import { getCorsHeaders } from './lib/cors';
 // tradeSchema unused - kept for future
 
 // Real Prisma models (Phase 2.3)
@@ -433,6 +434,7 @@ function bollingerBands(prices: number[], period = 20, stdDev = 2): {upper: numb
 }
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
 
   try {
@@ -479,7 +481,7 @@ export const handler: Handler = async (event) => {
       statusCode: result.success ? 200 : 400,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
       },

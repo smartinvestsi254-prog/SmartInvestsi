@@ -3,8 +3,10 @@ import { ReferralService, referralService } from '../../../src/services/Referral
 import { personalizationService } from '../../../src/services/PersonalizationService';
 import dbClient from '../../../src/lib/db-client';
 import logger from './logger'; // Reuse from other functions
+import { getCorsHeaders } from './lib/cors';
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, body, headers } = event;
   const userId = headers['x-user-id'];
 
@@ -41,7 +43,7 @@ export const handler: Handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type, x-user-id',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS'
       },

@@ -6,6 +6,7 @@
 import logger from './logger';
 import { registerUser } from './auth';
 import type {
+import { getCorsHeaders } from './lib/cors';
   NetlifyEvent,
   NetlifyContext,
   APIResponse,
@@ -15,13 +16,14 @@ import type {
 } from './types';
 
 export const handler = async function(event: NetlifyEvent, context: NetlifyContext): Promise<APIResponse<SignupResult>> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405 as HTTPStatus,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify({ success: false, error: 'Method not allowed' } as APIResponse)
     };
@@ -36,7 +38,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: 'Invalid JSON in request body' } as APIResponse)
       };
@@ -50,7 +52,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: 'You must accept the Terms and Conditions to create an account' } as APIResponse)
       };
@@ -72,7 +74,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: 'Email, name, and password are required' } as APIResponse)
       };
@@ -84,7 +86,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: 'Password must be at least 8 characters long' } as APIResponse)
       };
@@ -97,7 +99,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: 'Invalid email format' } as APIResponse)
       };
@@ -113,7 +115,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 400 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({
           success: false,
@@ -128,7 +130,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
     const authResult = await registerUser(email, name, password, {
       acceptTerms: new Date().toISOString(),
       subscriptionTier: 'FREE',
-      emailVerified: null,
+      emailVerified: false,
       phone,
       country,
       bankName,
@@ -140,7 +142,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
         statusCode: 409 as HTTPStatus,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+          ...getCorsHeaders(origin)
         },
         body: JSON.stringify({ success: false, error: authResult.error } as APIResponse)
       };
@@ -150,7 +152,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       statusCode: 201 as HTTPStatus,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify({
         success: true,
@@ -168,7 +170,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       statusCode: 500 as HTTPStatus,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify({ success: false, error: 'Signup failed' } as APIResponse)
     };
