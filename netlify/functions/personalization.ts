@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
-import { PersonalizationService, personalizationService } from '../../../src/services/PersonalizationService';
-import dbClient from '../../../src/lib/db-client';
+import { PersonalizationService, personalizationService } from '../../src/services/PersonalizationService';
+import dbClient from '../../src/lib/db-client';
 import logger from './logger'; // Assume exists from other functions
 import { getCorsHeaders } from './lib/cors';
 

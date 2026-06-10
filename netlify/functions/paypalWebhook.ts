@@ -32,7 +32,7 @@ if (!PAYPAL_CLIENT_SECRET && !TEST_MODE) {
 }
 
 import prisma from './lib/prisma';
-import logger from './lib/logger';
+import logger from './logger';
 import { getCorsHeaders } from './lib/cors';
 
 // Remove in-memory, use DB

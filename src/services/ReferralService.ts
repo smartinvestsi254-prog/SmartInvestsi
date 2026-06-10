@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { dbClient } from '../../lib/db-client';
+import { dbClient } from '../lib/db-client';
 import { personalizationService } from './PersonalizationService';
 
 const prisma = dbClient.getClient();

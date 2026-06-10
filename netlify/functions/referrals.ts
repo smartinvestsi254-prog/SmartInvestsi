@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
-import { ReferralService, referralService } from '../../../src/services/ReferralService';
-import { personalizationService } from '../../../src/services/PersonalizationService';
-import dbClient from '../../../src/lib/db-client';
+import { ReferralService, referralService } from '../../src/services/ReferralService';
+import { personalizationService } from '../../src/services/PersonalizationService';
+import dbClient from '../../src/lib/db-client';
 import logger from './logger'; // Reuse from other functions
 import { getCorsHeaders } from './lib/cors';
 

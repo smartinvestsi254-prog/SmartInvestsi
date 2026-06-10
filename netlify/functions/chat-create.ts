@@ -44,10 +44,4 @@ export const handler: Handler = async (event) => {
     };
   }
 };
-    });
-  } catch (error) {
-    console.error('Chat create error:', error);
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
-  }
-};
 

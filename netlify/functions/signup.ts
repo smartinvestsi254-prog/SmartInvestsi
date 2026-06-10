@@ -5,8 +5,8 @@
 
 import logger from './logger';
 import { registerUser } from './auth';
-import type {
 import { getCorsHeaders } from './lib/cors';
+import type {
   NetlifyEvent,
   NetlifyContext,
   APIResponse,

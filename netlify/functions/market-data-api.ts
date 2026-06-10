@@ -3,8 +3,8 @@
  */
 
 import logger from './logger';
-import {
 import { getCorsHeaders } from './lib/cors';
+import {
   getMarketData,
   getMultipleMarketData,
   getMarketOverview,
