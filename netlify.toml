@@ -1,6 +1,6 @@
 [build]
-  command = "npx prisma generate && echo 'Build complete (static site)'"
-  publish = "."
+  command = "npx prisma generate && mkdir -p _site && cp -r *.html wwwroot robots.txt sitemap.xml _redirects _site/ 2>/dev/null; true"
+  publish = "_site"
   functions = "netlify/functions"
 
 [build.environment]

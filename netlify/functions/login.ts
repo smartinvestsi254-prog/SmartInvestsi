@@ -144,6 +144,7 @@ export const handler: Handler = async function(event) {
       body: JSON.stringify({
         success: true,
         user: authResult.user,
+        token: authResult.token,
         emailVerified,
       }),
     };

@@ -58,9 +58,9 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
       };
     }
 
-    // CAPTCHA validation stub (add HCAPTCHA_SECRET to env)
+    // CAPTCHA validation (uses HCAPTCHA_SECRET_KEY env var)
     if (captchaToken) {
-      const captchaSecret = process.env.HCAPTCHA_SECRET;
+      const captchaSecret = process.env.HCAPTCHA_SECRET_KEY;
       if (captchaSecret) {
         // TODO: verify with hCaptcha API
         // const verifyUrl = `https://hcaptcha.com/siteverify`;
