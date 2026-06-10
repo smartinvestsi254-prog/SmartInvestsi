@@ -34,7 +34,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
             statusCode: 404 as HTTPStatus,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
+              'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
             },
             body: JSON.stringify({ success: false, error: 'Portfolio not found' })
           };
@@ -46,7 +46,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
           },
           body: JSON.stringify({ success: true, data: analytics })
         };
@@ -56,7 +56,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
           },
           body: JSON.stringify({ success: true, data: portfolios })
         };
@@ -90,7 +90,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 201 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
           },
           body: JSON.stringify({ success: true, data: portfolio })
         };
@@ -119,7 +119,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
           },
           body: JSON.stringify({ success: true, data: portfolio })
         };

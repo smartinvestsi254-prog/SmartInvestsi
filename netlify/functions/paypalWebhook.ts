@@ -255,7 +255,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
       },
       body: JSON.stringify(result)
     };

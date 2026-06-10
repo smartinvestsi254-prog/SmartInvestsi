@@ -2,9 +2,10 @@
 import * as Sentry from "@sentry/node";
 
 Sentry.init({
-  dsn: "https://932acfc8ce257a2cc55753590d838955@4511098961526784.ingest.de.sentry.io/4511098974568528",
-  // Setting this option to true will send default PII data to Sentry.
-  sendDefaultPii: true,
+  dsn: process.env.SENTRY_DSN || '',
+  sendDefaultPii: process.env.SENTRY_SEND_DEFAULT_PII === 'true',
+  tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+  enabled: !!process.env.SENTRY_DSN,
 });
 
 // Instruments (adapt path for src context)
@@ -17,6 +18,7 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import crypto from "crypto";
+import bcryptjs from 'bcryptjs';
 
 // Import new feature services
 import { PortfolioService } from "./services/PortfolioService";
@@ -135,7 +137,21 @@ const ALLOWED_ORIGINS = (() => {
 
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://js.stripe.com", "https://www.paypal.com", "https://pay.google.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://api.stripe.com", "https://api-m.paypal.com", "https://api-m.sandbox.paypal.com", "https://api.safaricom.co.ke", "https://sandbox.safaricom.co.ke"],
+        frameSrc: ["https://js.stripe.com", "https://www.paypal.com", "https://pay.google.com"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: [],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
@@ -349,8 +365,12 @@ function sanitizeError(error: any): string {
   return 'An error occurred';
 }
 
-function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password).digest('hex');
+async function hashPassword(password: string): Promise<string> {
+  return bcryptjs.hash(password, 12);
+}
+
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return bcryptjs.compare(password, hash);
 }
 
 // Admin rate limiter
@@ -433,16 +453,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, _res, next) => {
-  const adminHeader = req.headers['x-admin'] || req.headers['X-Admin'];
-  const adminFromAuth = req.user?.admin;
-  const adminFromBody = req.body?.admin;
-
-  if (adminHeader === 'true' || adminFromAuth || adminFromBody) {
-    req.isAdmin = true;
-  }
-  next();
-});
+// Admin status derived ONLY from verified JWT — never from headers or body
 
 // ============================================
 // AUTHENTICATION ENDPOINTS
@@ -487,16 +498,15 @@ app.post('/api/auth/signup', async (req, res) => {
       });
     }
     
-    const passwordHash = hashPassword(password);
+    const passwordHash = await hashPassword(password);
     
     let userRole = 'user';
     const wantAdmin = req.body?.admin;
     const providedSecret = req.body?.adminSecret;
     const adminEnvSecret = process.env.ADMIN_REG_SECRET;
-    const count = await prisma.user.count();
     
     if (wantAdmin) {
-      if (req.isAdmin || (adminEnvSecret && providedSecret === adminEnvSecret) || count === 0) {
+      if (adminEnvSecret && providedSecret === adminEnvSecret) {
         userRole = 'admin';
       } else {
         return res.status(403).json({ success: false, error: 'Cannot create admin account' });
@@ -506,8 +516,8 @@ app.post('/api/auth/signup', async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         email: normalizedEmail,
-        password: passwordHash,
-        role: userRole,
+        passwordHash,
+        role: userRole === 'admin' ? 'ADMIN' : 'VIEWER',
       },
       select: {
         id: true,

@@ -1,0 +1,231 @@
+/**
+ * SmartInvestsi Corporate Theme
+ * Fintech-grade design system with dark/light mode support
+ */
+
+:root {
+  --si-primary: #1a365d;
+  --si-primary-light: #2563eb;
+  --si-secondary: #d4af37;
+  --si-success: #10b981;
+  --si-danger: #ef4444;
+  --si-warning: #f59e0b;
+  --si-info: #3b82f6;
+  --si-bg: #f8fafc;
+  --si-bg-card: #ffffff;
+  --si-text: #1e293b;
+  --si-text-muted: #64748b;
+  --si-border: #e2e8f0;
+  --si-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --si-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --si-radius: 0.75rem;
+  --si-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+[data-theme="dark"] {
+  --si-bg: #0f172a;
+  --si-bg-card: #1e293b;
+  --si-text: #f1f5f9;
+  --si-text-muted: #94a3b8;
+  --si-border: #334155;
+  --si-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  font-family: var(--si-font);
+  background-color: var(--si-bg);
+  color: var(--si-text);
+  line-height: 1.6;
+}
+
+/* Navigation */
+.navbar-smartinvest {
+  background: linear-gradient(135deg, var(--si-primary) 0%, var(--si-primary-light) 100%);
+  box-shadow: var(--si-shadow-lg);
+  padding: 0.75rem 0;
+}
+
+.navbar-smartinvest .navbar-brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #fff !important;
+  letter-spacing: -0.02em;
+}
+
+.navbar-smartinvest .nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar-smartinvest .nav-link:hover {
+  color: var(--si-secondary) !important;
+}
+
+/* Cards */
+.card-si {
+  background: var(--si-bg-card);
+  border: 1px solid var(--si-border);
+  border-radius: var(--si-radius);
+  box-shadow: var(--si-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-si:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--si-shadow-lg);
+}
+
+/* Buttons */
+.btn-si-primary {
+  background: linear-gradient(135deg, var(--si-primary) 0%, var(--si-primary-light) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-si-primary:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+.btn-si-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-si-gold {
+  background: linear-gradient(135deg, var(--si-secondary) 0%, #c49b2c 100%);
+  color: var(--si-primary);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-weight: 700;
+}
+
+/* Stats & Metrics */
+.stat-card {
+  background: var(--si-bg-card);
+  border-radius: var(--si-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--si-border);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--si-primary);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--si-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+.stat-change-up {
+  color: var(--si-success);
+  font-weight: 600;
+}
+
+.stat-change-down {
+  color: var(--si-danger);
+  font-weight: 600;
+}
+
+/* Tables */
+.table-si {
+  background: var(--si-bg-card);
+  border-radius: var(--si-radius);
+  overflow: hidden;
+}
+
+.table-si thead th {
+  background: var(--si-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: none;
+}
+
+/* Form Controls */
+.form-control-si {
+  border: 1px solid var(--si-border);
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: var(--si-bg-card);
+  color: var(--si-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control-si:focus {
+  border-color: var(--si-primary-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* Badge variants */
+.badge-si-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--si-success);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.badge-si-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--si-danger);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.badge-si-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--si-warning);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Footer */
+.footer-si {
+  background: var(--si-primary);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 3rem 0 1.5rem;
+}
+
+.footer-si a {
+  color: var(--si-secondary);
+  text-decoration: none;
+}
+
+.footer-si a:hover {
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  .card-si {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Utility classes */
+.text-gold { color: var(--si-secondary); }
+.bg-primary-gradient { background: linear-gradient(135deg, var(--si-primary) 0%, var(--si-primary-light) 100%); }
+.border-si { border-color: var(--si-border) !important; }

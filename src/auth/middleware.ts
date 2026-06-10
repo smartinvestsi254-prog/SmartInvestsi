@@ -1,40 +1,50 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/request";
+/**
+ * Express authentication middleware for SmartInvestsi
+ * Verifies JWT tokens from cookies or Authorization header
+ */
 
-// Define protected URL sub-trees
-const PROTECTED_ROUTES = ["/admin", "/api/admin", "/api/diplomacy"];
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const PROTECTED_ROUTES = ['/admin', '/api/admin', '/api/diplomacy'];
 
-  // Check if the route requires authorization
+interface TokenPayload {
+  userId: string;
+  email: string;
+  admin?: boolean;
+}
+
+export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isProtectedRoute) {
-    // Extract token from HttpOnly cookies or the Auth Header
-    const sessionToken = request.cookies.get("si_token")?.value;
-    const authHeader = request.headers.get("authorization");
-    
-    // If no token exists at all, block the transition instantly
+    const sessionToken = req.cookies?.si_token;
+    const authHeader = req.headers.authorization;
+
     if (!sessionToken && !authHeader) {
-      // If it's an API request, return a clean HTTP 401 JSON packet
-      if (pathname.startsWith("/api/")) {
-        return new NextResponse(
-          JSON.stringify({ success: false, error: "Authentication required" }),
-          { status: 401, headers: { "content-type": "application/json" } }
-        );
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const token = sessionToken || (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null);
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Invalid authentication token' });
+    }
+
+    try {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return res.status(500).json({ success: false, error: 'Server configuration error' });
       }
-      
-      // If it's a page navigation request, bounce them instantly to sign-in
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      const payload = jwt.verify(token, secret) as TokenPayload;
+      req.userId = payload.userId;
+      req.userEmail = payload.email;
+      req.isAdmin = payload.admin || false;
+    } catch {
+      return res.status(401).json({ success: false, error: 'Invalid or expired token' });
     }
   }
 
-  return NextResponse.next();
+  next();
 }
-
-// Optimize middleware execution scope via matchers
-export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/diplomacy/:path*"],
-};

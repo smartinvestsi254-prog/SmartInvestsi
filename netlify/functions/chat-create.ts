@@ -30,7 +30,7 @@ export const handler: Handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
       },
       body: JSON.stringify({ success: true, chat: chat.toJSON(false) })
     };

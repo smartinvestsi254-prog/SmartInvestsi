@@ -145,7 +145,7 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
       },
       body: JSON.stringify(result)
     };

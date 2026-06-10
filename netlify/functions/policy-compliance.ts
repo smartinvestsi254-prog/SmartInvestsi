@@ -302,7 +302,7 @@ export function withPolicyCompliance(
             statusCode: 403,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
+              'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || ''
             },
             body: JSON.stringify({
               success: false,

@@ -103,7 +103,7 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Banki
 
     return {
       statusCode: result.success ? 200 : 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
       body: JSON.stringify(result)
     };
   } catch (error) {

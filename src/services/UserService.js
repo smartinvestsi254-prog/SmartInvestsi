@@ -4,7 +4,7 @@
  * @module services/UserService
  */
 
-const crypto = require('crypto');
+const bcryptjs = require('bcryptjs');
 
 class UserService {
   /**
@@ -18,13 +18,24 @@ class UserService {
   }
 
   /**
-   * Hash password
+   * Hash password using bcrypt (fintech-grade)
    * @private
    * @param {string} password - Password to hash
-   * @returns {string} Hashed password
+   * @returns {Promise<string>} Hashed password
    */
-  hashPassword(password) {
-    return crypto.createHash('sha256').update(password + process.env.SALT || 'default-salt').digest('hex');
+  async hashPassword(password) {
+    return bcryptjs.hash(password, 12);
+  }
+
+  /**
+   * Verify password against hash
+   * @private
+   * @param {string} password - Password to verify
+   * @param {string} hash - Stored hash
+   * @returns {Promise<boolean>} Whether password matches
+   */
+  async verifyPassword(password, hash) {
+    return bcryptjs.compare(password, hash);
   }
 
   /**

@@ -44,7 +44,7 @@ const handler: Handler = async (event) => {
       if (Date.now() - orderbookCache.timestamp < CACHE_TTL) {
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
           body: JSON.stringify(orderbookCache.data)
         };
       }
@@ -58,7 +58,7 @@ const handler: Handler = async (event) => {
       orderbookCache = { data: result, timestamp: Date.now() };
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify(result)
       };
     }
@@ -68,7 +68,7 @@ const handler: Handler = async (event) => {
       const book = await binance.fetchOrderBook(symbol);
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify({
           symbol,
           bids: book.bids.slice(0, 10),
@@ -82,7 +82,7 @@ const handler: Handler = async (event) => {
       if (Date.now() - tickerCache.timestamp < CACHE_TTL) {
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
           body: JSON.stringify(tickerCache.data)
         };
       }
@@ -96,7 +96,7 @@ const handler: Handler = async (event) => {
       tickerCache = { data: result, timestamp: Date.now() };
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify(result)
       };
     }
@@ -139,7 +139,7 @@ const handler: Handler = async (event) => {
 
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify({
           success: true,
           data: {
@@ -161,7 +161,7 @@ const handler: Handler = async (event) => {
     logger.error('Spot API error', { error: error.message, path });
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
       body: JSON.stringify({ error: 'API error: ' + error.message })
     };
   } finally {

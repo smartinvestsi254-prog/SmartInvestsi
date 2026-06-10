@@ -58,7 +58,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
       logger.warn('Pesapal credentials missing - using demo mode');
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify({
           orderTrackingId: `DEMO_${Date.now()}`,
           redirectUrl: `${APP_URL}/pricing.html?demo_success=true`,
@@ -106,7 +106,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
       logger.info('Pesapal order created', { orderTrackingId: order.order_tracking_id, planId });
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
         body: JSON.stringify({
           orderTrackingId: order.order_tracking_id,
           redirectUrl: order.redirect_url,
@@ -121,7 +121,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
     logger.error('Pesapal order error', error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '' },
       body: JSON.stringify({ error: 'Failed to create Pesapal order. Set PESAPAL_CONSUMER_KEY and PESAPAL_CONSUMER_SECRET env vars.' })
     };
   }
