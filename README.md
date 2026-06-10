@@ -1,5 +1,4 @@
-HEAD
-# SmartInvest
+# SmartInvestSI
 
 Investment Management Platform with split architecture:
 - **Frontend**: Static HTML/JS pages served via Netlify
