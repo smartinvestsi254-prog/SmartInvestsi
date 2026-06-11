@@ -1,1 +1,35 @@
-import * as Sentry from '@sentry/serverless';\n\nconst SENTRY_DSN = process.env.SENTRY_DSN || "https://932acfc8ce257a2cc55753590d838955@4511098961526784.ingest.de.sentry.io/4511098974568528";\n\nif (SENTRY_DSN) {\n  Sentry.init({\n    dsn: SENTRY_DSN,\n    tracesSampleRate: 1.0,\n  });\n\n  export const wrapHandler = Sentry.Netlify.wrapHandler;\n} else {\n  export const wrapHandler = (handler: any) => handler;\n}\n\nexport default Sentry;
+import * as Sentry from '@sentry/node';
+
+const SENTRY_DSN = process.env.SENTRY_DSN || '';
+
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+    sendDefaultPii: false,
+    environment: process.env.NODE_ENV || 'production',
+  });
+}
+
+type AnyHandler = (event: any, context: any) => any;
+
+export function wrapHandler(handler: AnyHandler): AnyHandler {
+  return async (event: any, context: any) => {
+    try {
+      return await handler(event, context);
+    } catch (err) {
+      if (SENTRY_DSN) {
+        Sentry.captureException(err);
+        await Sentry.flush(2000);
+      }
+      throw err;
+    }
+  };
+}
+
+const SentryInit = {
+  ...Sentry,
+  wrapHandler,
+};
+
+export default SentryInit;

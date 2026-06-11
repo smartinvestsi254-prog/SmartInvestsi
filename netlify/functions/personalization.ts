@@ -1,7 +1,8 @@
 import { Handler } from '@netlify/functions';
-import { PersonalizationService, personalizationService } from '../../../src/services/PersonalizationService';
-import dbClient from '../../../src/lib/db-client';
+import { PersonalizationService, personalizationService } from '../../src/services/PersonalizationService';
+import dbClient from '../../src/lib/db-client';
 import logger from './logger'; // Assume exists from other functions
+import { getCorsHeaders } from './lib/cors';
 
 const prisma = dbClient.getClient();
 
@@ -13,6 +14,7 @@ interface ProfileData {
 }
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body, headers } = event;
   const userId = headers['x-user-id'] || headers['x-email'];
 
@@ -65,7 +67,7 @@ export const handler: Handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type, x-user-id, x-role',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS'
       },

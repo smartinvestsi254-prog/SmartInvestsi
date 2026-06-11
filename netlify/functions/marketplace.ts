@@ -1,63 +1,66 @@
 import type { HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { PrismaClient } from '@prisma/client';
-import type { NetlifyResponse } from './NetlifyResponse';
-// MarketplaceService not available in Netlify context - use direct Prisma
-import { getUserEmailFromEvent } from './lib/auth-utils';
+import { MarketplaceService } from '../../src/services/MarketplaceService';
+import { getUserEmailFromEvent, isAdminFromEvent } from './lib/auth-utils';
+import { getCorsHeaders } from './lib/cors';
 
 const prisma = new PrismaClient();
 const marketplaceService = new MarketplaceService();
 
+function response(statusCode: number, payload: unknown, origin = ''): HandlerResponse {
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+    body: JSON.stringify(payload),
+  };
+}
+
 export default async (event: HandlerEvent): Promise<HandlerResponse> => {
+  const origin = event.headers?.origin || event.headers?.Origin || '';
   const path = event.path.replace('/.netlify/functions/marketplace', '');
-  
+
   try {
     const userEmail = await getUserEmailFromEvent(event);
-    const isAdmin = await isAdminRequest(event);
+    const isAdmin = await isAdminFromEvent(event);
 
     if (path === '/products' && event.httpMethod === 'GET') {
       const category = event.queryStringParameters?.category;
       const products = await marketplaceService.getProducts(userEmail!, category);
-      return new NetlifyResponse(200, products);
+      return response(200, products, origin);
     }
 
     if (path === '/products' && event.httpMethod === 'POST') {
-      if (!isAdmin) return new NetlifyResponse(403, { error: 'Admin required' });
+      if (!isAdmin) return response(403, { error: 'Admin required' }, origin);
       const data = JSON.parse(event.body || '{}');
       const product = await marketplaceService.createProduct(userEmail!, data);
-      return new NetlifyResponse(201, product);
+      return response(201, product, origin);
     }
 
     if (path.startsWith('/orders') && event.httpMethod === 'POST') {
       const data = JSON.parse(event.body || '{}');
       const order = await marketplaceService.createOrder(userEmail!, data.productId, data.quantity);
-      return new NetlifyResponse(201, order);
+      return response(201, order, origin);
     }
 
     if (path.startsWith('/orders') && event.httpMethod === 'GET') {
       const orders = await marketplaceService.getUserOrders(userEmail!);
-      return new NetlifyResponse(200, orders);
+      return response(200, orders, origin);
     }
 
     if (path.startsWith('/admin/orders/') && event.httpMethod === 'PATCH') {
-      if (!isAdmin) return new NetlifyResponse(403, { error: 'Admin required' });
+      if (!isAdmin) return response(403, { error: 'Admin required' }, origin);
       const orderId = path.split('/')[3];
       const data = JSON.parse(event.body || '{}');
       const order = await marketplaceService.updateOrderStatus(userEmail!, orderId, data.status, data.tracking);
-      return new NetlifyResponse(200, order);
+      return response(200, order, origin);
     }
 
-    return new NetlifyResponse(404, { error: 'Not found' });
-  } catch (error) {
+    return response(404, { error: 'Not found' }, origin);
+  } catch (error: any) {
     console.error('Marketplace API error:', error);
-    return new NetlifyResponse(400, { error: error.message });
+    return response(400, { error: error?.message || 'Bad request' }, origin);
   } finally {
     await prisma.$disconnect();
   }
 };
-
-async function isAdminRequest(event: HandlerEvent): Promise<boolean> {
-  // Stub: integrate with admin-api.ts logic
-  const auth = event.headers.authorization;
-  return auth === `Bearer ${process.env.ADMIN_TOKEN}`;
-}
 

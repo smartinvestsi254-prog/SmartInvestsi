@@ -4,6 +4,7 @@
  */
 
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 export interface ComplianceCheck {
   passed: boolean;
@@ -272,6 +273,7 @@ export function withPolicyCompliance(
   requiredRole?: string
 ) {
   return async (event: any) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
     try {
       const data = event.body ? JSON.parse(event.body) : {};
       const userId = data.userId || event.headers?.['x-user-id'] || 'anonymous';
@@ -302,7 +304,7 @@ export function withPolicyCompliance(
             statusCode: 403,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
+              ...getCorsHeaders(origin)
             },
             body: JSON.stringify({
               success: false,

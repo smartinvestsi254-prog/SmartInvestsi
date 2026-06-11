@@ -4,6 +4,7 @@
  * @module services/UserService
  */
 
+const bcryptjs = require('bcryptjs');
 const crypto = require('crypto');
 
 class UserService {
@@ -18,13 +19,24 @@ class UserService {
   }
 
   /**
-   * Hash password
+   * Hash password using bcrypt (fintech-grade)
    * @private
    * @param {string} password - Password to hash
-   * @returns {string} Hashed password
+   * @returns {Promise<string>} Hashed password
    */
-  hashPassword(password) {
-    return crypto.createHash('sha256').update(password + process.env.SALT || 'default-salt').digest('hex');
+  async hashPassword(password) {
+    return bcryptjs.hash(password, 12);
+  }
+
+  /**
+   * Verify password against hash
+   * @private
+   * @param {string} password - Password to verify
+   * @param {string} hash - Stored hash
+   * @returns {Promise<boolean>} Whether password matches
+   */
+  async verifyPassword(password, hash) {
+    return bcryptjs.compare(password, hash);
   }
 
   /**
@@ -59,7 +71,7 @@ class UserService {
         id: userId,
         email,
         phone,
-        passwordHash: this.hashPassword(password),
+        passwordHash: await this.hashPassword(password),
         name: name || email.split('@')[0],
         isPremium: false,
         premiumExpiresAt: null,
@@ -98,8 +110,8 @@ class UserService {
         return { success: false, error: 'User account is not active' };
       }
 
-      const passwordHash = this.hashPassword(password);
-      if (user.passwordHash !== passwordHash) {
+      const isValid = await this.verifyPassword(password, user.passwordHash);
+      if (!isValid) {
         return { success: false, error: 'Invalid password' };
       }
 
@@ -255,7 +267,7 @@ class UserService {
         return { success: false, error: 'User not found' };
       }
 
-      user.passwordHash = this.hashPassword(newPassword);
+      user.passwordHash = await this.hashPassword(newPassword);
       this.passwordResetTokens = this.passwordResetTokens.filter(t => t.token !== resetToken);
 
       console.log(`✓ Password reset for user: ${user.email}`);

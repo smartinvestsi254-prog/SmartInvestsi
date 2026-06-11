@@ -7,6 +7,7 @@
 import logger from './logger';
 import SentryInit from './sentry-init';
 import { z } from 'zod';
+import { getCorsHeaders } from './lib/cors';
 
 const CreateOrderSchema = z.object({
   planId: z.string(),
@@ -41,6 +42,7 @@ const PESAPAL_IPN_URL = process.env.PESAPAL_IPN_URL || 'https://smartinvestsi.ne
 const APP_URL = process.env.APP_URL || 'https://smartinvestsi.netlify.app';
 
 export const handler = SentryInit.wrapHandler(async (event, context) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
@@ -58,7 +60,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
       logger.warn('Pesapal credentials missing - using demo mode');
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({
           orderTrackingId: `DEMO_${Date.now()}`,
           redirectUrl: `${APP_URL}/pricing.html?demo_success=true`,
@@ -106,7 +108,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
       logger.info('Pesapal order created', { orderTrackingId: order.order_tracking_id, planId });
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         body: JSON.stringify({
           orderTrackingId: order.order_tracking_id,
           redirectUrl: order.redirect_url,
@@ -121,7 +123,7 @@ export const handler = SentryInit.wrapHandler(async (event, context) => {
     logger.error('Pesapal order error', error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       body: JSON.stringify({ error: 'Failed to create Pesapal order. Set PESAPAL_CONSUMER_KEY and PESAPAL_CONSUMER_SECRET env vars.' })
     };
   }

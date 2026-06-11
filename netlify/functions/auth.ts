@@ -32,6 +32,7 @@ interface AuthResult {
     email: string;
     role: string;
     subscriptionTier?: string;
+    emailVerified?: boolean;
   };
   token?: string;
   error?: string;
@@ -43,7 +44,12 @@ export async function authenticateUser(email: string, password: string): Promise
       where: { email },
     });
 
-    if (!user || user.isBanned || !user.passwordHash || !bcryptjs.compare(password, user.passwordHash)) {
+    if (!user || user.isBanned || !user.passwordHash) {
+      return { success: false, error: 'Invalid credentials or banned' };
+    }
+
+    const isPasswordValid = await bcryptjs.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
       return { success: false, error: 'Invalid credentials or banned' };
     }
 
@@ -63,6 +69,7 @@ export async function authenticateUser(email: string, password: string): Promise
         email: user.email,
         role: user.role,
         subscriptionTier: user.subscriptionTier,
+        emailVerified: user.emailVerified,
       },
       token: accessToken,
     };
@@ -124,12 +131,15 @@ export const handler: Handler = async (event) => {
   const { httpMethod, body } = event;
 
   if (httpMethod === 'OPTIONS') {
+    const allowedOrigin = event.headers['origin'] || '';
+    const corsOrigin = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).includes(allowedOrigin) ? allowedOrigin : '';
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': corsOrigin,
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true',
       },
     };
   }
@@ -157,11 +167,15 @@ export const handler: Handler = async (event) => {
 
     const refreshToken = jwt.sign(result.user!, REFRESH_SECRET, { expiresIn: '7d' });
 
+    const allowedOrigin = event.headers['origin'] || '';
+    const corsOrigin = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).includes(allowedOrigin) ? allowedOrigin : '';
+
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': corsOrigin,
+        'Access-Control-Allow-Credentials': 'true',
         'Set-Cookie': `si_refresh=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
       },
       body: JSON.stringify({

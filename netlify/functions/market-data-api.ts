@@ -3,6 +3,7 @@
  */
 
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 import {
   getMarketData,
   getMultipleMarketData,
@@ -13,6 +14,7 @@ import {
 } from './market-data';
 
 export const handler = async function(event: any, context: any): Promise<any> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   try {
     if (event.httpMethod === 'GET') {
       const path = event.path || '';
@@ -40,7 +42,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data })
         };
@@ -54,7 +56,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: overview })
         };
@@ -68,7 +70,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: indices })
         };
@@ -99,7 +101,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data })
         };
@@ -121,7 +123,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: results })
         };
@@ -143,7 +145,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data })
         };
