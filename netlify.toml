@@ -1,0 +1,79 @@
+[build]  
+  command   = "npm run build"  
+  publish   = "public"  
+  functions = "dist/netlify/functions"  
+  
+[build.environment]  
+  NODE_VERSION = "20"  
+  
+# Route all /api/* calls to the matching serverless function  
+[[redirects]]  
+  from   = "/api/auth"  
+  to     = "/.netlify/functions/auth"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/signup"  
+  to     = "/.netlify/functions/signup"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/admin/*"  
+  to     = "/.netlify/functions/admin-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/portfolio/*"  
+  to     = "/.netlify/functions/portfolio-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/payments/*"  
+  to     = "/.netlify/functions/payments-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/market-data/*"  
+  to     = "/.netlify/functions/market-data-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/notifications/*"  
+  to     = "/.netlify/functions/notifications-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/geo/*"  
+  to     = "/.netlify/functions/geo-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/crypto/*"  
+  to     = "/.netlify/functions/crypto-trade-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/chat/*"  
+  to     = "/.netlify/functions/chat-messages"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/earn/*"  
+  to     = "/.netlify/functions/earn-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/fraud/*"  
+  to     = "/.netlify/functions/fraud-api"  
+  status = 200  
+  
+[[redirects]]  
+  from   = "/api/referrals/*"  
+  to     = "/.netlify/functions/referrals"  
+  status = 200  
+  
+# SPA fallback — serve index.html for all unmatched routes  
+[[redirects]]  
+  from   = "/*"  
+  to     = "/index.html"  
+  status = 200
