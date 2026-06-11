@@ -1,79 +1,112 @@
-[build]  
-  command   = "npm run build"  
-  publish   = "public"  
-  functions = "dist/netlify/functions"  
-  
-[build.environment]  
-  NODE_VERSION = "20"  
-  
-# Route all /api/* calls to the matching serverless function  
-[[redirects]]  
-  from   = "/api/auth"  
-  to     = "/.netlify/functions/auth"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/signup"  
-  to     = "/.netlify/functions/signup"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/admin/*"  
-  to     = "/.netlify/functions/admin-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/portfolio/*"  
-  to     = "/.netlify/functions/portfolio-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/payments/*"  
-  to     = "/.netlify/functions/payments-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/market-data/*"  
-  to     = "/.netlify/functions/market-data-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/notifications/*"  
-  to     = "/.netlify/functions/notifications-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/geo/*"  
-  to     = "/.netlify/functions/geo-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/crypto/*"  
-  to     = "/.netlify/functions/crypto-trade-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/chat/*"  
-  to     = "/.netlify/functions/chat-messages"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/earn/*"  
-  to     = "/.netlify/functions/earn-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/fraud/*"  
-  to     = "/.netlify/functions/fraud-api"  
-  status = 200  
-  
-[[redirects]]  
-  from   = "/api/referrals/*"  
-  to     = "/.netlify/functions/referrals"  
-  status = 200  
-  
-# SPA fallback — serve index.html for all unmatched routes  
-[[redirects]]  
-  from   = "/*"  
-  to     = "/index.html"  
-  status = 200
+[build]
+command = "npm run build"
+publish = "dist"
+functions = "netlify/functions"
+
+[build.environment]
+NODE_VERSION = "20"
+NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "false"
+
+[functions]
+directory = "netlify/functions"
+node_bundler = "esbuild"
+
+# API Gateway -> Express Handler
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/server/:splat"
+status = 200
+force = true
+
+# Dashboard Routes
+
+[[redirects]]
+from = "/dashboard"
+to = "/dashboard.html"
+status = 200
+
+[[redirects]]
+from = "/admin"
+to = "/admin.html"
+status = 200
+
+[[redirects]]
+from = "/portfolio"
+to = "/dashboard.html"
+status = 200
+
+[[redirects]]
+from = "/trading"
+to = "/dashboard.html"
+status = 200
+
+[[redirects]]
+from = "/earn"
+to = "/dashboard.html"
+status = 200
+
+[[redirects]]
+from = "/referrals"
+to = "/dashboard.html"
+status = 200
+
+# SPA Fallback
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Global Security Headers
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "SAMEORIGIN"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+X-XSS-Protection = "1; mode=block"
+Cross-Origin-Opener-Policy = "same-origin"
+Cross-Origin-Resource-Policy = "same-origin"
+
+# API Headers
+
+[[headers]]
+for = "/api/*"
+
+[headers.values]
+Content-Type = "application/json"
+Cache-Control = "no-store"
+
+# Static Assets Caching
+
+[[headers]]
+for = "/assets/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Images
+
+[[headers]]
+for = "/*.png"
+
+[headers.values]
+Cache-Control = "public, max-age=604800"
+
+[[headers]]
+for = "/*.jpg"
+
+[headers.values]
+Cache-Control = "public, max-age=604800"
+
+[[headers]]
+for = "/*.svg"
+
+[headers.values]
+Cache-Control = "public, max-age=604800"
