@@ -15,7 +15,7 @@ interface PaymentServicesConfig {
   paypal: PaymentServiceConfig & {
     clientId: string;
     clientSecret: string;
-    mode: 'live' | 'sandbox';
+    mode: 'production' | 'sandbox';
     receiverEmail: string;
     returnUrl: string;
     cancelUrl: string;
@@ -50,7 +50,7 @@ interface PaymentServicesConfig {
   };
 }
 
-import CONFIG from './config';
+import CONFIG from '/config';
 const paymentServicesConfig: PaymentServicesConfig = {
   paypal: {
     enabled: true,
@@ -59,7 +59,7 @@ const paymentServicesConfig: PaymentServicesConfig = {
     retryAttempts: 3,
     clientId: process.env.PAYPAL_CLIENT_ID || '',
     clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
-    mode: (process.env.PAYPAL_MODE as 'live' | 'sandbox') || 'live',
+    mode: (process.env.PAYPAL_MODE as 'production' | 'sandbox') || 'production',
     receiverEmail: process.env.PAYPAL_RECEIVER_EMAIL || 'delijah5415@gmail.com',
     returnUrl: process.env.PAYPAL_RETURN_URL || 'https://smartinvestsi.netlify.app/paypal/return',
     cancelUrl: process.env.PAYPAL_CANCEL_URL || 'https://smartinvestsi.netlify.app/paypal/cancel',
@@ -78,7 +78,7 @@ const paymentServicesConfig: PaymentServicesConfig = {
   },
 
   stripe: {
-    enabled: process.env.STRIPE_MODE === 'live',
+    enabled: process.env.STRIPE_MODE === 'production',
     priority: 3,
     timeout: 30000,
     retryAttempts: 3,

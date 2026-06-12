@@ -174,7 +174,7 @@ export async function getUserTier(userEmail: string): Promise<SubscriptionTier> 
         user: {
           email: userEmail
         },
-        status: 'active',
+        status: 'ACTIVE',
         OR: [
           { endDate: null },
           { endDate: { gte: new Date() } }
