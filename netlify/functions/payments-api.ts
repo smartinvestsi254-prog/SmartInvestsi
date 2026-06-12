@@ -25,8 +25,6 @@ interface Subscription {
   paymentMethod: string;
 }
 
-import prisma from './lib/prisma';
-
 import { Handler } from '@netlify/functions';
 import prisma from './lib/prisma';
 import logger from './logger';
@@ -105,6 +103,7 @@ async function createOrUpdateSubscription(userId: string, plan: 'PREMIUM' | 'ENT
 async function processAdminFeeTransaction(originalAmount: number, userId: string, transactionId: string, gateway: string): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string } {
   const ADMIN_FEE_PERCENT = 2.5; // 2.5% transaction fee
   const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || CONFIG.CEO_ACCOUNT_ID;
+  async function processAdminFeeTransaction(...): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }>
   
   const adminFee = originalAmount * (ADMIN_FEE_PERCENT / 100);
   const netAmount = originalAmount - adminFee;
