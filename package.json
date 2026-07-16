@@ -4,14 +4,15 @@
   "description": "SmartInvest - Complete Fintech SaaS Platform for Investment Infrastructure with Payment Integration, Dashboard Architecture, AI Automation, and Subscription Billing",
   "main": "dist/server.js",
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.11.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc && npm run build:functions",
+    "build": "npm run clean && prisma generate && tsc && npm run build:functions",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
+    "clean": "rm -rf dist && mkdir -p dist",
     "test": "jest --runInBand",
     "test:functions": "jest netlify/functions",
     "lint": "eslint '{src,netlify}/**/*.{ts,js}'",
