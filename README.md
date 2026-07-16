@@ -1,147 +1,161 @@
 # SmartInvestSI
 
-Investment Management Platform with split architecture:
-- **Frontend**: Static HTML/JS pages served via Netlify
-- **Netlify Functions**: Serverless Node.js/TypeScript functions for API endpoints
-- **Backend API**: ASP.NET Core API deployed separately
+Complete fintech investment platform with Netlify Functions serverless architecture, real-time trading, payment processing, and intelligent portfolio management.
 
 ## Features
 
 ### Core Features
-- **Investment Calculators**: Multiple calculators for financial planning
+- **Investment Calculators**: Multiple financial planning tools
 - **Portfolio Management**: Track and manage investment portfolios
-- **Trading Platform**: Real-time trading with market data
-- **Payment Processing**: Integrated payments (PayPal, M-Pesa, Stripe)
-- **User Authentication**: Secure login and registration
+- **Trading Platform**: Real-time trading with market data via CCXT
+- **Payment Processing**: Integrated PayPal, M-Pesa, and Stripe
+- **User Authentication**: Secure JWT-based login and registration
 - **Admin Dashboard**: User and system management
 
 ### AI Chat Support
-- **Chatbase Integration**: AI-powered receptionist for user support
-- **Feedback Analysis**: Analyzes user questions for improvement insights
-- **Service Usage Tracking**: Monitors most-used services and features
+- **Chatbase Integration**: AI-powered receptionist
+- **Feedback Analysis**: User question analysis
+- **Service Usage Tracking**: Feature popularity metrics
 
 ### Banking Trial System
-- **P2P Transactions**: Secure peer-to-peer money transfers
+- **P2P Transactions**: Secure money transfers
 - **Multi-Currency Support**: USD, EUR, KES, BTC, ETH
-- **Withdrawal System**: Bank transfer, mobile money, crypto withdrawals
-- **Self-Updating**: Automatic balance updates and interest accrual
-- **Unique User IDs**: Clear, discernible trial account IDs (SI-TRIAL-XXXXX)
+- **Self-Updating Ledger**: Automatic balance updates
+- **Withdrawal System**: Bank, mobile, crypto withdrawals
 
 ### Security & Compliance
-- **Fraud Detection**: Real-time transaction and login monitoring
-- **Geolocation Enforcement**: Country-specific banking rules
-- **Rate Limiting**: API rate limiting and abuse prevention
-- **Data Encryption**: Secure data handling and storage
+- **Fraud Detection**: Real-time transaction monitoring
+- **Geolocation Enforcement**: Country-specific rules
+- **Rate Limiting**: API abuse prevention
+- **Data Encryption**: Secure data handling
 
-## API Endpoints
+## Architecture
 
-### Netlify Functions
-- `/api/payments-api` - Payment processing and subscriptions
-- `/api/crypto-payments` - Cryptocurrency payments and wallets
-- `/api/crypto-trading` - Trading engine and market data
-- `/api/admin-api` - Admin management and premium access
-- `/api/fraud-api` - Fraud detection and security monitoring
-- `/api/geo-api` - Geolocation and compliance
-- `/api/banking-academy` - Educational content and courses
-- `/api/app-settings` - User preferences and settings
-- `/api/fintech-programs` - Programs and partnerships
-- `/api/notifications-api` - Notifications and alerts
-- `/api/chat-receptionist` - AI chat support
-- `/api/banking-trial` - Trial banking system
+### Stack
+- **Frontend**: HTML/JS/CSS served via Netlify
+- **Backend**: Node.js + Express + TypeScript
+- **Serverless**: Netlify Functions (AWS Lambda)
+- **Database**: Prisma ORM with PostgreSQL
+- **Authentication**: JWT + bcrypt
+- **Security**: Helmet, rate-limiting, secret detection
+- **Monitoring**: Winston logger + Sentry
+- **Trading**: CCXT for market data
 
-## Environment Variables
+### Directory Structure
 
-### Netlify Functions
-- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` - PayPal integration
-- `PAYPAL_MODE` - 'sandbox' or 'live'
-- `CHATBASE_API_KEY`, `CHATBASE_BOT_ID` - Chatbase AI integration
-- `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET` - M-Pesa integration
-- `STRIPE_SECRET_KEY` - Stripe payment processing
-- `TEST_MODE` - 'true' for testing
-- `APP_URL` - Application URL
-
-### Backend API
-- Database connection strings
-- JWT secrets
-- Email SMTP settings
-- Other service configurations
+```
+SmartInvestsi/
+├── src/                    TypeScript Express server
+├── netlify/               Netlify Functions serverless APIs
+├── public/                Static assets
+├── prisma/                Database schema & migrations
+├── __tests__/             Jest test suites
+├── docs/                  Documentation
+├── package.json          Root dependencies
+├── tsconfig.json         TypeScript config (strict mode)
+├── netlify.toml          Netlify deployment config
+├── vercel.json           Vercel deployment config
+├── .eslintrc.json        Linting rules
+├── .prettierrc            Code formatting
+└── README.md            This file
+```
 
 ## Build & Deploy
 
-### Netlify Functions
+### Prerequisites
 ```bash
-npm run build  # Compiles TypeScript functions
+node >= 20.11.0
+npm >= 10.0.0
 ```
 
-### Backend API
+### Development
 ```bash
-cd backend
-dotnet build
-dotnet publish -c Release
+npm install
+npm run dev                # Start Express server with hot reload
+npm run lint:fix           # Auto-fix linting issues
+npm run format             # Format code with Prettier
+npm run type-check         # Check TypeScript types
 ```
 
-## Testing
-
-Run tests for Netlify functions:
+### Build
 ```bash
-npm test
+npm run build              # Compile TypeScript & Netlify Functions
+npm start                  # Run compiled server
 ```
 
-## Monitoring
-
-- Functions use Winston logger for structured logging
-- Errors are tracked with detailed context
-- Logs available in Netlify dashboard
-
-## Development Workflow
-
-### Pre-commit Hooks
-This project uses pre-commit hooks for code quality and security:
-
-- **Security scanning**: Detects hardcoded secrets, API keys, and credentials
-- **Code linting**: ESLint with TypeScript and security rules
-- **Formatting**: Prettier for consistent code style
-- **File validation**: JSON, YAML, TOML syntax checking
-- **.NET formatting**: dotnet-format for C# code
-
-#### Setup
+### Testing & Validation
 ```bash
-# Install pre-commit hooks
-pip install pre-commit
-pre-commit install
-
-# Or using npm script
-npm run pre-commit:install
+npm test                   # Run jest tests
+npm run validate           # Lint + type-check + test
 ```
 
-#### Manual Checks
+### Database
 ```bash
-# Run all checks
-npm run pre-commit:run
-
-# Update secrets baseline (after reviewing changes)
-npm run secrets:baseline
-
-# Lint and fix code
-npm run lint:fix
-
-# Format code
-npm run format
+npm run prisma:generate   # Generate Prisma client
+npm run prisma:migrate:dev     # Create migration
+npm run prisma:migrate:deploy  # Deploy migrations
+npm run prisma:studio     # Open Prisma Studio UI
 ```
 
-### CI/CD Pipeline
-GitHub Actions automatically runs:
-- Pre-commit checks on all files
-- Unit tests for Netlify functions
+### Deployment
+
+**Netlify:**
+```bash
+git push origin main       # Auto-deploys via GitHub integration
+```
+
+**Vercel:**
+```bash
+git push origin main       # Auto-deploys via GitHub integration
+```
+
+Environment variables must be set in platform dashboards (Netlify/Vercel).
+
+## Environment Variables
+
+See `.env.example` for all required variables. Key ones:
+
+```
+DATABASE_URL=postgresql://user:pass@host/db
+JWT_SECRET=your-secret-key
+PAYPAL_CLIENT_ID=...
+PAYPAL_CLIENT_SECRET=...
+STRIPE_SECRET_KEY=...
+MPESA_CONSUMER_KEY=...
+MPESA_CONSUMER_SECRET=...
+CHATBASE_API_KEY=...
+```
+
+## Security
+
+- Pre-commit hooks detect hardcoded secrets
+- Strict TypeScript mode prevents type errors
+- ESLint security plugin catches vulnerable patterns
+- All secrets stored in environment variables
+- Rate limiting on all API endpoints
+- CORS properly configured
+- Helmet headers enabled
+
+Run security checks:
+```bash
+npm run pre-commit:run          # Pre-commit checks
+npm run secrets:baseline        # Secret detection baseline
+npm run lint                    # Security linting
+```
+
+## CI/CD
+
+GitHub Actions runs on every push:
+- Pre-commit checks
+- Unit tests
+- Type checking
 - Security scanning
 - Build verification
 - Preview deployments for PRs
 
-### Security Considerations
-- Never commit secrets or credentials
-- Use environment variables for sensitive data
-- Review pre-commit failures before committing
-- Update `.secrets.baseline` only after verifying false positives
-=======
-# SmartInvestsi-
-1a4d332fd9093ba63c5a11c69a175eeadac13578
+## Monitoring
+
+- Winston structured logging
+- Sentry error tracking
+- Netlify function logs in dashboard
+- Performance monitoring via platform analytics
