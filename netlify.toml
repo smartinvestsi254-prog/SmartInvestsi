@@ -1,44 +1,104 @@
 [build]
+  devin/1781118910-comprehensive-audit-fixes
   command = "npx prisma generate && mkdir -p _site && cp -r *.html wwwroot robots.txt sitemap.xml _redirects _site/ 2>/dev/null; true"
   publish = "_site"
   functions = "netlify/functions"
+command = "npm run build"
+publish = "dist"
+functions = "netlify/functions"
+main
 
 [build.environment]
-  NODE_ENV = "production"
-  NPM_CONFIG_PRODUCTION = "false"
+NODE_VERSION = "20.11.0"
+NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "false"
 
 [functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
+directory = "netlify/functions"
+node_bundler = "esbuild"
+
+# API routes -> Netlify Functions
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/server/:splat"
+status = 200
+force = true
+
+# Dashboard/Admin routes
+[[redirects]]
+from = "/dashboard"
+to = "/dashboard.html"
+status = 200
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+from = "/admin"
+to = "/admin.html"
+status = 200
 
 [[redirects]]
-  from = "/dashboard"
-  to = "/enhanced-dashboard.html"
-  status = 301
+from = "/portfolio"
+to = "/dashboard.html"
+status = 200
 
 [[redirects]]
-  from = "/admin"
-  to = "/admin.html"
-  status = 301
+from = "/trading"
+to = "/dashboard.html"
+status = 200
 
 [[redirects]]
-  from = "/trading"
-  to = "/dashboard.html"
-  status = 301
+from = "/earn"
+to = "/dashboard.html"
+status = 200
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+from = "/referrals"
+to = "/dashboard.html"
+status = 200
 
+# SPA fallback
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Global Security Headers
 [[headers]]
-  for = "/*"
+for = "/*"
 
+[headers.values]
+Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "SAMEORIGIN"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+X-XSS-Protection = "1; mode=block"
+Cross-Origin-Opener-Policy = "same-origin"
+Cross-Origin-Resource-Policy = "same-origin"
+Content-Security-Policy = "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+
+# API Headers - No cache, secure
+[[headers]]
+for = "/api/*"
+
+[headers.values]
+Content-Type = "application/json"
+Cache-Control = "no-store, no-cache, must-revalidate, proxy-revalidate"
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Static Assets - Cache aggressively
+[[headers]]
+for = "/assets/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Images - Cache for 7 days
+[[headers]]
+for = "/*.{png,jpg,jpeg,gif,svg,webp}"
+
+ devin/1781118910-comprehensive-audit-fixes
   [headers.values]
     Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://code.jquery.com https://js.stripe.com https://www.paypal.com https://pay.google.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://api.safaricom.co.ke https://sandbox.safaricom.co.ke; frame-src https://js.stripe.com https://www.paypal.com https://pay.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
     X-Content-Type-Options = "nosniff"
@@ -47,11 +107,14 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    
+[headers.values]
+Cache-Control = "public, max-age=604800, immutable
+main
 
+# Fonts - Cache for 1 year
 [[headers]]
-  for = "/api/*"
+for = "/*.{woff,woff2,ttf,eot}"
 
-  [headers.values]
-    Content-Type = "application/json"
-    X-Content-Type-Options = "nosniff"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

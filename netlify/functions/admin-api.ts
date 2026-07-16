@@ -49,7 +49,7 @@ async function grantPremiumAccess(data: any): Promise<any> {
     // Log admin action
     logger.info('Premium access granted', { adminId, targetUserId, reason });
 
-    return { success: true, data: { action, roleUpdate: updateResult.data } };
+   return { success: true, data: { action: 'grant-enterprise', roleUpdate: updateResult.data } };
   } catch (error) {
     logger.error('Grant premium access error', { error: error.message });
     return { success: false, error: error.message };
@@ -74,7 +74,7 @@ async function grantEnterpriseAccess(data: any): Promise<any> {
 
     logger.info('Enterprise access granted', { adminId, targetUserId, reason });
 
-    return { success: true, data: { action, roleUpdate: updateResult.data } };
+    return { success: true, data: { action: 'grant-premium', roleUpdate: updateResult.data } };
   } catch (error) {
     logger.error('Grant enterprise access error', { error: error.message });
     return { success: false, error: error.message };
@@ -99,7 +99,7 @@ async function revokeAccess(data: any): Promise<any> {
 
     logger.info('Access revoked', { adminId, targetUserId, reason });
 
-    return { success: true, data: { action, roleUpdate: updateResult.data } };
+    return { success: true, data: { action: 'revoke-access', roleUpdate: updateResult.data } };
   } catch (error) {
     logger.error('Revoke access error', { error: error.message });
     return { success: false, error: error.message };
