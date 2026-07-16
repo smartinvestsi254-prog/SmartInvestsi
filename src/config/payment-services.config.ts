@@ -50,7 +50,7 @@ interface PaymentServicesConfig {
   };
 }
 
-import CONFIG from '/config';
+import CONFIG from '../config';
 const paymentServicesConfig: PaymentServicesConfig = {
   paypal: {
     enabled: true,

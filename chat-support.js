@@ -1,4 +1,4 @@
-etition and show me a preview of the website /**
+/**
  * Support Chat System
  * Real-time and persistent support conversations
  */

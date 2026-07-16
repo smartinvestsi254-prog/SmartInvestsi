@@ -4,9 +4,12 @@
 
 import { Handler } from '@netlify/functions';
 import prisma from './lib/prisma';
-import { hashPin, verifyPin, generateTransactionRef, generateAccountId } from './utils/pin-utils';
+import { hashPin, verifyPin } from './utils/pin-utils';
 import logger from './logger';
 import { withPolicyCompliance } from './policy-compliance';
+import SentryInit from './sentry-init';
+import { z } from 'zod';
+import { getCorsHeaders } from './lib/cors';
 
 
 const MAX_TXN_KES = 500000;
@@ -54,9 +57,20 @@ function generateAccountId(): string {
   return `SI-ACCT-${Date.now().toString().slice(-5)}`;
 }
 
+// Generate a unique transaction reference
+function generateTransactionRef(): string {
+  return `SI-TXN-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+}
 
 
-import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst BankingSchema = z.object({\n  httpMethod: z.enum(['GET', 'POST', 'PUT', 'DELETE']),\n  path: z.string(),\n});\n\nexport const handler = SentryInit.wrapHandler(withPolicyCompliance(async (event) => {
+
+const BankingSchema = z.object({
+  httpMethod: z.enum(['GET', 'POST', 'PUT', 'DELETE']),
+  path: z.string(),
+});
+
+export const handler = SentryInit.wrapHandler(withPolicyCompliance(async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body, headers } = event;
   const clientUserId = getUserId(event);
 
@@ -103,14 +117,14 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Banki
 
     return {
       statusCode: result.success ? 200 : 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       body: JSON.stringify(result)
     };
   } catch (error) {
     logger.error('Banking API error', error);
     return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Internal error' }) };
   }
-}, 'advanced-banking', true);
+}, 'advanced-banking', true));
 
 async function createBankAccount(data: CreateAccountData): Promise<any> {
   try {
@@ -245,7 +259,7 @@ async function p2pTransfer(data: any, clientUserId: string): Promise<any> {
     // Update assets
     await tx.assetHolding.upsert({
       where: { userId_symbol: { userId: clientUserId, symbol: currency } },
-      update: { quantity: { decrement: amount }, valueUSD: /* calc */ },
+      update: { quantity: { decrement: amount } },
       create: { userId: clientUserId, assetType: 'cash', symbol: currency, quantity: -amount }
     });
     // Similar for toAccount user

@@ -6,6 +6,7 @@
 import { Handler } from '@netlify/functions';
 import logger from './logger';
 import { withPolicyCompliance } from './policy-compliance';
+import { getCorsHeaders } from './lib/cors';
 
 interface TrialUser {
   trialId: string; // Unique, clear ID like "SI-TRIAL-12345"
@@ -441,6 +442,7 @@ async function selfUpdateTrialAccounts(): Promise<any> {
 }
 
 export const handler: Handler = withPolicyCompliance(async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
 
   try {
@@ -506,7 +508,7 @@ export const handler: Handler = withPolicyCompliance(async (event) => {
       statusCode: result.success ? 200 : 400,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS'
       },

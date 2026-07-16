@@ -19,8 +19,10 @@ import type {
   HTTPStatus
 } from './types';
 import type { Portfolio, Holding } from './portfolio';
+import { getCorsHeaders } from './lib/cors';
 
 export const handler = async function(event: NetlifyEvent, context: NetlifyContext): Promise<APIResponse> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const userId = event.headers['x-user-id'] || 'demo-user'; // In production, get from JWT
 
   try {
@@ -34,7 +36,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
             statusCode: 404 as HTTPStatus,
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
+              ...getCorsHeaders(origin)
             },
             body: JSON.stringify({ success: false, error: 'Portfolio not found' })
           };
@@ -46,7 +48,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: analytics })
         };
@@ -56,7 +58,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: portfolios })
         };
@@ -90,7 +92,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 201 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: portfolio })
         };
@@ -119,7 +121,7 @@ export const handler = async function(event: NetlifyEvent, context: NetlifyConte
           statusCode: 200 as HTTPStatus,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            ...getCorsHeaders(origin)
           },
           body: JSON.stringify({ success: true, data: portfolio })
         };

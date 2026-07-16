@@ -4,6 +4,9 @@
  */
 
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
+import SentryInit from './sentry-init';
+import { z } from 'zod';
 
 interface Plan {
   name: string;
@@ -26,7 +29,11 @@ import CONFIG from '../../src/config';
 const PAYPAL_MODE: string = CONFIG.PAYPAL.MODE;
 const PAYPAL_CLIENT_ID: string = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET: string = process.env.PAYPAL_CLIENT_SECRET || '';
-const TEST_MODE: boolean = CONFIG.TEST_MODE;\n\nif (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {\n  logger.warn('PayPal credentials missing - using test mode');\n}
+const TEST_MODE: boolean = CONFIG.TEST_MODE;
+
+if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+  logger.warn('PayPal credentials missing - using test mode');
+}
 const APP_URL: string = CONFIG.APP.URL;
 
 // Validate required env vars
@@ -141,7 +148,13 @@ async function createPayPalOrder(planId: string, userId?: string): Promise<PayPa
 /**
  * Main handler
  */
-import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst CreateOrderSchema = z.object({\n  planId: z.string(),\n  userId: z.string().optional()\n});\n\nexport const handler = SentryInit.wrapHandler(async function(event: any, context: any): Promise<any> {
+const CreateOrderSchema = z.object({
+  planId: z.string(),
+  userId: z.string().optional()
+});
+
+export const handler = SentryInit.wrapHandler(async function(event: any, context: any): Promise<any> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
@@ -150,10 +163,12 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Creat
     };
   }
 
+  let planId: string | undefined;
+  let userId: string | undefined;
   try {
     const body: any = JSON.parse(event.body || '{}');
-    const planId: string = body.planId;
-    const userId: string = body.userId;
+    planId = body.planId;
+    userId = body.userId;
 
     if (!planId || !PLANS[planId]) {
       return {
@@ -181,7 +196,7 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Creat
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify({
         orderId: order.id,
@@ -191,13 +206,13 @@ import SentryInit from './sentry-init';\nimport { z } from 'zod';\n\nconst Creat
     };
 
   } catch (error: any) {
-    logger.error('Create order error', { error: error.message, stack: error.stack, planId: body?.planId, userId: body?.userId });
+    logger.error('Create order error', { error: error.message, stack: error.stack, planId, userId });
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to create order' })
     };
   }
-};
+});
 
 // Export for testing
 export { createPayPalOrder, PLANS };

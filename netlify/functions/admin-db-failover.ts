@@ -1,42 +1,49 @@
-import type { HandlerEvent } from '@netlify/functions'
-import { NetlifyResponse } from './NetlifyResponse' // adjust if type only
-import adminService from '../../../../src/lib/admin-service'
-import dbClient from '../../../../src/lib/db-client'
+import type { HandlerEvent, HandlerResponse } from '@netlify/functions'
+import adminService from '../../src/lib/admin-service'
+import dbClient from '../../src/lib/db-client'
+import { getCorsHeaders } from './lib/cors'
+import { isAdminFromEvent } from './lib/auth-utils'
 
-type HandlerContext = any // fallback
+function response(statusCode: number, payload: unknown = {}, origin = ''): HandlerResponse {
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+    body: JSON.stringify(payload),
+  }
+}
 
-export default async (event: any, context: any): Promise<Response> => {
+export default async (event: HandlerEvent): Promise<HandlerResponse> => {
+  const origin = event.headers?.origin || event.headers?.Origin || ''
   if (event.httpMethod !== 'GET' && event.httpMethod !== 'POST') {
-    return new NetlifyResponse(405, { error: 'Method not allowed' })
+    return response(405, { error: 'Method not allowed' }, origin)
   }
 
-  // Admin auth (use existing)
-  const authHeader = event.headers.authorization
-  if (!authHeader || !await adminService.verifyAdminCredentials(authHeader)) {
-    return new NetlifyResponse(401, { error: 'Unauthorized' })
+  // Admin auth (JWT-based, fintech-grade)
+  if (!await isAdminFromEvent(event)) {
+    return response(401, { error: 'Unauthorized' }, origin)
   }
 
   try {
     if (event.httpMethod === 'GET') {
       const status = await dbClient.getStatus()
       await adminService.logAdminAction('admin', 'db_status_check', status)
-      return new NetlifyResponse(200, status)
+      return response(200, status, origin)
     }
 
     if (event.httpMethod === 'POST') {
-      const { mode } = JSON.parse(event.body)
+      const { mode } = JSON.parse(event.body || '{}')
       if (!['primary', 'fallback'].includes(mode)) {
-        return new NetlifyResponse(400, { error: 'Invalid mode' })
+        return response(400, { error: 'Invalid mode' }, origin)
       }
-      await dbClient.setMode(mode as any)
+      await dbClient.setMode(mode)
       const status = await dbClient.getStatus()
       await adminService.logAdminAction('admin', 'db_mode_switch', { mode, status })
-      return new NetlifyResponse(200, { success: true, status })
+      return response(200, { success: true, status }, origin)
     }
   } catch (err) {
     console.error('DB failover API error:', err)
-    return new NetlifyResponse(500, { error: 'Internal error' })
+    return response(500, { error: 'Internal error' }, origin)
   }
 
-  return new NetlifyResponse(400)
+  return response(400, { error: 'Bad request' }, origin)
 }

@@ -5,6 +5,7 @@
 
 import { Handler } from '@netlify/functions';
 import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 interface Notification {
   id: string;
@@ -543,6 +544,7 @@ async function checkAlerts(): Promise<any> {
 }
 
 export const handler: Handler = async (event) => {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   const { httpMethod, path, body } = event;
 
   try {
@@ -606,7 +608,7 @@ export const handler: Handler = async (event) => {
       statusCode: result.success ? 200 : 400,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...getCorsHeaders(origin),
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
       },

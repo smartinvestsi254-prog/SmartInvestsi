@@ -32,7 +32,8 @@ if (!PAYPAL_CLIENT_SECRET && !TEST_MODE) {
 }
 
 import prisma from './lib/prisma';
-import logger from './lib/logger';
+import logger from './logger';
+import { getCorsHeaders } from './lib/cors';
 
 // Remove in-memory, use DB
 
@@ -210,6 +211,7 @@ async function handlePaymentDenied(payment: any): Promise<{ success: boolean; me
  * Main webhook handler
  */
 export const handler = async function(event: any, context: any): Promise<any> {
+  const origin = event.headers?.['origin'] || event.headers?.['Origin'] || '';
   // Only allow POST
   if (event.httpMethod !== 'POST') {
     return {
@@ -255,7 +257,7 @@ export const handler = async function(event: any, context: any): Promise<any> {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        ...getCorsHeaders(origin)
       },
       body: JSON.stringify(result)
     };

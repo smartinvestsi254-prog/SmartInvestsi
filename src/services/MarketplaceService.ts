@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { checkFeatureAccess } from '../../lib/tier-access-control';
-import { dbClient } from '../../lib/db-client';
+import { checkFeatureAccess } from '../lib/tier-access-control';
+import { dbClient } from '../lib/db-client';
 
 const prisma = dbClient.getClient();
 

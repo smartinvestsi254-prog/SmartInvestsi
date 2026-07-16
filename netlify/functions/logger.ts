@@ -19,6 +19,23 @@ const logger = winston.createLogger({
   ]
 });
 
-// Sentry crash detection integration\nif (process.env.SENTRY_DSN) {\n  logger.error = (msg, meta) => {\n    const Sentry = require('@sentry/serverless');\n    Sentry.captureException(new Error(msg), { extra: meta });\n  };\n}\n\n// File transport prod\nif (process.env.NODE_ENV === 'production') {\n  logger.add(new winston.transports.File({ filename: '/tmp/prod.log' }));\n}
+// Sentry crash detection integration (non-destructive: keep winston logging, add capture)
+if (process.env.SENTRY_DSN) {
+  const originalError = logger.error.bind(logger);
+  logger.error = ((msg: any, meta?: any) => {
+    try {
+      const Sentry = require('@sentry/node');
+      Sentry.captureException(msg instanceof Error ? msg : new Error(String(msg)), { extra: meta });
+    } catch {
+      // Sentry not available; continue with winston logging
+    }
+    return originalError(msg, meta);
+  }) as typeof logger.error;
+}
+
+// File transport in production
+if (process.env.NODE_ENV === 'production') {
+  logger.add(new winston.transports.File({ filename: '/tmp/prod.log' }));
+}
 
 export default logger;

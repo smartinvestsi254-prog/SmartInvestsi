@@ -100,7 +100,7 @@ async function createOrUpdateSubscription(userId: string, plan: 'PREMIUM' | 'ENT
 /** 
  * Process Stripe payment 
  */
-async function processAdminFeeTransaction(originalAmount: number, userId: string, transactionId: string, gateway: string): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string } {
+async function processAdminFeeTransaction(originalAmount: number, userId: string, transactionId: string, gateway: string): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }> {
   const ADMIN_FEE_PERCENT = 2.5; // 2.5% transaction fee
   const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || CONFIG.CEO_ACCOUNT_ID;
   async function processAdminFeeTransaction(...): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }>
@@ -133,40 +133,44 @@ async function processStripePayment(data: any): Promise<any> {
     
     const feeResult = await processAdminFeeTransaction(Number(amount), userId, transactionId, 'stripe');
     
-    // Simulate Stripe processing with net amount
-    const paymentIntent: PaymentIntent = {
-      id: transactionId,
-      amount: feeResult.netAmount,
-      currency: currency || 'usd',
-      status: 'completed',
-      method: 'stripe',
-      userId,
-      createdAt: new Date().toISOString()
-    };
-
     // Create real Payment record
-    const paymentIntent = await prisma.payment.create({
+    const paymentRecord = await prisma.payment.create({
       data: {
         userId,
         amount: feeResult.netAmount,
-        currency: 'usd',
+        currency: currency || 'usd',
         reference: transactionId,
+        method: 'stripe',
         status: 'completed',
         metadata: { adminFee: feeResult.adminFee }
       }
     });
     logger.info('Stripe payment processed with admin fee', { transactionId, userId, adminFee: feeResult.adminFee.toFixed(2) });
 
-    return { success: true, data: paymentIntent, adminFee: feeResult.adminFee };
+    return { success: true, data: paymentRecord, adminFee: feeResult.adminFee };
   } catch (error) {
     logger.error('Stripe payment error', { error: error.message });
     return { success: false, error: error.message };
   }
 }
 
-async function recordAdminFee(feeData: any) {
-  // Mock - use DB in production
-  console.log('Admin fee recorded:', feeData);
+async function recordAdminFee(feeData: Record<string, unknown>) {
+  try {
+    await prisma.adminFeeTransaction.create({
+      data: {
+        transactionId: String(feeData.transactionId),
+        userId: String(feeData.userId),
+        originalAmount: Number(feeData.originalAmount),
+        adminFee: Number(feeData.adminFee),
+        netAmount: Number(feeData.netAmount),
+        gateway: String(feeData.gateway),
+        ceoAccountId: String(feeData.ceoAccountId),
+      },
+    });
+    logger.info('Admin fee recorded to database', { transactionId: feeData.transactionId, adminFee: feeData.adminFee });
+  } catch (error: any) {
+    logger.error('Failed to record admin fee', { error: error.message, feeData });
+  }
 }
 
 /**
@@ -176,29 +180,19 @@ async function createStripeIntent(data: any): Promise<any> {
   try {
     const { amount, currency, userId } = data;
 
-    // Simulate Stripe intent creation
-    const intent: PaymentIntent = {
-      id: `pi_${Date.now()}`,
-      amount,
-      currency: currency || 'usd',
-      status: 'pending',
-      method: 'stripe',
-      userId,
-      createdAt: new Date().toISOString()
-    };
-
     // Create pending Payment record for intent
-    const intent = await prisma.payment.create({
+    const paymentRecord = await prisma.payment.create({
       data: {
         userId,
         amount,
         currency: currency || 'usd',
+        method: 'stripe',
         status: 'pending',
         reference: `intent_${Date.now()}`
       }
     });
 
-    return { success: true, data: { clientSecret: `pi_${intent.id}`, paymentId: intent.id } };
+    return { success: true, data: { clientSecret: `pi_${paymentRecord.id}`, paymentId: paymentRecord.id } };
   } catch (error) {
     logger.error('Create Stripe intent error', { error: error.message });
     return { success: false, error: error.message };
@@ -212,23 +206,11 @@ async function processPayPalPayment(data: any): Promise<any> {
   try {
     const { orderId, userId } = data;
 
-    // Simulate PayPal capture
-    const paymentIntent: PaymentIntent = {
-      id: `pp_${Date.now()}`,
-      amount: 1000, // $10.00
-      currency: 'usd',
-      status: 'completed',
-      method: 'paypal',
-      userId,
-      createdAt: new Date().toISOString()
-    };
-
     // Create real Payment record
-    const paymentIntent = await prisma.payment.create({
+    const paymentRecord = await prisma.payment.create({
       data: {
-        id: `pp_${Date.now()}`,
         userId,
-        amount: 1000,
+        amount: data.amount ? Number(data.amount) : 0,
         currency: 'usd',
         status: 'completed',
         method: 'paypal',
@@ -238,7 +220,7 @@ async function processPayPalPayment(data: any): Promise<any> {
 
     logger.info('PayPal payment processed', { orderId, userId });
 
-    return { success: true, data: paymentIntent };
+    return { success: true, data: paymentRecord };
   } catch (error) {
     logger.error('PayPal payment error', { error: error.message });
     return { success: false, error: error.message };
@@ -540,8 +522,9 @@ export const handler: Handler = async (event) => {
       statusCode: result.success ? 200 : 400,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).includes(event.headers['origin'] || '') ? event.headers['origin']! : '',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify(result)
