@@ -1,161 +1,290 @@
-# SmartInvestSI
+# SmartInvestsi - Fintech Investment Platform
 
-Complete fintech investment platform with Netlify Functions serverless architecture, real-time trading, payment processing, and intelligent portfolio management.
+**Modern, secure fintech SaaS platform** built for **Netlify** with **Supabase (PostgreSQL)** primary backend and **MongoDB** fallback.
 
-## Features
+> Investment Management | Trading | Portfolio Analytics | Payment Processing | AI Support
 
-### Core Features
-- **Investment Calculators**: Multiple financial planning tools
-- **Portfolio Management**: Track and manage investment portfolios
-- **Trading Platform**: Real-time trading with market data via CCXT
-- **Payment Processing**: Integrated PayPal, M-Pesa, and Stripe
-- **User Authentication**: Secure JWT-based login and registration
-- **Admin Dashboard**: User and system management
+## 🚀 Quick Start
 
-### AI Chat Support
-- **Chatbase Integration**: AI-powered receptionist
-- **Feedback Analysis**: User question analysis
-- **Service Usage Tracking**: Feature popularity metrics
+```bash
+# Install dependencies
+npm install
 
-### Banking Trial System
-- **P2P Transactions**: Secure money transfers
-- **Multi-Currency Support**: USD, EUR, KES, BTC, ETH
-- **Self-Updating Ledger**: Automatic balance updates
-- **Withdrawal System**: Bank, mobile, crypto withdrawals
+# Development
+npm run dev
 
-### Security & Compliance
-- **Fraud Detection**: Real-time transaction monitoring
-- **Geolocation Enforcement**: Country-specific rules
-- **Rate Limiting**: API abuse prevention
-- **Data Encryption**: Secure data handling
+# Build for Netlify
+npm run build
 
-## Architecture
+# Run tests
+npm run validate
+```
 
-### Stack
-- **Frontend**: HTML/JS/CSS served via Netlify
-- **Backend**: Node.js + Express + TypeScript
-- **Serverless**: Netlify Functions (AWS Lambda)
-- **Database**: Prisma ORM with PostgreSQL
-- **Authentication**: JWT + bcrypt
-- **Security**: Helmet, rate-limiting, secret detection
-- **Monitoring**: Winston logger + Sentry
-- **Trading**: CCXT for market data
+## 📋 Stack Overview
 
-### Directory Structure
+| Component | Technology | Purpose |
+|-----------|-----------|----------|
+| **Hosting** | Netlify Functions | Serverless backend |
+| **Primary DB** | Supabase (PostgreSQL) | User data, portfolios, transactions |
+| **Fallback DB** | MongoDB | Cache, sessions, real-time data |
+| **Frontend** | HTML/CSS/JS/TypeScript | SPA dashboard |
+| **ORM** | Prisma | Type-safe database access |
+| **Auth** | JWT + Supabase Auth | User authentication |
+| **Payments** | PayPal, M-Pesa, Stripe | Payment processing |
+| **Trading** | CCXT | Live market data |
+| **Logging** | Winston | Structured logging |
+| **Monitoring** | Sentry | Error tracking |
+
+## 📁 Project Structure
 
 ```
 SmartInvestsi/
-├── src/                    TypeScript Express server
-├── netlify/               Netlify Functions serverless APIs
-├── public/                Static assets
-├── prisma/                Database schema & migrations
-├── __tests__/             Jest test suites
-├── docs/                  Documentation
-├── package.json          Root dependencies
-├── tsconfig.json         TypeScript config (strict mode)
-├── netlify.toml          Netlify deployment config
-├── vercel.json           Vercel deployment config
-├── .eslintrc.json        Linting rules
-├── .prettierrc            Code formatting
-└── README.md            This file
+├── netlify/
+│   ├── functions/          # Netlify serverless functions
+│   │   ├── auth.ts         # Authentication (JWT, login, register)
+│   │   ├── portfolio-api.ts # Portfolio management
+│   │   ├── market-data-api.ts
+│   │   ├── spot-api.ts     # Live trading (CCXT)
+│   │   ├── earn-api.ts     # Staking/earning products
+│   │   ├── ai-signals.ts   # AI trading signals
+│   │   └── chat-*.ts       # Chat support
+│   └── tsconfig.json       # Strict TypeScript config
+├── src/
+│   ├── server.ts           # Local dev Express server
+│   ├── config/
+│   │   └── env.ts          # Environment validation
+│   └── routes/
+├── prisma/
+│   ├── schema.prisma       # Database schema (Supabase + MongoDB fallback)
+│   └── migrations/         # Database migrations
+├── public/
+│   ├── *.html              # SPA pages
+│   ├── css/                # Stylesheets
+│   └── js/                 # Client scripts
+├── __tests__/              # Jest test suites
+├── .env.example            # Environment template
+├── netlify.toml            # Netlify configuration
+├── tsconfig.json           # TypeScript strict mode
+├── jest.config.ts          # Jest testing config
+└── package.json            # Dependencies & scripts
 ```
 
-## Build & Deploy
+## 🔧 Environment Setup
 
-### Prerequisites
+### 1. Copy environment template
 ```bash
-node >= 20.11.0
-npm >= 10.0.0
+cp .env.example .env
 ```
 
-### Development
+### 2. Required variables (Supabase primary)
+```env
+# Database - Supabase PostgreSQL
+DATABASE_URL=postgresql://user:password@db.supabase.co:5432/postgres
+DIRECT_URL=postgresql://user:password@db.supabase.co:5432/postgres
+
+# Supabase Auth
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-public-key
+SUPABASE_SERVICE_ROLE_KEY=your-secret-key
+
+# JWT (generate with: openssl rand -hex 32)
+JWT_SECRET=your-64-char-secret
+JWT_REFRESH_SECRET=your-64-char-secret
+SESSION_SECRET=your-64-char-secret
+```
+
+### 3. Optional (MongoDB fallback for caching/sessions)
+```env
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/smartinvest
+```
+
+### 4. Payments
+```env
+PAYPAL_CLIENT_ID=xxx
+PAYPAL_CLIENT_SECRET=xxx
+MPESA_CONSUMER_KEY=xxx
+MPESA_CONSUMER_SECRET=xxx
+STRIPE_SECRET_KEY=sk_test_xxx
+```
+
+## 🏗️ Architecture
+
+### Request Flow
+```
+Client (Browser)
+    ↓
+Netlify CDN (Static HTML/CSS/JS)
+    ↓
+Netlify Functions (API Gateway)
+    ↓
+Prisma ORM
+    ↓
+├─→ Supabase (PostgreSQL) [Primary]
+└─→ MongoDB [Fallback Cache]
+```
+
+### Authentication
+- JWT tokens stored in HttpOnly cookies
+- Supabase handles email verification
+- Role-based access control (USER, ADMIN, PREMIUM)
+- Rate limiting on login attempts
+
+### Data Flow
+1. **Write Operations**: Always go to Supabase PostgreSQL
+2. **Read Operations**: Try MongoDB cache first, fall back to Supabase
+3. **Real-time Data**: Direct CCXT API for market prices
+
+## 📦 Build & Deployment
+
+### Local Development
 ```bash
-npm install
-npm run dev                # Start Express server with hot reload
-npm run lint:fix           # Auto-fix linting issues
-npm run format             # Format code with Prettier
-npm run type-check         # Check TypeScript types
+# Watch TypeScript and rebuild
+npm run dev
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint:fix
+
+# Format code
+npm run format
 ```
 
-### Build
+### Build for Netlify
 ```bash
-npm run build              # Compile TypeScript & Netlify Functions
-npm start                  # Run compiled server
+npm run build
 ```
 
-### Testing & Validation
+This runs:
+1. `npm run clean` - Remove old dist/
+2. `prisma generate` - Generate Prisma client
+3. `tsc` - Compile TypeScript (strict mode)
+4. `tsc -p netlify/tsconfig.json` - Compile Netlify functions
+
+### Deploy to Netlify
 ```bash
-npm test                   # Run jest tests
-npm run validate           # Lint + type-check + test
+# Connect GitHub repo in Netlify dashboard
+# Set environment variables
+# Push to main branch - auto-deploys!
+git push origin main
 ```
 
-### Database
+## 🧪 Testing & Validation
+
 ```bash
-npm run prisma:generate   # Generate Prisma client
-npm run prisma:migrate:dev     # Create migration
-npm run prisma:migrate:deploy  # Deploy migrations
-npm run prisma:studio     # Open Prisma Studio UI
+# Run all tests
+npm run validate
+
+# This runs:
+# - npm run lint        (ESLint)
+# - npm run type-check  (TypeScript strict)
+# - npm run test        (Jest)
+
+# Individual commands
+npm test
+npm run lint
+npm run type-check
 ```
 
-### Deployment
+## 🔐 Security Checklist
 
-**Netlify:**
+- ✅ Strict TypeScript mode (no `any` types)
+- ✅ ESLint security plugin enabled
+- ✅ Pre-commit secret detection
+- ✅ Environment variables validated at startup
+- ✅ JWT token refresh strategy
+- ✅ Rate limiting on APIs
+- ✅ CORS properly configured
+- ✅ Helmet security headers
+- ✅ SQL injection prevention (Prisma)
+- ✅ CSRF protection via SameSite cookies
+
+## 📊 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Create account
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `POST /api/auth/refresh` - Refresh token
+- `POST /api/auth/verify-email` - Verify email
+
+### Portfolios
+- `GET /api/portfolio` - List user portfolios
+- `POST /api/portfolio` - Create portfolio
+- `GET /api/portfolio/:id` - Get portfolio details
+- `PUT /api/portfolio/:id` - Update portfolio
+- `GET /api/portfolio/:id/analytics` - Portfolio analytics
+
+### Markets
+- `GET /api/market/quote/:symbol` - Get current price
+- `GET /api/market/history/:symbol` - Historical data
+- `GET /api/market/orderbook/:symbol` - Live orderbook
+- `GET /api/market/indices` - Market indices
+
+### Trading
+- `POST /api/spot/order` - Place spot order
+- `GET /api/spot/orders` - Order history
+- `POST /api/spot/cancel/:orderId` - Cancel order
+
+### Earning
+- `GET /api/earn/products` - Staking products
+- `POST /api/earn/subscribe` - Subscribe to earn
+- `GET /api/earn/rewards` - View rewards
+
+### Chat
+- `POST /api/chat/create` - Start chat
+- `GET /api/chat/:chatId/messages` - Get messages
+- `POST /api/chat/:chatId/messages` - Send message
+
+## 🐛 Troubleshooting
+
+### Build fails with "Cannot find module"
 ```bash
-git push origin main       # Auto-deploys via GitHub integration
+# Regenerate Prisma client
+npm run prisma:generate
+
+# Clean and rebuild
+npm run clean && npm run build
 ```
 
-**Vercel:**
+### Environment variable error
 ```bash
-git push origin main       # Auto-deploys via GitHub integration
+# Check all required vars are set
+echo $DATABASE_URL
+echo $JWT_SECRET
+
+# Validate config
+npm run type-check
 ```
 
-Environment variables must be set in platform dashboards (Netlify/Vercel).
+### Type errors in strict mode
+- Use `as const` for literal types
+- Return explicit types from functions
+- Use `satisfies` for type inference
+- Check tsconfig.json strict settings
 
-## Environment Variables
+## 📚 Documentation
 
-See `.env.example` for all required variables. Key ones:
+- **API Docs**: See `API_DOCUMENTATION.md`
+- **Architecture**: See `ARCHITECTURE_OVERVIEW.md`
+- **Deployment**: See Netlify dashboard
+- **Database**: See `prisma/schema.prisma`
 
-```
-DATABASE_URL=postgresql://user:pass@host/db
-JWT_SECRET=your-secret-key
-PAYPAL_CLIENT_ID=...
-PAYPAL_CLIENT_SECRET=...
-STRIPE_SECRET_KEY=...
-MPESA_CONSUMER_KEY=...
-MPESA_CONSUMER_SECRET=...
-CHATBASE_API_KEY=...
-```
+## 🤝 Contributing
 
-## Security
+1. Create feature branch: `git checkout -b feature/name`
+2. Make changes and test: `npm run validate`
+3. Format code: `npm run format`
+4. Push and create PR
+5. CI/CD runs tests automatically
 
-- Pre-commit hooks detect hardcoded secrets
-- Strict TypeScript mode prevents type errors
-- ESLint security plugin catches vulnerable patterns
-- All secrets stored in environment variables
-- Rate limiting on all API endpoints
-- CORS properly configured
-- Helmet headers enabled
+## 📄 License
 
-Run security checks:
-```bash
-npm run pre-commit:run          # Pre-commit checks
-npm run secrets:baseline        # Secret detection baseline
-npm run lint                    # Security linting
-```
+MIT - See LICENSE file
 
-## CI/CD
+## 👥 Support
 
-GitHub Actions runs on every push:
-- Pre-commit checks
-- Unit tests
-- Type checking
-- Security scanning
-- Build verification
-- Preview deployments for PRs
-
-## Monitoring
-
-- Winston structured logging
-- Sentry error tracking
-- Netlify function logs in dashboard
-- Performance monitoring via platform analytics
+- Email: support@smartinvestsi.com
+- Chat: In-app chat support
+- Docs: https://docs.smartinvestsi.com

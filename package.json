@@ -1,21 +1,22 @@
 {
   "name": "smartinvest-fintech-saas",
   "version": "2.0.0",
-  "description": "SmartInvest - Complete Fintech SaaS Platform for Investment Infrastructure with Payment Integration, Dashboard Architecture, AI Automation, and Subscription Billing",
+  "description": "SmartInvest - Complete Fintech SaaS Platform for Netlify + Supabase/MongoDB",
   "main": "dist/server.js",
+  "type": "module",
   "engines": {
     "node": ">=20.11.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npm run clean && prisma generate && tsc && npm run build:functions",
+    "build": "npm run clean && npm run prisma:generate && tsc && npm run build:functions",
     "build:functions": "tsc -p netlify/tsconfig.json",
     "start": "node dist/server.js",
-    "clean": "rm -rf dist && mkdir -p dist",
+    "clean": "rm -rf dist .vercel && mkdir -p dist",
     "test": "jest --runInBand",
     "test:functions": "jest netlify/functions",
-    "lint": "eslint '{src,netlify}/**/*.{ts,js}'",
+    "lint": "eslint '{src,netlify}/**/*.{ts,js}' --max-warnings 0",
     "lint:fix": "eslint '{src,netlify}/**/*.{ts,js}' --fix",
     "format": "prettier --write '{src,netlify}/**/*.{ts,js,json,md}'",
     "format:check": "prettier --check '{src,netlify}/**/*.{ts,js,json,md}'",
@@ -29,15 +30,15 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "node prisma/seed.js",
-    "postinstall": "prisma generate && echo 'Prisma client generated successfully'"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "postinstall": "npm run prisma:generate 2>/dev/null || true"
   },
   "dependencies": {
     "@netlify/functions": "^2.0.0",
     "@prisma/client": "^7.5.0",
     "@sentry/node": "^8.28.0",
     "axios": "^1.4.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "ccxt": "^4.5.45",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -46,14 +47,15 @@
     "express-rate-limit": "^7.1.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.0.0",
     "node-cron": "^3.0.2",
     "nodemailer": "^8.0.4",
     "winston": "^3.13.1",
-    "zod": "^3.24.2",
-    "prisma": "^7.5.0"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.17.9",
@@ -65,6 +67,7 @@
     "eslint-plugin-security": "^2.1.1",
     "jest": "^29.7.0",
     "prettier": "^3.1.1",
+    "prisma": "^7.5.0",
     "ts-jest": "^29.2.5",
     "tsx": "^4.7.2",
     "typescript": "^5.6.3"
@@ -86,79 +89,15 @@
     "saas",
     "dashboard",
     "ai-automation",
-    "subscription-billing"
+    "subscription-billing",
+    "netlify",
+    "supabase",
+    "mongodb"
   ],
   "author": "SmartInvest Team",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smartinvestsi254-prog/SmartInvestsi/issues"
   },
-  "homepage": "https://github.com/smartinvestsi254-prog/SmartInvestsi",
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.ts",
-      "**/?(*.)+(spec|test).ts"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "netlify/functions/**/*.ts",
-      "!**/*.d.ts",
-      "!**/node_modules/**"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 70,
-        "lines": 70,
-        "statements": 70
-      }
-    }
-  },
-  "prettier": {
-    "semi": true,
-    "trailingComma": "es5",
-    "singleQuote": false,
-    "printWidth": 100,
-    "tabWidth": 2,
-    "useTabs": false
-  },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:security/recommended",
-      "prettier"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2021,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "@typescript-eslint",
-      "security"
-    ],
-    "rules": {
-      "@typescript-eslint/explicit-function-return-types": "warn",
-      "@typescript-eslint/explicit-module-boundary-types": "warn",
-      "@typescript-eslint/no-explicit-any": "error",
-      "security/detect-object-injection": "warn",
-      "no-console": [
-        "warn",
-        {
-          "allow": [
-            "warn",
-            "error"
-          ]
-        }
-      ]
-    },
-    "env": {
-      "node": true,
-      "es2021": true,
-      "jest": true
-    }
-  }
+  "homepage": "https://github.com/smartinvestsi254-prog/SmartInvestsi"
 }
