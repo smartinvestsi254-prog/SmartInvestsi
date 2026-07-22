@@ -416,7 +416,6 @@ function requireAdmin(req: express.Request, res: express.Response, next: express
 
 // Apply Admin and Login Rate Limiters
 app.use('/api/admin', adminLimiter);
-app.use('/api/diplomacy', adminLimiter);
 app.use('/api/auth/login', loginLimiter);
 
 // monitor request durations in case of slowness
@@ -506,7 +505,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         email: normalizedEmail,
-        password: passwordHash,
+        passwordHash: passwordHash,
         role: userRole,
       },
       select: {
