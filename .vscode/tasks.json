@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "SmartInvestsi Dev",
+      "type": "npm",
+      "script": "dev",
+      "path": "/",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "SmartGovern Dev",
+      "type": "npm",
+      "script": "dev",
+      "path": "SmartGovern",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "SmartInvestsi Build",
+      "type": "npm",
+      "script": "build",
+      "path": "/",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "SmartGovern Build",
+      "type": "npm",
+      "script": "build",
+      "path": "SmartGovern",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "SmartInvestsi Test",
+      "type": "npm",
+      "script": "test",
+      "path": "/",
+      "problemMatcher": []
+    },
+    {
+      "label": "SmartGovern Test",
+      "type": "npm",
+      "script": "test",
+      "path": "SmartGovern",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SmartInvestsi Dev",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "SmartGovern Dev",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}/SmartGovern",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug SmartInvestsi Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["run", "test"],
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug SmartGovern Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["run", "test"],
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}/SmartGovern",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
