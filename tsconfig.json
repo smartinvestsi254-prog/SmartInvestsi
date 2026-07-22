@@ -28,10 +28,8 @@
   },
   "include": ["src/**/*"],
   "exclude": [
-    "src/routes/priority-features.ts",
-    "src/incidents/**/*",
-    "src/lib/audit-logger.ts",
     "node_modules",
-    "dist"
+    "dist",
+    "SmartGovern"
   ]
 }
