@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartInvestsi Market Intelligence</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #071120;
+            --primary-blue: #0f4c81;
+            --accent-blue: #2a7fff;
+            --accent-cyan: #00d4ff;
+            --accent-gold: #d4af37;
+            --text-light: #f5f7fa;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --border-soft: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #030712 0%, #071120 45%, #0c1a2d 100%);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Navigation Architecture */
+        .navbar {
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        /* Hero Layer Configurations */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(42, 127, 255, 0.25), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(0, 212, 255, 0.18), transparent 30%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 18s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(60px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .live-pulse-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            display: inline-block;
+            animation: indicatorPulse 2s infinite;
+        }
+
+        @keyframes indicatorPulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(0, 212, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+        }
+
+        .hero-title {
+            font-size: clamp(2.7rem, 6vw, 5.4rem);
+            font-weight: 800;
+            line-height: 1.02;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff, #66d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.78);
+            max-width: 760px;
+            margin-bottom: 40px;
+        }
+
+        /* Action Handlers */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border: none;
+            color: white !important;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px rgba(0, 212, 255, 0.25);
+        }
+
+        .btn-outline-custom {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white !important;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+        }
+
+        /* Typography & Layout Scaffolding */
+        .section-title {
+            font-size: 2.7rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .section-subtitle {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: auto;
+            line-height: 1.8;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: all 0.35s ease;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 212, 255, 0.25);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+        }
+
+        .feature-icon {
+            width: 74px;
+            height: 74px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(42, 127, 255, 0.22), rgba(0, 212, 255, 0.22));
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        /* Live Tracker Cards Configuration */
+        .market-card {
+            padding: 28px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .market-card:hover {
+            transform: scale(1.02);
+            border-color: rgba(0, 212, 255, 0.25);
+        }
+
+        .market-price {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+
+        /* Market Metrics Financial Matrix Style */
+        .coverage-matrix-wrapper {
+            background: var(--card-bg);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 18px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+
+        .matrix-table th {
+            background-color: rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .matrix-table th:first-child, .matrix-table td:first-child {
+            text-align: left;
+        }
+
+        .matrix-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .matrix-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .asset-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .asset-identity img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+
+        .asset-ticker {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        /* Specialized Panels */
+        .security-section {
+            background: linear-gradient(135deg, rgba(15, 76, 129, 0.2), rgba(0, 212, 255, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 60px;
+        }
+
+        .timeline-step {
+            position: relative;
+            padding-left: 80px;
+            margin-bottom: 40px;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 58px;
+            width: 2px;
+            height: calc(100% + 15px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .tradingview-widget-container {
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #0a1420;
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3rem; }
+            .security-section { padding: 30px; }
+            .matrix-table th, .matrix-table td { padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">💰 SmartInvestsi</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
+                <li class="nav-item"><a class="nav-link" href="/catalog.html">Products</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/market-intelligence.html">Markets</a></li>
+                <li class="nav-item"><a class="btn btn-primary-custom ms-lg-3" href="/login.html">Launch Platform</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero-section">
+    <div class="hero-grid"></div>
+    <div class="container hero-content py-5">
+        <div class="hero-badge">
+            <span class="live-pulse-indicator"></span>
+            Real-Time Global Investment Intelligence Infrastructure
+        </div>
+        <h1 class="hero-title">
+            SmartInvestsi <span class="gradient-text">Market Intelligence</span>
+        </h1>
+        <p class="hero-subtitle">
+            Advanced investment infrastructure integrating AI-driven analytics, real-time CoinGecko market intelligence,
+            TradingView institutional-grade charting, automated financial workflows, secure payment architecture,
+            portfolio management systems, African and global fintech integrations, and enterprise-level digital investment operations.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="/dashboard.html" class="btn btn-primary-custom">Open Dashboard</a>
+            <a href="#live-market-data" class="btn btn-outline-custom">View Live Markets</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="section-title">Enterprise Investment Infrastructure</h2>
+        <p class="section-subtitle mb-5">
+            SmartInvestsi combines portfolio management, automated analytics, payment processing,
+            AI automation, trading intelligence, and secure fintech architecture into one unified ecosystem.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">📈</div>
+                    <h4 class="fw-bold mb-3">Real-Time Trading Intelligence</h4>
+                    <p class="text-light opacity-75">
+                        Integrated CoinGecko market feeds, TradingView charting systems, market sentiment monitoring,
+                        technical analysis environments, and AI-powered trading insights.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">🔒</div>
+                    <h4 class="fw-bold mb-3">Advanced Security Layers</h4>
+                    <p class="text-light opacity-75">
+                        JWT authentication, encrypted payment handling, fraud detection systems,
+                        API validation, enterprise audit logging, secure transaction routing,
+                        and institutional-grade cybersecurity practices.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">💳</div>
+                    <h4 class="fw-bold mb-3">Integrated Financial Payments</h4>
+                    <p class="text-light opacity-75">
+                        SmartInvestsi supports PayPal, Stripe, M-Pesa, Flutterwave, and Paystack integrations,
+                        enabling seamless global and African financial transaction processing.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="live-market-data" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Live CoinGecko Market Data</h2>
+            <p class="section-subtitle">
+                Real-time cryptocurrency and market intelligence powered through CoinGecko API infrastructure.
+            </p>
+        </div>
+
+        <div class="row g-4" id="marketDataContainer">
+            <div class="col-lg-3 col-md-6">
+                <div class="market-card text-center">
+                    <h5>Bitcoin</h5>
+                    <div class="market-price" id="btc-price">Loading...</div>
+                    <div id="btc-change"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="market-card text-center">
+                    <h5>Ethereum</h5>
+                    <div class="market-price" id="eth-price">Loading...</div>
+                    <div id="eth-change"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="market-card text-center">
+                    <h5>BNB</h5>
+                    <div class="market-price" id="bnb-price">Loading...</div>
+                    <div id="bnb-change"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="market-card text-center">
+                    <h5>Solana</h5>
+                    <div class="market-price" id="sol-price">Loading...</div>
+                    <div id="sol-change"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="coverage-matrix-wrapper">
+            <div class="table-responsive">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Price (USD)</th>
+                            <th>24h Change</th>
+                            <th>Market Cap</th>
+                            <th>24h Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extended-matrix-body">
+                        <tr>
+                            <td colspan="5" class="text-center text-light opacity-50 py-5">
+                                <div class="spinner-border spinner-border-sm text-info me-2" role="status"></div>
+                                Synchronizing systemic asset telemetry data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">TradingView Advanced Analytics</h2>
+            <p class="section-subtitle">
+                Institutional-grade charting and advanced technical market visualization.
+            </p>
+        </div>
+
+        <div class="tradingview-widget-container">
+            <div id="tradingview_chart"></div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="security-section">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="section-title">Security & Financial Protection</h2>
+                    <p class="text-light opacity-75 mb-4" style="line-height:1.9;">
+                        SmartInvestsi uses multi-layer enterprise protection systems including secure API architecture,
+                        JWT session security, encrypted authentication systems, transaction monitoring,
+                        fraud prevention logic, payment gateway verification, and controlled administrative access.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">✔ Secure JWT Authentication</li>
+                        <li class="mb-3">✔ Encrypted Payment Transactions</li>
+                        <li class="mb-3">✔ Secure Portfolio Management</li>
+                        <li class="mb-3">✔ Fraud Detection Monitoring</li>
+                        <li class="mb-3">✔ Institutional Audit Logging</li>
+                        <li class="mb-3">✔ Multi-Gateway Payment Verification</li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="glass-card p-5">
+                        <h4 class="fw-bold mb-4">Infrastructure Components</h4>
+                        <div class="d-flex justify-content-between border-bottom py-3">
+                            <span>API Security Layer</span>
+                            <strong class="text-info">Active</strong>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom py-3">
+                            <span>Transaction Monitoring</span>
+                            <strong class="text-success">Operational</strong>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom py-3">
+                            <span>AI Market Analysis</span>
+                            <strong class="text-warning">Real-Time</strong>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom py-3">
+                            <span>Portfolio Tracking</span>
+                            <strong class="text-primary">Integrated</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-3">
+                            <span>Payment Routing</span>
+                            <strong class="text-info">Multi-Gateway</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How SmartInvestsi Works</h2>
+            <p class="section-subtitle">
+                Complete onboarding, investment, trading, portfolio, and payment workflows.
+            </p>
+        </div>
+
+        <div class="timeline-step">
+            <div class="timeline-number">1</div>
+            <h4 class="fw-bold mb-3">Create Your Account</h4>
+            <p class="text-light opacity-75">
+                Users register securely through SmartInvestsi authentication systems,
+                complete verification workflows, and gain access to investment dashboards and financial services.
+            </p>
+        </div>
+
+        <div class="timeline-step">
+            <div class="timeline-number">2</div>
+            <h4 class="fw-bold mb-3">Fund Your Investment Portfolio</h4>
+            <p class="text-light opacity-75">
+                Deposit funds through M-Pesa, PayPal, Stripe, Flutterwave, or integrated payment infrastructure.
+                SmartInvestsi validates and routes transactions securely.
+            </p>
+        </div>
+
+        <div class="timeline-step">
+            <div class="timeline-number">3</div>
+            <h4 class="fw-bold mb-3">Analyze Live Market Opportunities</h4>
+            <p class="text-light opacity-75">
+                Access real-time CoinGecko market feeds, TradingView technical charts,
+                AI analytics, portfolio metrics, and investment intelligence tools.
+            </p>
+        </div>
+
+        <div class="timeline-step">
+            <div class="timeline-number">4</div>
+            <h4 class="fw-bold mb-3">Manage Trading & Investments</h4>
+            <p class="text-light opacity-75">
+                Monitor investment performance, manage portfolios, evaluate risks,
+                analyze market conditions, and automate selected financial workflows.
+            </p>
+        </div>
+
+        <div class="timeline-step">
+            <div class="timeline-number">5</div>
+            <h4 class="fw-bold mb-3">Track Growth & Financial Performance</h4>
+            <p class="text-light opacity-75">
+                SmartInvestsi continuously tracks performance analytics, ROI metrics,
+                investment diversification, market movement patterns, and financial reporting.
+            </p>
+        </div>
+    </div>
+</section>
+
+<footer class="py-5 mt-5">
+    <div class="container text-center">
+        <h4 class="fw-bold mb-3">SmartInvestsi</h4>
+        <p class="text-light opacity-75 mx-auto" style="max-width:800px; line-height:1.8;">
+            SmartInvestsi is an advanced fintech and investment intelligence platform integrating
+            secure financial infrastructure, AI-driven analytics, portfolio management systems,
+            real-time market intelligence, automated investment workflows, and institutional-grade digital finance technologies.
+        </p>
+        <div class="mt-4 d-flex justify-content-center flex-wrap gap-3">
+            <a href="/privacy.html" class="text-decoration-none text-info">Privacy</a>
+            <a href="/terms.html" class="text-decoration-none text-info">Terms</a>
+            <a href="/dashboard.html" class="text-decoration-none text-info">Dashboard</a>
+            <a href="/catalog.html" class="text-decoration-none text-info">Products</a>
+        </div>
+        <div class="mt-4 opacity-50">
+            &copy; 2026 SmartInvestsi. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Unified API invocation targeting the market matrix tracking pool
+    const CONSOLIDATED_API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1&sparkline=false&price_change_percentage=24h';
+    const UPDATE_FREQUENCY = 60000;
+
+    async function synchronousTelemetryUpdate() {
+        try {
+            const response = await fetch(CONSOLIDATED_API_URL);
+            if (!response.ok) throw new Error('Systemic data interface malfunction');
+            const assetPayload = await response.json();
+            
+            // Execute parallel visual assignments
+            populatePrimaryMetricCards(assetPayload);
+            generateCoverageMatrixRows(assetPayload);
+        } catch (fault) {
+            console.error('Systemic transmission fault encountered:', fault);
+            displayFaultInterfaceFallback();
+        }
+    }
+
+    function formatToCurrency(numericValue) {
+        const thresholdDecimals = numericValue < 1 ? 4 : 2;
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: thresholdDecimals,
+            maximumFractionDigits: thresholdDecimals < 4 ? 2 : 6
+        }).format(numericValue);
+    }
+
+    function formatToCompactNotation(numericValue) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            notation: 'compact',
+            maximumFractionDigits: 2
+        }).format(numericValue);
+    }
+
+    function generateChangeMarkup(percentageValue) {
+        if (percentageValue === null || percentageValue === undefined) return `<span class="fw-bold opacity-50">0.00%</span>`;
+        const isPositive = percentageValue >= 0;
+        return `
+            <span class="${isPositive ? 'positive' : 'negative'} fw-bold">
+                ${isPositive ? '+' : ''}${Number(percentageValue).toFixed(2)}%
+            </span>
+        `;
+    }
+
+    function populatePrimaryMetricCards(assets) {
+        // Map elements to standardized ticker ids
+        const cardTargetMapping = {
+            'bitcoin': 'btc',
+            'ethereum': 'eth',
+            'binancecoin': 'bnb',
+            'solana': 'sol'
+        };
+
+        assets.forEach(asset => {
+            const systemKey = cardTargetMapping[asset.id];
+            if (systemKey) {
+                const priceNode = document.getElementById(`${systemKey}-price`);
+                const changeNode = document.getElementById(`${systemKey}-change`);
+                
+                if (priceNode) priceNode.textContent = formatToCurrency(asset.current_price);
+                if (changeNode) changeNode.innerHTML = generateChangeMarkup(asset.price_change_percentage_24h);
+            }
+        });
+    }
+
+    function generateCoverageMatrixRows(assets) {
+        const matrixBody = document.getElementById('extended-matrix-body');
+        if (!matrixBody) return;
+        
+        matrixBody.innerHTML = ''; // Expunge the loading initialization placeholder
+
+        assets.forEach(asset => {
+            const tableRow = document.createElement('tr');
+            tableRow.innerHTML = `
+                <td>
+                    <div class="asset-identity">
+                        <img src="${asset.image}" alt="${asset.name}" loading="lazy">
+                        <div>
+                            <strong class="d-block text-white">${asset.name}</strong>
+                            <span class="asset-ticker">${asset.symbol}</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="fw-bold text-white">${formatToCurrency(asset.current_price)}</td>
+                <td>${generateChangeMarkup(asset.price_change_percentage_24h_in_currency || asset.price_change_percentage_24h)}</td>
+                <td>${formatToCompactNotation(asset.market_cap)}</td>
+                <td>${formatToCompactNotation(asset.total_volume)}</td>
+            `;
+            matrixBody.appendChild(tableRow);
+        });
+    }
+
+    function displayFaultInterfaceFallback() {
+        const fallbackMessage = `<span class="text-danger fw-bold">Telemetry Offline</span>`;
+        ['btc', 'eth', 'bnb', 'sol'].forEach(id => {
+            const priceEl = document.getElementById(`${id}-price`);
+            if (priceEl && priceEl.textContent === 'Loading...') priceEl.innerHTML = fallbackMessage;
+        });
+
+        const matrixBody = document.getElementById('extended-matrix-body');
+        if (matrixBody) {
+            matrixBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger py-4 fw-semibold">
+                        Critical Error: Failed to synchronize with live data networks. Please re-evaluate terminal connection parameters.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Initialize telemetry loops
+    synchronousTelemetryUpdate();
+    setInterval(synchronousTelemetryUpdate, UPDATE_FREQUENCY);
+</script>
+
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+    new TradingView.widget({
+        "width": "100%",
+        "height": 600,
+        "symbol": "BINANCE:BTCUSDT",
+        "interval": "60",
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#0a1420",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
+        "container_id": "tradingview_chart"
+    });
+</script>
+
+</body>
+</html>

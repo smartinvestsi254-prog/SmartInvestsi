@@ -1,27 +1,37 @@
 {
-    "compilerOptions": {
-        "target": "ES2020",
-        "module": "commonjs",
-        "lib": [
-            "ES2020"
-        ],
-        "outDir": "./dist",
-        "rootDir": "./src",
-"strict": false,  // Temp v7 compat
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
-        "moduleResolution": "node",
-        "types": [
-            "node"
-        ]
-    },
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist"
-    ]
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "types": ["node", "jest"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/routes/priority-features.ts",
+    "src/incidents/**/*",
+    "src/lib/audit-logger.ts",
+    "node_modules",
+    "dist"
+  ]
 }

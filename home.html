@@ -1,286 +1,1181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SmartInvestsi - Intelligent Investment Platform</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Existing Theme -->
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet" />
+
     <style>
-        :root {
-            --primary-corporate: #1a365d;
-            --primary-light: #2563eb;
-            --accent-gold: #d4af37;
-            --accent-teal: #0891b2;
+        :root{
+            --primary-corporate:#071a2f;
+            --primary-light:#2563eb;
+            --primary-soft:#0f2747;
+            --accent-gold:#d4af37;
+            --accent-teal:#06b6d4;
+            --glass:rgba(255,255,255,0.08);
+            --border-glass:rgba(255,255,255,0.12);
         }
-        .hero {
-            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 80px 0;
-            text-align: center;
+
+        *{
+            font-family:'Inter',sans-serif;
         }
-        .feature-card {
-            transition: transform 0.3s ease;
-            block-size: 100%;
+
+        html{
+            scroll-behavior:smooth;
         }
-        .feature-card:hover {
-            transform: translateY(-10px);
+
+        body{
+            background:#f5f9fc;
+            overflow-x:hidden;
+            color:#0f172a;
         }
-        .feature-icon {
-            inline-size: 64px;
-            block-size: 64px;
-            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            margin-block-end: 1rem;
+
+        /* NAVBAR */
+        .navbar{
+            background:rgba(5,15,30,0.92);
+            backdrop-filter:blur(12px);
+            border-bottom:1px solid rgba(255,255,255,0.08);
+            padding:1rem 0;
+            position:sticky;
+            top:0;
+            z-index:1000;
         }
-        .diplomacy-strip {
-            background: linear-gradient(135deg, #0b3d2e 0%, #0f1a2b 100%);
-            color: white;
-            border-radius: 14px;
-            padding: 28px;
+
+        .navbar-brand{
+            font-weight:800;
+            font-size:1.4rem;
+            letter-spacing:0.3px;
+        }
+
+        .navbar-dark .navbar-nav .nav-link{
+            color:rgba(255,255,255,0.82);
+            transition:0.3s ease;
+            font-weight:500;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover{
+            color:white;
+        }
+
+        /* HERO */
+        .hero{
+            position:relative;
+            overflow:hidden;
+            background:
+                radial-gradient(circle at top right, rgba(37,99,235,0.35), transparent 30%),
+                linear-gradient(135deg,var(--primary-corporate) 0%,#0b2240 45%,var(--primary-light) 100%);
+            color:white;
+            padding:120px 0 100px;
+        }
+
+        .hero::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            background:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size:40px 40px;
+            opacity:0.3;
+        }
+
+        .hero-content{
+            position:relative;
+            z-index:2;
+        }
+
+        .hero h1{
+            font-size:clamp(2.8rem,6vw,5rem);
+            font-weight:800;
+            line-height:1.05;
+            margin-bottom:1.5rem;
+        }
+
+        .hero p{
+            font-size:1.2rem;
+            color:rgba(255,255,255,0.88);
+            max-width:760px;
+            margin:auto;
+        }
+
+        /* BUTTONS */
+        .btn{
+            border-radius:14px;
+            padding:14px 26px;
+            font-weight:600;
+            transition:all 0.3s ease;
+        }
+
+        .btn-primary{
+            background:linear-gradient(135deg,var(--primary-light),#3b82f6);
+            border:none;
+            box-shadow:0 10px 25px rgba(37,99,235,0.25);
+        }
+
+        .btn-primary:hover{
+            transform:translateY(-2px);
+        }
+
+        .btn-light{
+            color:#071a2f;
+            font-weight:700;
+        }
+
+        .btn-outline-gold{
+            border:1px solid var(--accent-gold);
+            color:var(--accent-gold);
+        }
+
+        .btn-outline-gold:hover{
+            background:var(--accent-gold);
+            color:#071a2f;
+        }
+
+        /* FLOATING HERO CARDS */
+        .hero-widgets{
+            position:relative;
+            margin-top:70px;
+        }
+
+        .floating-card{
+            background:var(--glass);
+            border:1px solid var(--border-glass);
+            backdrop-filter:blur(20px);
+            border-radius:22px;
+            padding:24px;
+            box-shadow:0 20px 40px rgba(0,0,0,0.25);
+            animation:floatCard 6s ease-in-out infinite;
+        }
+
+        .floating-card:nth-child(2){
+            animation-delay:1.5s;
+        }
+
+        .floating-card:nth-child(3){
+            animation-delay:3s;
+        }
+
+        @keyframes floatCard{
+            0%,100%{
+                transform:translateY(0);
+            }
+            50%{
+                transform:translateY(-12px);
+            }
+        }
+
+        /* TRUST STRIP */
+        .trust-strip{
+            background:white;
+            margin-top:-40px;
+            position:relative;
+            z-index:3;
+            border-radius:24px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.08);
+            padding:30px;
+        }
+
+        .metric-number{
+            font-size:2rem;
+            font-weight:800;
+            color:var(--primary-light);
+        }
+
+        .metric-label{
+            color:#64748b;
+        }
+
+        /* SECTION */
+        .section-title{
+            font-size:2.5rem;
+            font-weight:800;
+            color:#071a2f;
+        }
+
+        /* FEATURES */
+        .feature-card{
+            border:none;
+            border-radius:22px;
+            overflow:hidden;
+            transition:all 0.35s ease;
+            background:white;
+            box-shadow:0 10px 30px rgba(0,0,0,0.05);
+            height:100%;
+        }
+
+        .feature-card:hover{
+            transform:translateY(-10px);
+            box-shadow:0 25px 50px rgba(0,0,0,0.12);
+        }
+
+        .feature-icon{
+            inline-size:72px;
+            block-size:72px;
+            border-radius:18px;
+            background:linear-gradient(135deg,var(--accent-teal),var(--primary-light));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:2rem;
+            color:white;
+            margin-bottom:1.5rem;
+        }
+
+        /* STEPS */
+        .steps-section{
+            background:#071a2f;
+            color:white;
+            border-radius:32px;
+            padding:80px 40px;
+        }
+
+        .step-card{
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:24px;
+            padding:30px;
+            height:100%;
+            transition:0.3s;
+        }
+
+        .step-card:hover{
+            transform:translateY(-8px);
+            background:rgba(255,255,255,0.08);
+        }
+
+        /* PORTFOLIO */
+        .portfolio-box{
+            background:linear-gradient(135deg,#ffffff,#f1f7ff);
+            border-radius:28px;
+            padding:40px;
+            box-shadow:0 15px 50px rgba(0,0,0,0.06);
+        }
+
+        /* DIPLOMACY */
+        .diplomacy-strip{
+            background:
+                radial-gradient(circle at right, rgba(6,182,212,0.15), transparent 30%),
+                linear-gradient(135deg,#0b3d2e 0%,#071a2f 100%);
+            border-radius:28px;
+            padding:40px;
+            overflow:hidden;
+            position:relative;
+            color:white;
+        }
+
+        /* SUBSCRIPTIONS */
+        .card{
+            border:none;
+            border-radius:24px;
+            overflow:hidden;
+            box-shadow:0 10px 35px rgba(0,0,0,0.06);
+        }
+
+        .card-header{
+            background:#071a2f;
+            color:white;
+        }
+
+        /* FOOTER */
+        footer{
+            background:#07111f !important;
+        }
+
+        footer a{
+            text-decoration:none;
+        }
+
+        /* ANIMATIONS */
+        .fade-up{
+            opacity:0;
+            transform:translateY(20px);
+            transition:all 0.8s ease;
+        }
+
+        .fade-up.visible{
+            opacity:1;
+            transform:translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:768px){
+
+            .hero{
+                padding:90px 0 70px;
+            }
+
+            .hero h1{
+                font-size:2.6rem;
+            }
+
+            .trust-strip{
+                margin-top:20px;
+            }
+
+            .steps-section{
+                padding:50px 24px;
+            }
+
+            .section-title{
+                font-size:2rem;
+            }
+
+            .btn{
+                width:100%;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Navigation -->
+
+    <!-- NAVIGATION -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">💰 SmartInvest</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <a class="navbar-brand" href="/">💰 SmartInvestsi</a>
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+            >
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/catalog.html">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/diplomacy/index.html">Diplomacy</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/admin.html">Admin</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary ms-2" href="/login.html">Login</a></li>
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/calculator.html">Calculator</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/catalog.html">Products</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/diplomacy/index.html">Diplomacy</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin.html">Admin</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary ms-lg-3 mt-3 mt-lg-0 text-white" href="/login.html">
+                            Login
+                        </a>
+                    </li>
+
                 </ul>
+
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- HERO -->
     <section class="hero">
-        <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Intelligent Investment Platform</h1>
-            <p class="lead mb-4">Comprehensive investment management with compliance, analytics, and partnerships</p>
-            <div class="d-flex gap-3 justify-content-center">
-                <a href="/dashboard.html#onboarding" class="btn btn-light btn-lg">Start Personalized Plan</a>
-                <a href="/calculator.html" class="btn btn-primary btn-lg">Try Calculator</a>
-                <a href="/catalog.html" class="btn btn-outline-gold btn-lg">View Products</a>
+
+        <div class="container hero-content text-center">
+
+            <span class="badge bg-light text-dark px-4 py-2 mb-4">
+                AI-Powered Wealth Intelligence Platform
+            </span>
+
+            <h1>
+                Invest Smarter.<br />
+                Build Wealth Digitally.
+            </h1>
+
+            <p class="lead mb-5">
+                Comprehensive investment management with AI analytics,
+                compliance systems, portfolio intelligence,
+                financial automation, and global payment infrastructure.
+            </p>
+
+            <div class="d-flex flex-column flex-lg-row gap-3 justify-content-center">
+
+                <a href="/dashboard.html#onboarding" class="btn btn-light btn-lg">
+                    Start Personalized Plan
+                </a>
+
+                <a href="/calculator.html" class="btn btn-primary btn-lg">
+                    Try Calculator
+                </a>
+
+                <a href="/catalog.html" class="btn btn-outline-gold btn-lg">
+                    View Products
+                </a>
+
             </div>
+
+            <!-- Floating Widgets -->
+            <div class="hero-widgets mt-5">
+
+                <div class="row g-4 justify-content-center">
+
+                    <div class="col-md-4">
+                        <div class="floating-card text-start">
+                            <small class="text-info">Portfolio Growth</small>
+                            <h3 class="fw-bold mt-2">+24.8%</h3>
+
+                            <p class="mb-0 text-light opacity-75">
+                                AI-powered portfolio optimization and intelligent market insights.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="floating-card text-start">
+                            <small class="text-warning">Assets Managed</small>
+                            <h3 class="fw-bold mt-2">$12.4M</h3>
+
+                            <p class="mb-0 text-light opacity-75">
+                                Secure multi-market investment infrastructure with real-time analytics.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="floating-card text-start">
+                            <small class="text-success">Smart Signals</small>
+                            <h3 class="fw-bold mt-2">98.2%</h3>
+
+                            <p class="mb-0 text-light opacity-75">
+                                Automated investment intelligence and strategic risk monitoring.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
     </section>
 
-    <!-- Features -->
-    <section class="container my-5">
-        <div class="text-center mb-5">
-            <h2 class="section-title">Platform Features</h2>
-            <p class="text-muted">Everything you need for successful investing</p>
+    <!-- TRUST METRICS -->
+    <section class="container">
+
+        <div class="trust-strip">
+
+            <div class="row text-center g-4">
+
+                <div class="col-md-3">
+                    <div class="metric-number counter" data-target="15000">0</div>
+                    <div class="metric-label">Active Investors</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="metric-number counter" data-target="98">0</div>
+                    <div class="metric-label">Platform Security Score</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="metric-number counter" data-target="24">0</div>
+                    <div class="metric-label">AI Market Monitoring</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="metric-number counter" data-target="100">0</div>
+                    <div class="metric-label">Compliance Coverage</div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">📊</div>
-                        <h5 class="card-title">Advanced Analytics</h5>
-                        <p class="card-text">Real-time portfolio tracking with risk metrics, CAGR, and Sharpe ratio calculations</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">🛡️</div>
-                        <h5 class="card-title">Full Compliance</h5>
-                        <p class="card-text">POPIA, GDPR, FICA, FSB, AML/KYC compliant - African & Global regulations</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">🤝</div>
-                        <h5 class="card-title">Partnership Network</h5>
-                        <p class="card-text">Access to verified financial institutions and investment products</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">💳</div>
-                        <h5 class="card-title">Multi-Payment</h5>
-                        <p class="card-text">Paystack, Flutterwave, Stripe, PayPal - Support for African & global payments</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">🧮</div>
-                        <h5 class="card-title">Smart Calculators</h5>
-                        <p class="card-text">Compound interest, ROI, tax calculations for ZA, NG, GH, KE</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <div class="feature-icon mx-auto">👥</div>
-                        <h5 class="card-title">User Management</h5>
-                        <p class="card-text">Complete admin panel with user, partner, and transaction management</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
 
-    <section class="container my-5">
-        <div class="diplomacy-strip">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h2 class="mb-2">Kenya Diplomacy Portal</h2>
-                    <p class="mb-0">Access mission directories, treaty trackers, and delegation planning alongside investment intelligence.</p>
-                </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <a href="/diplomacy/index.html" class="btn btn-light">Open Diplomacy Hub</a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- SMART INVESTMENT FLOW -->
+    <section class="container my-5 fade-up">
 
-    <!-- Subscription Plans -->
-    <section class="bg-light py-5">
-        <div class="container">
+        <div class="steps-section">
+
             <div class="text-center mb-5">
-                <h2 class="section-title">Subscription Plans</h2>
-                <p class="text-muted">Choose the plan that fits your needs</p>
+
+                <h2 class="fw-bold">
+                    How SmartInvestsi Works
+                </h2>
+
+                <p class="opacity-75">
+                    Guided investing powered by AI intelligence and advanced analytics
+                </p>
+
             </div>
 
             <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-header text-center py-3">
-                            <h4 class="mb-0">Free</h4>
-                        </div>
-                        <div class="card-body">
-                            <h2 class="text-center mb-4">R0<small class="text-muted">/month</small></h2>
-                            <ul class="list-unstyled">
-                                <li>✓ 1 Portfolio</li>
-                                <li>✓ Basic Analytics</li>
-                                <li>✓ 10 Transactions/month</li>
-                                <li>✓ Email Support</li>
-                            </ul>
-                            <button class="btn btn-secondary w-100 mt-3">Get Started</button>
-                        </div>
+
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <h1>01</h1>
+
+                        <h4>Choose Goals</h4>
+
+                        <p>
+                            Define your wealth goals including savings,
+                            passive income, AI investing, or portfolio growth.
+                        </p>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card h-100 border-primary">
-                        <div class="card-header text-center py-3">
-                            <h4 class="mb-0">Premium</h4>
-                            <span class="badge bg-warning text-dark">Most Popular</span>
-                        </div>
-                        <div class="card-body">
-                            <h2 class="text-center mb-4">R49.99<small class="text-muted">/month</small></h2>
-                            <ul class="list-unstyled">
-                                <li>✓ 5 Portfolios</li>
-                                <li>✓ Advanced Analytics</li>
-                                <li>✓ 100 Transactions/month</li>
-                                <li>✓ Priority Support</li>
-                                <li>✓ Tax Optimization</li>
-                                <li>✓ API Access</li>
-                            </ul>
-                            <button class="btn btn-primary w-100 mt-3">Upgrade Now</button>
-                        </div>
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <h1>02</h1>
+
+                        <h4>Risk Assessment</h4>
+
+                        <p>
+                            Smart AI evaluates investment tolerance
+                            and creates optimized investment strategies.
+                        </p>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-header text-center py-3">
-                            <h4 class="mb-0">Enterprise</h4>
-                        </div>
-                        <div class="card-body">
-                            <h2 class="text-center mb-4">R199.99<small class="text-muted">/month</small></h2>
-                            <ul class="list-unstyled">
-                                <li>✓ Unlimited Portfolios</li>
-                                <li>✓ Full Analytics Suite</li>
-                                <li>✓ Unlimited Transactions</li>
-                                <li>✓ Dedicated Advisor</li>
-                                <li>✓ Custom Reports</li>
-                                <li>✓ Full API Access</li>
-                            </ul>
-                            <button class="btn btn-primary w-100 mt-3">Contact Sales</button>
-                        </div>
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <h1>03</h1>
+
+                        <h4>Fund Securely</h4>
+
+                        <p>
+                            Use PayPal, Stripe, Paystack,
+                            Flutterwave, and African payment systems securely.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <h1>04</h1>
+
+                        <h4>Track Growth</h4>
+
+                        <p>
+                            Monitor portfolios, AI signals,
+                            analytics, compliance, and smart insights.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FEATURES -->
+    <section class="container my-5 fade-up">
+
+        <div class="text-center mb-5">
+
+            <h2 class="section-title">
+                Platform Features
+            </h2>
+
+            <p class="text-muted">
+                Everything you need for successful investing
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">📊</div>
+
+                        <h5 class="card-title">
+                            Advanced Analytics
+                        </h5>
+
+                        <p class="card-text">
+                            Real-time portfolio tracking with risk metrics,
+                            CAGR, Sharpe ratio calculations, and AI insights.
+                        </p>
+
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">🛡️</div>
+
+                        <h5 class="card-title">
+                            Full Compliance
+                        </h5>
+
+                        <p class="card-text">
+                            POPIA, GDPR, FICA, FSB, AML/KYC compliant
+                            with African and global regulatory standards.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">🤝</div>
+
+                        <h5 class="card-title">
+                            Partnership Network
+                        </h5>
+
+                        <p class="card-text">
+                            Access verified financial institutions,
+                            investment products, and strategic wealth tools.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">💳</div>
+
+                        <h5 class="card-title">
+                            Multi-Payment
+                        </h5>
+
+                        <p class="card-text">
+                            Paystack, Flutterwave, Stripe, PayPal,
+                            M-Pesa support for African and global payments.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">🧮</div>
+
+                        <h5 class="card-title">
+                            Smart Calculators
+                        </h5>
+
+                        <p class="card-text">
+                            Compound interest, ROI, tax calculations,
+                            and investment simulations for ZA, NG, GH, KE.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body">
+
+                        <div class="feature-icon mx-auto">👥</div>
+
+                        <h5 class="card-title">
+                            User Management
+                        </h5>
+
+                        <p class="card-text">
+                            Complete admin panel with user,
+                            partner, transaction, and compliance management.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
+
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2026 SmartInvest. All rights reserved.</p>
-            <p class="small mt-2">
-                <a href="/terms.html" class="text-warning">Terms</a> | 
-                <a href="/privacy.html" class="text-warning">Privacy</a> | 
-                <a href="/privacy.html" class="text-warning">Compliance</a>
-            </p>
+    <!-- AI PORTFOLIO -->
+    <section class="container my-5 fade-up">
+
+        <div class="portfolio-box">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-6">
+
+                    <span class="badge bg-primary mb-3">
+                        Smart Wealth Intelligence
+                    </span>
+
+                    <h2 class="section-title">
+                        AI-Powered Investment Intelligence
+                    </h2>
+
+                    <p class="text-muted mt-4">
+                        SmartInvestsi combines intelligent portfolio analysis,
+                        advanced compliance systems, automated investment tools,
+                        and real-time financial insights into a unified digital
+                        wealth ecosystem.
+                    </p>
+
+                    <div class="mt-4 d-flex flex-wrap gap-3">
+
+                        <span class="badge bg-light text-dark p-3">
+                            AI Signals
+                        </span>
+
+                        <span class="badge bg-light text-dark p-3">
+                            Portfolio Tracking
+                        </span>
+
+                        <span class="badge bg-light text-dark p-3">
+                            Compliance Monitoring
+                        </span>
+
+                        <span class="badge bg-light text-dark p-3">
+                            Smart Analytics
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-6 mt-5 mt-lg-0">
+
+                    <div class="floating-card text-dark">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <small class="text-muted">
+                                    Portfolio Performance
+                                </small>
+
+                                <h2 class="fw-bold">
+                                    KES 2.4M
+                                </h2>
+                            </div>
+
+                            <span class="badge bg-success">
+                                +18.6%
+                            </span>
+
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-3">
+
+                            <div class="d-flex justify-content-between">
+                                <span>Growth Portfolio</span>
+                                <span>72%</span>
+                            </div>
+
+                            <div class="progress mt-2">
+                                <div class="progress-bar" style="width:72%"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <div class="d-flex justify-content-between">
+                                <span>AI Opportunities</span>
+                                <span>54%</span>
+                            </div>
+
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-info" style="width:54%"></div>
+                            </div>
+
+                        </div>
+
+                        <div>
+
+                            <div class="d-flex justify-content-between">
+                                <span>Risk Balance</span>
+                                <span>81%</span>
+                            </div>
+
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-warning" style="width:81%"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
+    </section>
+
+    <!-- DIPLOMACY -->
+    <section class="container my-5 fade-up">
+
+        <div class="diplomacy-strip">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <h2 class="mb-3">
+                        Kenya Diplomacy Portal
+                    </h2>
+
+                    <p class="mb-0 opacity-75">
+                        Access mission directories, treaty trackers,
+                        delegation planning, and diplomatic intelligence
+                        alongside investment systems and analytics.
+                    </p>
+
+                </div>
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+
+                    <a href="/diplomacy/index.html" class="btn btn-light">
+                        Open Diplomacy Hub
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SUBSCRIPTIONS -->
+    <section class="bg-light py-5 fade-up">
+
+        <div class="container">
+
+            <div class="text-center mb-5">
+
+                <h2 class="section-title">
+                    Subscription Plans
+                </h2>
+
+                <p class="text-muted">
+                    Choose the plan that fits your needs
+                </p>
+
+            </div>
+
+            <div class="row g-4">
+
+                <!-- FREE -->
+                <div class="col-md-4">
+
+                    <div class="card h-100">
+
+                        <div class="card-header text-center py-4">
+
+                            <h4 class="mb-0">
+                                Free
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body p-4">
+
+                            <h2 class="text-center mb-4">
+                                R0
+                                <small class="text-muted">
+                                    /month
+                                </small>
+                            </h2>
+
+                            <ul class="list-unstyled">
+
+                                <li class="mb-3">✓ 1 Portfolio</li>
+                                <li class="mb-3">✓ Basic Analytics</li>
+                                <li class="mb-3">✓ 10 Transactions/month</li>
+                                <li class="mb-3">✓ Email Support</li>
+
+                            </ul>
+
+                            <button class="btn btn-secondary w-100 mt-3">
+                                Get Started
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- PREMIUM -->
+                <div class="col-md-4">
+
+                    <div class="card h-100 border-primary">
+
+                        <div class="card-header text-center py-4">
+
+                            <h4 class="mb-0">
+                                Premium
+                            </h4>
+
+                            <span class="badge bg-warning text-dark mt-2">
+                                Most Popular
+                            </span>
+
+                        </div>
+
+                        <div class="card-body p-4">
+
+                            <h2 class="text-center mb-4">
+                                R49.99
+                                <small class="text-muted">
+                                    /month
+                                </small>
+                            </h2>
+
+                            <ul class="list-unstyled">
+
+                                <li class="mb-3">✓ 5 Portfolios</li>
+                                <li class="mb-3">✓ Advanced Analytics</li>
+                                <li class="mb-3">✓ 100 Transactions/month</li>
+                                <li class="mb-3">✓ Priority Support</li>
+                                <li class="mb-3">✓ Tax Optimization</li>
+                                <li class="mb-3">✓ API Access</li>
+
+                            </ul>
+
+                            <button class="btn btn-primary w-100 mt-3">
+                                Upgrade Now
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ENTERPRISE -->
+                <div class="col-md-4">
+
+                    <div class="card h-100">
+
+                        <div class="card-header text-center py-4">
+
+                            <h4 class="mb-0">
+                                Enterprise
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body p-4">
+
+                            <h2 class="text-center mb-4">
+                                R199.99
+                                <small class="text-muted">
+                                    /month
+                                </small>
+                            </h2>
+
+                            <ul class="list-unstyled">
+
+                                <li class="mb-3">✓ Unlimited Portfolios</li>
+                                <li class="mb-3">✓ Full Analytics Suite</li>
+                                <li class="mb-3">✓ Unlimited Transactions</li>
+                                <li class="mb-3">✓ Dedicated Advisor</li>
+                                <li class="mb-3">✓ Custom Reports</li>
+                                <li class="mb-3">✓ Full API Access</li>
+
+                            </ul>
+
+                            <button class="btn btn-primary w-100 mt-3">
+                                Contact Sales
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-white py-5 mt-5">
+
+        <div class="container text-center">
+
+            <h4 class="fw-bold mb-3">
+                SmartInvestsi
+            </h4>
+
+            <p class="opacity-75">
+                AI-powered investment intelligence and digital wealth infrastructure.
+            </p>
+
+            <p class="mb-0">
+                &copy; 2026 SmartInvestsi. All rights reserved.
+            </p>
+
+            <p class="small mt-3">
+
+                <a href="/terms.html" class="text-warning">
+                    Terms
+                </a>
+
+                |
+
+                <a href="/privacy.html" class="text-warning">
+                    Privacy
+                </a>
+
+                |
+
+                <a href="/privacy.html" class="text-warning">
+                    Compliance
+                </a>
+
+            </p>
+
+        </div>
+
     </footer>
 
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Existing Theme -->
     <script src="/wwwroot/js/theme-toggle.js"></script>
+
+    <!-- Counter Animation -->
     <script>
-      (function() {
-        if (!window.chatbase || window.chatbase("getState") !== "initialized") {
-          window.chatbase = (...arguments) => {
-            if (!window.chatbase.q) {
-              window.chatbase.q = []
-            }
-            window.chatbase.q.push(arguments)
-          };
-          window.chatbase = new Proxy(window.chatbase, {
-            get(target, prop) {
-              if (prop === "q") {
-                return target.q
-              }
-              return (...args) => target(prop, ...args)
-            }
-          })
-        }
-        const onLoad = function() {
-          const script = document.createElement("script");
-          script.src = "https://www.chatbase.co/embed.min.js";
-          script.id = "DH09Xb_YLRjwTDDhXSIQ4";
-          script.domain = "www.chatbase.co";
-          document.body.appendChild(script)
-        };
-        if (document.readyState === "complete") {
-          onLoad()
-        } else {
-          window.addEventListener("load", onLoad)
-        }
-      })();
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const counters = document.querySelectorAll(".counter");
+
+            counters.forEach(counter => {
+
+                const updateCounter = () => {
+
+                    const target = +counter.getAttribute("data-target");
+                    const current = +counter.innerText;
+
+                    const increment = target / 100;
+
+                    if(current < target){
+
+                        counter.innerText = Math.ceil(current + increment);
+
+                        setTimeout(updateCounter, 20);
+
+                    }else{
+
+                        counter.innerText = target + "+";
+                    }
+                };
+
+                updateCounter();
+            });
+
+            /* Fade Up Animation */
+            const observer = new IntersectionObserver(entries => {
+
+                entries.forEach(entry => {
+
+                    if(entry.isIntersecting){
+
+                        entry.target.classList.add("visible");
+                    }
+                });
+
+            }, {
+                threshold:0.15
+            });
+
+            document.querySelectorAll(".fade-up").forEach(el => {
+                observer.observe(el);
+            });
+
+        });
     </script>
+
+    <!-- Chatbase -->
+    <script>
+        (function() {
+
+            if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+
+                window.chatbase = (...arguments) => {
+
+                    if (!window.chatbase.q) {
+                        window.chatbase.q = [];
+                    }
+
+                    window.chatbase.q.push(arguments);
+                };
+
+                window.chatbase = new Proxy(window.chatbase, {
+
+                    get(target, prop) {
+
+                        if (prop === "q") {
+                            return target.q;
+                        }
+
+                        return (...args) => target(prop, ...args);
+                    }
+
+                });
+            }
+
+            const onLoad = function() {
+
+                const script = document.createElement("script");
+
+                script.src = "https://www.chatbase.co/embed.min.js";
+                script.id = "DH09Xb_YLRjwTDDhXSIQ4";
+                script.domain = "www.chatbase.co";
+
+                document.body.appendChild(script);
+            };
+
+            if (document.readyState === "complete") {
+
+                onLoad();
+
+            } else {
+
+                window.addEventListener("load", onLoad);
+            }
+
+        })();
+    </script>
+
 </body>
-</html>
+                    </html>

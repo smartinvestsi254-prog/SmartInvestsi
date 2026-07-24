@@ -1,6 +1,6 @@
 // src/lib/audit-logger.ts
 // Comprehensive audit logging for all feature access and admin actions
-import { PrismaClient, AuditLogEventType, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
