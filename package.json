@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc && npm run build:functions",
-    "build:functions": "tsc -p netlify/tsconfig.json",
+    "build:functions": "tsc -p netlify/tsconfig.json","inject:env": "node scripts/inject-public-env.js",
     "start": "node dist/server.js",
     "test": "jest --runInBand",
     "test:functions": "jest netlify/functions",
