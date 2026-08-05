@@ -60,3 +60,23 @@ const files = walk(PUBLISH_DIR);
 for (const file of files) {
   let html = fs.readFileSync(file, "utf8");
   if (!html.includes(TARGET_MARKER)) continue;
+
+  const injection = buildInjection();
+  // Remove any previously injected block to keep idempotent
+  html = html.replace(/<script>window\.__NETLIFY_ENV__ = .*?<\/script>/g, "");
+
+  const markerIndex = html.indexOf(`<script src="${TARGET_MARKER}"`);
+  if (markerIndex === -1) continue;
+
+  const insertionPoint = html.lastIndexOf("<", markerIndex);
+  html =
+    html.slice(0, insertionPoint) +
+    injection +
+    html.slice(insertionPoint);
+
+  fs.writeFileSync(file, html, "utf8");
+  injected++;
+  console.log(`[inject-public-env] Injected env into ${path.relative(process.cwd(), file)}`);
+}
+
+console.log(`[inject-public-env] Done. Injected into ${injected} HTML file(s).`);
