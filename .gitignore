@@ -84,7 +84,7 @@ public/build/
 *.map
 .DS_Store
 Thumbs.db
-.vscode/
+# .vscode/ is committed as part of repo configuration
 .idea/
 *.sublime-project
 *.sublime-workspace

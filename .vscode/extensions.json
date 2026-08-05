@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "Prisma.prisma",
+    "eamodio.gitlens",
+    "ms-azuretools.vscode-docker",
+    "github.vscode-pull-request-github",
+    "bradlc.vscode-tailwindcss",
+    "rangav.vscode-thunder-client",
+    "streetsidesoftware.code-spell-checker",
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "yzhang.markdown-all-in-one"
+  ]
+}

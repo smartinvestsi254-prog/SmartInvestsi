@@ -2,6 +2,35 @@ name: CI Pipeline
 
 on:
   push:
+    refactor/smartgovern-separation
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.devcontainer/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.devcontainer/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # SmartInvestsi
+  # ============================================
+  smartinvestsi-validate:
+    name: SmartInvestsi - Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
@@ -31,19 +60,74 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+  main
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+ refactor/smartgovern-separation
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./package-lock.json
           node-version: ${{ matrix.node-version }}
+  main
 
       - name: Install dependencies
         run: npm install
 
+ refactor/smartgovern-separation
+      - name: Prisma Generate
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://localhost:5432/smartinvestsi' }}
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://localhost:5432/smartinvestsi' }}
+
+      - name: Test
+        run: npm test
+
+  # ============================================
+  # SmartGovern
+  # ============================================
+  smartgovern-validate:
+    name: SmartGovern - Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./SmartGovern
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ./SmartGovern/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma Generate
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.SMARTGOVERN_DATABASE_URL || 'postgresql://localhost:5432/smartgovern' }}
+
+      - name: Type check
+        run: npm run type-check
       - name: Check engine compatibility
         run: node -v && npm -v
 
@@ -68,28 +152,63 @@ jobs:
 
       - name: Security audit
         run: npm audit --audit-level=high || true
+ main
 
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Lint
+        run: npm run lint
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install detect-secrets
-      run: pip install detect-secrets
-
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.SMARTGOVERN_DATABASE_URL || 'postgresql://localhost:5432/smartgovern' }}
+ refactor/smartgovern-separation
+      - name: Test
+        run: npm test
     - name: Scan for secrets
       run: detect-secrets scan --baseline .secrets.baseline || detect-secrets scan
       continue-on-error: true  # No .secrets.baseline exists yet
+ main
 
-  deploy-preview:
+  # ============================================
+  # Deploy (main only, not on PRs)
+  # ============================================
+  deploy:
+    name: Deploy
+    needs: [smartinvestsi-validate, smartgovern-validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+ refactor/smartgovern-separation
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy SmartInvestsi to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: .
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy SmartInvestsi from GitHub Actions"
+          enable-commit-comment: true
+          alias: smartinvestsi
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_SMARTINVESTSI }}
+        timeout-minutes: 5
+
+      - name: Deploy SmartGovern to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: ./SmartGovern
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy SmartGovern from GitHub Actions"
+          enable-commit-comment: true
+          alias: smartgovern
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_SMARTGOVERN }}
+        timeout-minutes: 5
     if: github.event_name == 'pull_request'
     needs: build
     steps:
@@ -117,3 +236,4 @@ jobs:
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+ main

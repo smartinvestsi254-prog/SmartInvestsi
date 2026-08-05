@@ -1,4 +1,4 @@
-// src/licensing/entitlements.ts
+// SmartGovern - src/licensing/entitlements.ts
 import { PrismaClient, DataUsagePurpose, LicenseStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -15,8 +15,6 @@ type CheckParams = {
 export async function checkEntitlementAndLog(params: CheckParams) {
   const now = new Date();
 
-  // Find ACTIVE license(s) that entitle this datasetKey for this purpose.
-  // If you need more complex rules (regions, per-tenant), extend here.
   const licenses = await prisma.dataLicense.findMany({
     where: {
       status: LicenseStatus.ACTIVE,

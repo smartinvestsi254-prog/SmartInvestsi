@@ -1,4 +1,4 @@
-// src/incidents/service.ts
+// SmartGovern - src/incidents/service.ts
 import { PrismaClient, IncidentSeverity, IncidentStatus, UserRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -18,7 +18,6 @@ export async function createIncident(params: {
 }) {
   const reporter = await prisma.user.findUniqueOrThrow({ where: { id: params.reporterId } });
 
-  // Typically: anyone internal can report, but you can tighten this.
   if (![UserRole.ADMIN, UserRole.EDITOR, UserRole.ANALYST, UserRole.INCIDENT_COMMANDER, UserRole.REVIEWER].includes(reporter.role)) {
     forbid("Insufficient role to create incident");
   }
@@ -42,7 +41,6 @@ export async function createIncident(params: {
     include: { timeline: true, updates: true },
   });
 
-  // Hook point: page on-call, create Slack channel, update status page, etc.
   return { ok: true, incident };
 }
 

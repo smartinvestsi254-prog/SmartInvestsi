@@ -1,28 +1,49 @@
 {
-	"name": "SmartInvest Node.js Development",
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
-	"features": {
-		"ghcr.io/devcontainers/features/git:1": {
-			"version": "latest"
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"GitHub.copilot",
-				"GitHub.vscode-pull-request-github",
-				"eamodio.gitlens"
-			],
-			"settings": {
-				"git.enabled": true,
-				"git.autofetch": true,
-				"git.enableSmartCommit": true,
-				"git.confirmSync": false,
-				"git.openRepositoryInParentFolders": "always",
-				"scm.defaultViewMode": "tree"
-			}
-		}
-	},
-	"postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && npm install",
-	"remoteUser": "node"
+  "name": "SmartInvestsi & SmartGovern Monorepo",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-pull-request-github",
+        "bradlc.vscode-tailwindcss",
+        "rangav.vscode-thunder-client",
+        "streetsidesoftware.code-spell-checker",
+        "christian-kohler.path-intellisense",
+        "mikestead.dotenv",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        }
+      }
+    }
+  },
+  "postCreateCommand": "npm install && cd SmartGovern && npm install",
+  "containerEnv": {
+    "NODE_ENV": "development"
+  },
+  "remoteUser": "node"
 }
