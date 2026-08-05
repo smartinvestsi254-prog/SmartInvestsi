@@ -1,78 +1,32 @@
-# SmartInvestsi / SmartGovern Refactor — Master Task List
+# Task Progress Tracker
 
-## Phase 1: Database Refactor
-- [x] Create `prisma/schemas/smartinvestsi.prisma` (fintech-only models)
-- [x] Create `prisma/schemas/smartgovern.prisma` (governance-only models)
-- [x] Remove cross-domain coupling
-- [x] App-level prisma.config.ts for both apps
+## Objective
+1. Fix Supabase URL typo (`mylsjhueujnuwahzzjhz` -> `mylsjheuejnuwahzzjhz`) and make the variable configurable via Netlify environment variables.
+2. Check that all files are complete and none are truncated.
+3. Move SmartGovern files to the smartgovern repo and remove all associated files from the SmartInvestsi repo, separating them entirely.
+4. Ensure all repo project structures and file placements are correct and in order.
 
-## Phase 2: Shared Packages
-- [x] Enhance `packages/shared-security` (CSRF, TOTP, refresh tokens, audit, plan enforcement)
-- [x] Expand `packages/shared-types`
-- [x] Expand `packages/shared-utils` (env, crypto, pagination)
-- [x] Create `packages/shared-ui` (design tokens/README)
+## Part A — Fix Supabase URL typo & make env-configurable (Netlify)
+- [ ] A1. Fix typo in `public/js/public-config.js` (mylsjhueujnuwahzzjhz -> mylsjheuejnuwahzzjhz)
+- [ ] A2. Fix typo in `.cursor/mcp.json` project_ref
+- [ ] A3. Make config env-driven via Netlify: add build script to generate config from env vars
+- [ ] A4. Update `netlify.toml` build command to inject env vars
+- [ ] A5. Update `.env.example` and docs to reflect env-var-driven config
 
-## Phase 3: SmartInvestsi App
-- [x] Config / env
-- [x] Auth service (JWT + refresh + session revocation)
-- [x] Middleware (requirePlan, authRequired, adminRequired)
-- [x] Routes: auth, profiles, subscriptions, payments (M-Pesa/PayPal), portfolios, trading, wallets, referrals, notifications, KYC, support, admin, analytics, market-data, AI assistant, fraud
-- [x] Services for all domains
-- [x] `apps/smartinvestsi/src/app.ts` + `server.ts`
-- [x] `apps/smartinvestsi/package.json` + `tsconfig.json`
+## Part B — Move SmartGovern backend into smartgovern repo (self-contained apps/smartgovern/)
+- [ ] B1. Create `apps/smartgovern/` structure in the smartgovern repo
+- [ ] B2. Copy backend routes/services/config/lib into smartgovern repo
+- [ ] B3. Copy `prisma/schemas/smartgovern.prisma` + prisma.config.ts into smartgovern repo
+- [ ] B4. Copy the shared packages needed (shared-security, shared-utils) into smartgovern repo
+- [ ] B5. Rewrite relative imports in moved files to be self-contained
+- [ ] B6. Remove `apps/smartgovern/` from SmartInvestsi repo
+- [ ] B7. Remove `prisma/schemas/smartgovern.prisma` from SmartInvestsi repo
+- [ ] B8. Remove governance-only files from SmartInvestsi repo (src/licensing, src/incidents, src/workflows, policy-compliance.ts)
+- [ ] B9. Fix root `prisma/prisma.config.ts` to point only to smartinvestsi.prisma
+- [ ] B10. Update root `netlify.toml` and `package.json` to remove smartgovern references
 
-## Phase 4: SmartGovern App
-- [x] Scaffold created (empty)
-- [x] Config / env
-- [x] Middleware (auth, RBAC)
-- [x] Routes: workflows, incidents, licensing, diplomacy, treaties, delegations, compliance, organizations, admin
-- [x] Services spanning governance domains
-- [x] `apps/smartgovern/src/app.ts` + `server.ts`
-- [x] `apps/smartgovern/package.json` + `tsconfig.json`
-
-## Phase 5: Environment Variables
-- [x] Generate `.env.example` with SAFE_TO_COMMIT / SECRET_REQUIRED classification
-- [x] Remove hardcoded secrets (Sentry DSN, etc.)
-
-## Phase 6: Security Corrections
-- [x] Helmet, rate limiting, CSRF, Zod validation, audit logging
-- [x] Refresh tokens, session revocation, device tracking, TOTP 2FA
-- [x] Webhook verification, secure cookies
-- [x] Fix admin bypass (`x-admin` header), password hashing (bcrypt)
-
-## Phase 7: Payment Corrections
-- [x] M-Pesa: callback verification, reconciliation, retries, replay prevention
-- [x] PayPal: webhook verification, renewals, cancellations, disputes, failed payments
-
-## Phase 8: KYC Workflow
-- [x] ID/passport/selfie/address upload
-- [x] Admin review/approval workflow
-- [x] Audit trail
-
-## Phase 9: Subscription Enforcement
-- [x] `requirePlan("BASIC"|"PREMIUM"|"ENTERPRISE")` middleware
-- [x] Protect premium endpoints
-
-## Phase 10: Trading System
-- [x] Position tracking, risk controls, stop-loss/take-profit, trade history, order validation, portfolio reconciliation
-
-## Phase 11: Deployment
-- [ ] `netlify.toml`
-- [ ] Deployment checklist
-- [ ] Environment checklist
-
-## Phase 12: Tests
-- [ ] Unit, integration, security, payment, KYC, API tests
-
-## Phase 13: Documentation
-- [ ] ARCHITECTURE.md
-- [ ] SECURITY.md
-- [ ] DEPLOYMENT.md
-- [ ] SMARTINVESTSI.md
-- [ ] SMARTGOVERN.md
-- [ ] MIGRATION_PLAN.md
-
-## Phase 14: Final Deliverables Report
-- [ ] Architecture report
-- [ ] README updates
-
+## Part C — Verify completion & structure
+- [ ] C1. Verify no governance references remain in SmartInvestsi repo
+- [ ] C2. Verify smartgovern repo is self-contained and builds
+- [ ] C3. Verify Supabase URL typo is gone everywhere
+- [ ] C4. Confirm all edited files are complete (not truncated)
