@@ -1,0 +1,7 @@
+NEAR-DUPLICATES (review manually; do not auto-merge)
+threshold=0.92
+
+1.000
+  data/files.json
+  data/users.json
+

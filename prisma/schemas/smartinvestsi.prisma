@@ -1,0 +1,895 @@
+// ============================================================
+// SmartInvestsi — Fintech Investment Platform
+// Prisma Schema (PostgreSQL @ Supabase)
+//
+// This schema contains ONLY fintech/investment domain models.
+// Governance models live in prisma/schemas/smartgovern.prisma
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  engineType      = "binary"
+  output          = "../../node_modules/.prisma/smartinvestsi-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// AUTHENTICATION & USERS
+// ============================================================
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPPORT
+  ANALYST
+  COMPLIANCE
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  passwordHash       String   @db.VarChar(255)
+  emailVerified      Boolean  @default(false)
+  role               UserRole @default(USER)
+  phone              String?
+  country            String?
+  twoFactorEnabled   Boolean  @default(false)
+  twoFactorSecret    String?
+  totpVerifiedAt     DateTime?
+  resetToken         String?  @unique
+  resetExpires       DateTime?
+  confirmToken       String?  @unique
+  confirmExpires     DateTime?
+  lastLoginAt        DateTime?
+  lastLoginIp        String?
+  lastLoginUserAgent String?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  profile             UserProfile?
+  subscriptions       Subscription[]
+  portfolios          Portfolio[]
+  wallets             Wallet[]
+  referralsMade       Referral[]        @relation("Referrer")
+  referralsReceived   Referral[]        @relation("Referee")
+  notifications       Notification[]
+  supportTickets      SupportTicket[]
+  chatMessages        ChatMessage[]
+  kycDocuments        KycDocument[]
+  fraudChecks         FraudCheck[]
+  auditLogs           AuditLog[]
+  sessions            AuthSession[]
+  paymentTransactions PaymentTransaction[]
+  bankAccounts        BankAccount[]
+  priceAlerts         PriceAlert[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model UserProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  fullName        String?
+  displayName     String?
+  avatarUrl       String?
+  dateOfBirth     DateTime?
+  phone           String?
+  country         String?
+  city            String?
+  address         String?
+  investmentGoal  String?
+  timeHorizon     String?
+  riskTolerance   String?
+  preferredRegion String?
+  portfolioValue  Float?
+  monthlyIncome   Float?
+  preferences     Json?
+  kycStatus       KycStatus @default(NOT_SUBMITTED)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model AuthSession {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  deviceId     String?
+  deviceName   String?
+  ipAddress    String?
+  userAgent    String?
+  isRevoked    Boolean  @default(false)
+  revokedAt    DateTime?
+  expiresAt    DateTime
+  lastUsedAt   DateTime?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@map("auth_sessions")
+}
+
+// ============================================================
+// SUBSCRIPTIONS & BILLING
+// ============================================================
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIAL
+  PENDING
+}
+
+model SubscriptionPlan {
+  id           String   @id @default(uuid())
+  name         String   @unique // BASIC | PREMIUM | ENTERPRISE
+  displayName  String
+  monthlyPrice Float
+  annualPrice  Float
+  description  String?
+  features     Json
+  limits       Json
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id              String             @id @default(uuid())
+  userId          String
+  planId          String
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime           @default(now())
+  endDate         DateTime?
+  autoRenew       Boolean            @default(false)
+  paymentMethod   String?
+  lastPaymentDate DateTime?
+  nextBillingDate DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  user         User                   @relation(fields: [userId], references: [id])
+  plan         SubscriptionPlan       @relation(fields: [planId], references: [id])
+  transactions PaymentTransaction[]
+
+  @@index([userId, status])
+  @@map("subscriptions")
+}
+
+model PaymentTransaction {
+  id              String          @id @default(uuid())
+  userId          String?
+  subscriptionId  String?
+  amount          Float
+  currency        String          @default("USD")
+  status          PaymentStatus
+  provider        PaymentProvider
+  providerRef     String? // M-Pesa CheckoutRequestID / PayPal order id
+  mpesaReceipt    String? // M-Pesa receipt number
+  paypalCaptureId String?
+  type            PaymentType
+  metadata        Json?
+  idempotencyKey  String?         @unique
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user         User?          @relation(fields: [userId], references: [id])
+  subscription Subscription?  @relation(fields: [subscriptionId], references: [id])
+
+  @@index([providerRef])
+  @@index([userId, createdAt])
+  @@index([mpesaReceipt])
+  @@map("payment_transactions")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  DISPUTED
+}
+
+enum PaymentProvider {
+  MPESA
+  PAYPAL
+  STRIPE
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  DEPOSIT
+  WITHDRAWAL
+  RENEWAL
+  REFUND
+}
+
+// ============================================================
+// PORTFOLIO & INVESTMENT TRACKING
+// ============================================================
+
+enum AssetType {
+  STOCK
+  ETF
+  MUTUAL_FUND
+  BOND
+  CRYPTO
+  REIT
+  COMMODITY
+  CASH
+  FOREX
+  OTHER
+}
+
+model Portfolio {
+  id                String   @id @default(uuid())
+  userId            String
+  name              String
+  description       String?
+  currency          String   @default("USD")
+  totalValue        Float    @default(0)
+  cashBalance       Float    @default(0)
+  isDefault         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  targetAllocation  Json?
+  rebalanceSettings Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user         User            @relation(fields: [userId], references: [id])
+  holdings     Holding[]
+  transactions Transaction[]
+  performance  PortfolioPerformance[]
+  rebalances   Rebalance[]
+
+  @@index([userId])
+  @@map("portfolios")
+}
+
+model Holding {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  symbol            String
+  assetType         AssetType
+  quantity          Float
+  averageCost       Float
+  currentPrice      Float    @default(0)
+  marketValue       Float    @default(0)
+  costBasis         Float    @default(0)
+  unrealizedGain    Float    @default(0)
+  unrealizedGainPct Float    @default(0)
+  allocation        Float    @default(0)
+  lastPriceUpdate   DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  dividends Dividend[]
+
+  @@index([portfolioId, symbol])
+  @@map("holdings")
+}
+
+enum TransactionType {
+  BUY
+  SELL
+  DIVIDEND
+  DEPOSIT
+  WITHDRAWAL
+  FEE
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  portfolioId String
+  symbol      String
+  type        TransactionType
+  quantity    Float
+  price       Float
+  fees        Float           @default(0)
+  adminFee    Float           @default(0)
+  totalAmount Float
+  notes       String?
+  executedAt  DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, executedAt])
+  @@map("transactions")
+}
+
+model PortfolioPerformance {
+  id             String   @id @default(uuid())
+  portfolioId    String
+  date           DateTime
+  totalValue     Float
+  cashBalance    Float
+  investedAmount Float
+  gainLoss       Float
+  gainLossPct    Float
+  dailyReturn    Float?
+  createdAt      DateTime @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, date])
+  @@map("portfolio_performances")
+}
+
+model Rebalance {
+  id             String          @id @default(uuid())
+  portfolioId    String
+  status         RebalanceStatus @default(PROPOSED)
+  proposedTrades Json
+  executedTrades Json?
+  reason         String?
+  proposedAt     DateTime        @default(now())
+  executedAt     DateTime?
+  createdAt      DateTime        @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("rebalances")
+}
+
+enum RebalanceStatus {
+  PROPOSED
+  APPROVED
+  EXECUTED
+  REJECTED
+  CANCELLED
+}
+
+model Dividend {
+  id           String   @id @default(uuid())
+  holdingId    String
+  symbol       String
+  amount       Float
+  currency     String   @default("USD")
+  exDate       DateTime
+  paymentDate  DateTime
+  declaredDate DateTime?
+  frequency    String?
+  isReinvested Boolean  @default(false)
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+
+  holding Holding @relation(fields: [holdingId], references: [id], onDelete: Cascade)
+
+  @@index([symbol, exDate])
+  @@map("dividends")
+}
+
+// ============================================================
+// TRADING (Crypto / Forex / Stocks)
+// ============================================================
+
+enum OrderStatus {
+  PENDING
+  OPEN
+  PARTIALLY_FILLED
+  FILLED
+  CANCELLED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+  STOP_LOSS
+  TAKE_PROFIT
+  STOP_LIMIT
+}
+
+model TradeOrder {
+  id               String      @id @default(uuid())
+  userId           String
+  symbol           String
+  side             OrderSide
+  type             OrderType
+  quantity         Float
+  filledQuantity   Float       @default(0)
+  price            Float? // limit price
+  stopPrice        Float? // for stop loss / take profit
+  averageFillPrice Float?
+  status           OrderStatus @default(PENDING)
+  leverage         Float       @default(1)
+  fees             Float       @default(0)
+  metadata         Json?
+  exchange         String? // ccxt exchange id
+  exchangeOrderId  String?
+  parentOrderId    String?
+  expiresAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  fills TradeFill[]
+
+  @@index([userId, symbol])
+  @@index([status])
+  @@map("trade_orders")
+}
+
+model TradeFill {
+  id          String   @id @default(uuid())
+  orderId     String
+  quantity    Float
+  price       Float
+  fee         Float    @default(0)
+  executedAt  DateTime @default(now())
+
+  order TradeOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("trade_fills")
+}
+
+model Position {
+  id               String         @id @default(uuid())
+  userId           String
+  symbol           String
+  side             OrderSide
+  quantity         Float
+  entryPrice       Float
+  currentPrice     Float          @default(0)
+  markPrice        Float          @default(0)
+  leverage         Float          @default(1)
+  unrealizedPnl    Float          @default(0)
+  realizedPnl      Float          @default(0)
+  liquidationPrice Float?
+  stopLossPrice    Float?
+  takeProfitPrice  Float?
+  margin           Float          @default(0)
+  status           PositionStatus @default(OPEN)
+  openedAt         DateTime       @default(now())
+  closedAt         DateTime?
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([userId, symbol, side, status])
+  @@index([userId, status])
+  @@map("positions")
+}
+
+enum PositionStatus {
+  OPEN
+  CLOSED
+  LIQUIDATED
+}
+
+// ============================================================
+// WALLETS
+// ============================================================
+
+model Wallet {
+  id               String   @id @default(uuid())
+  userId           String
+  currency         String
+  balance          Float    @default(0)
+  availableBalance Float    @default(0)
+  heldBalance      Float    @default(0)
+  adminFeesPaid    Float    @default(0)
+  isPrimary        Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user         User               @relation(fields: [userId], references: [id])
+  transactions WalletTransaction[]
+
+  @@unique([userId, currency])
+  @@index([userId])
+  @@map("wallets")
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  EXCHANGE
+  FEE
+  REFUND
+  DIVIDEND
+  INTEREST
+}
+
+model WalletTransaction {
+  id            String               @id @default(uuid())
+  walletId      String
+  type          WalletTransactionType
+  amount        Float
+  adminFee      Float                @default(0)
+  balanceBefore Float
+  balanceAfter  Float
+  currency      String
+  description   String?
+  referenceId   String?
+  metadata      Json?
+  createdAt     DateTime             @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@map("wallet_transactions")
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  userId        String
+  bankName      String
+  accountNumber String
+  accountType   String
+  currency      String   @default("USD")
+  isVerified    Boolean  @default(false)
+  isPrimary     Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id])
+  transfers BankTransfer[]
+
+  @@index([userId])
+  @@map("bank_accounts")
+}
+
+model BankTransfer {
+  id            String        @id @default(uuid())
+  bankAccountId String
+  walletId      String?
+  type          String
+  amount        Float
+  adminFee      Float         @default(0)
+  currency      String
+  status        TransferStatus @default(PENDING)
+  scheduledAt   DateTime?
+  initiatedAt   DateTime      @default(now())
+  completedAt   DateTime?
+  failedAt      DateTime?
+  failureReason String?
+  externalId    String?
+  metadata      Json?
+
+  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  @@index([bankAccountId, initiatedAt])
+  @@map("bank_transfers")
+}
+
+enum TransferStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ============================================================
+// PRICE ALERTS & MARKET DATA
+// ============================================================
+
+enum AlertCondition {
+  ABOVE
+  BELOW
+  CROSSES
+  PERCENT_CHANGE
+}
+
+model PriceAlert {
+  id             String        @id @default(uuid())
+  userId         String
+  symbol         String
+  targetPrice    Float
+  condition      AlertCondition
+  isActive       Boolean       @default(true)
+  isTriggered    Boolean       @default(false)
+  notifyEmail    Boolean       @default(true)
+  notifySMS      Boolean       @default(false)
+  notifyApp      Boolean       @default(true)
+  triggeredAt    DateTime?
+  triggeredPrice Float?
+  expiresAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user          User              @relation(fields: [userId], references: [id])
+  notifications AlertNotification[]
+
+  @@index([userId, isActive])
+  @@index([symbol, isActive])
+  @@map("price_alerts")
+}
+
+model AlertNotification {
+  id           String   @id @default(uuid())
+  alertId      String
+  channel      String
+  sentAt       DateTime @default(now())
+  status       String
+  errorMessage String?
+
+  alert PriceAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@map("alert_notifications")
+}
+
+model MarketData {
+  id           String    @id @default(uuid())
+  symbol       String
+  exchange     String    @default("INTERNAL")
+  assetType    AssetType
+  price        Float
+  bid          Float?
+  ask          Float?
+  volume       Float?
+  change24h    Float?
+  changePct24h Float?
+  marketCap    Float?
+  high24h      Float?
+  low24h       Float?
+  timestamp    DateTime  @default(now())
+  source       String    @default("CCXT")
+
+  @@index([symbol, timestamp])
+  @@map("market_data")
+}
+
+// ============================================================
+// REFERRALS
+// ============================================================
+
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  REWARDED
+  EXPIRED
+}
+
+enum ReferralRewardTier {
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
+
+model Referral {
+  id           String             @id @default(uuid())
+  referrerId   String
+  refereeEmail String
+  refereeId    String?
+  status       ReferralStatus     @default(PENDING)
+  rewardTier   ReferralRewardTier @default(BASIC)
+  rewardAmount Float              @default(0)
+  rewardUsed   Boolean            @default(false)
+  completedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  referrer User? @relation("Referrer", fields: [referrerId], references: [id])
+  referee  User? @relation("Referee", fields: [refereeId], references: [id])
+
+  @@unique([referrerId, refereeEmail])
+  @@index([referrerId])
+  @@map("referrals")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  data      Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+// ============================================================
+// KYC
+// ============================================================
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  NEEDS_MORE_INFO
+}
+
+enum KycDocumentType {
+  NATIONAL_ID
+  PASSPORT
+  SELFIE
+  ADDRESS_PROOF
+  DRIVERS_LICENSE
+}
+
+model KycDocument {
+  id              String          @id @default(uuid())
+  userId          String
+  documentType    KycDocumentType
+  documentUrl     String
+  verificationUrl String?
+  status          KycStatus       @default(PENDING)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, documentType])
+  @@map("kyc_documents")
+}
+
+model KycVerification {
+  id            String    @id @default(uuid())
+  userId        String
+  status        KycStatus @default(PENDING)
+  documents     Json?
+  submittedAt   DateTime  @default(now())
+  reviewedAt    DateTime?
+  reviewedBy    String?
+  decision      String?
+  decisionNotes String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("kyc_verifications")
+}
+
+// ============================================================
+// FRAUD DETECTION
+// ============================================================
+
+enum FraudRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model FraudCheck {
+  id             String        @id @default(uuid())
+  userId         String
+  riskLevel      FraudRiskLevel @default(LOW)
+  score          Float         @default(0)
+  flags          Json?
+  rulesTriggered Json?
+  status         String        @default("REVIEWED")
+  ipAddress      String?
+  userAgent      String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("fraud_checks")
+}
+
+// ============================================================
+// SUPPORT TICKETS & CHAT
+// ============================================================
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model SupportTicket {
+  id              String        @id @default(uuid())
+  userId          String
+  subject         String
+  description     String
+  status          TicketStatus  @default(OPEN)
+  priority        TicketPriority @default(MEDIUM)
+  assignedTo      String?
+  resolutionNotes String?
+  autoGrantTier   String?
+  npsScore        Int?
+  resolvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("support_tickets")
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid())
+  userId      String
+  content     String
+  role        String   @default("user") // user | assistant | admin
+  attachments Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("chat_messages")
+}
+
+// ============================================================
+// AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  userEmail    String?
+  eventType    String
+  action       String
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  deviceId     String?
+  success      Boolean  @default(true)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

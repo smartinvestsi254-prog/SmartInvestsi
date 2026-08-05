@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investment Products • SmartInvestsi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary-corporate:#1a365d;--primary-light:#2563eb;--accent-gold:#d4af37;--accent-teal:#0891b2;--neutral-light:#f8fafc;--text-primary:#0f172a;--text-secondary:#475569}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--neutral-light);color:var(--text-primary);margin:0}
+    .container{max-inline-size:920px;margin:0 auto;padding:24px}
+    .card{background:#fff;border:none;border-radius:12px;padding:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);transition:transform 0.3s ease}
+    .card:hover{transform:translateY(-4px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05)}
+    header{padding:16px 0;margin-block-end:8px;border-block-end:1px solid #e2e8f0;background:linear-gradient(135deg,var(--primary-corporate) 0%,var(--primary-light) 100%);box-shadow:0 4px 6px rgba(0,0,0,0.1)}
+    header .inner{max-inline-size:920px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:0 24px}
+    a.logo{font-weight:700;color:#fff;text-decoration:none;font-size:1.5rem}
+    .crumbs{font-size:12px;color:rgba(255,255,255,0.9)}
+    .crumbs a{color:var(--accent-gold);text-decoration:none;transition:color 0.3s}
+    .crumbs a:hover{color:#fff}
+    .premium-badge{display:inline-block;background:var(--accent-gold);color:var(--primary-corporate);padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;margin-block-start:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <a class="logo" href="/">SmartInvest</a>
+      <div class="crumbs">/ <a href="/">Home</a> / Catalog Item</div>
+    </div>
+  </header>
+  <main class="container">
+    <div class="card" id="item-card">
+      <div id="item">
+        <h2 style="color:var(--primary-corporate);margin-block-start:0">Investment Products Catalog</h2>
+        <p style="color:var(--text-secondary)">Explore our carefully curated investment opportunities across multiple asset classes.</p>
+        <span id="access-badge" class="premium-badge">PREMIUM ACCESS</span>
+      </div>
+    </div>
+
+    <div class="card" id="recommendations-card" style="margin-top:16px; display:none">
+      <h3 style="margin-top:0;color:var(--primary-corporate);">Recommended For You</h3>
+      <p style="color:var(--text-secondary);font-size:13px;margin-top:-6px">Based on your personalized plan.</p>
+      <div id="recommendations" class="catalog-list" aria-live="polite"></div>
+    </div>
+
+    <div class="card" id="list-card" style="margin-top:16px; display:none">
+      <h3 style="margin-top:0;color:var(--primary-corporate);">Available Products</h3>
+      <div id="list" class="catalog-list" aria-live="polite"></div>
+    </div>
+
+    <p style="margin-block-start:12px;color:var(--text-secondary);font-size:12px;text-align:center">
+      💎 Premium features include advanced analytics, priority support, and unlimited portfolios. 
+      <a href="/pricing.html" style="color:var(--accent-gold);text-decoration:none;font-weight:600">Upgrade Now</a>
+    </p>
+  </main>
+  <script src="/public/js/catalog.js"></script>
+</body>
+</html>

@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard — SmartInvestsi</title>
+  <meta name="google-site-verification" content="PGl8tnEo0cLmNeSByTMPH8DWktC-VI4J_cReUfG0Hdk" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wwwroot/css/corporate-theme.css">
+  <link rel="stylesheet" href="/public/css/modern-payment-interface.css">
+  <link rel="stylesheet" href="/public/css/transaction-history.css">
+  <style>
+    :root {
+      --primary-corporate: #0B1F33;
+      --primary-light: #1a365d;
+      --accent-gold: #D4AF37;
+      --accent-teal: #0891b2;
+    }
+    
+    body {
+      background: linear-gradient(to bottom, #f8fafc, #e8ecf1);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-btn { 
+      padding: 0.75rem 1.25rem; 
+      border: 2px solid transparent; 
+      background: white; 
+      cursor: pointer; 
+      border-radius: 8px; 
+      font-weight: 600;
+      color: var(--primary-corporate);
+      transition: all 0.3s ease;
+    }
+    .tab-btn:hover {
+      background: #f0f9ff;
+      border-color: var(--accent-gold);
+    }
+    .tab-btn.active { 
+      background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-teal) 100%);
+      color: var(--primary-corporate);
+      border-color: var(--accent-gold);
+    }
+    
+    header {
+      background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    header h1 {
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+    
+    header a {
+      color: white;
+    }
+    
+    header a:hover {
+      color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+  <!-- Production Status Banner -->
+  <div class="bg-yellow-50 border-b border-yellow-200 text-yellow-900 text-sm text-center py-2 px-4">
+    Status: <strong>Production</strong> — The platform is live and fully available.
+  </div>
+
+  <header class="classic-header">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold gradient-text">SmartInvest Admin</h1>
+      <nav class="text-sm">
+        <a href="/" class="hover:underline">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Tabs Navigation -->
+    <div class="flex gap-2 mb-4 flex-wrap bg-white p-2 rounded shadow classic-card">
+      <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+      <button class="tab-btn" onclick="switchTab('users')">Users & Sessions</button>
+      <button class="tab-btn" onclick="switchTab('system')">System Controls</button>
+      <button class="tab-btn" onclick="switchTab('files')">File Manager</button>
+      <button class="tab-btn" onclick="switchTab('messages')">Support Messages</button>
+      <button class="tab-btn" onclick="switchTab('payments')">Payments</button>
+      <button class="tab-btn" onclick="switchTab('email')">Email Tools</button>
+      <button class="tab-btn" onclick="switchTab('storage')">Storage Complex</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <section id="dashboard" class="tab-content active bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">Dashboard Overview</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded border classic-card">
+          <div class="text-gray-600 text-sm">Total Users</div>
+          <div id="stat-users" class="text-3xl font-bold">-</div>
+        </div>
+        <div class="p-4 rounded border classic-card">
+          <div class="text-gray-600 text-sm">Premium Users</div>
+          <div id="stat-premium" class="text-3xl font-bold">-</div>
+        </div>
+        <div class="p-4 rounded border classic-card">
+          <div class="text-gray-600 text-sm">Files Uploaded</div>
+          <div id="stat-files" class="text-3xl font-bold">-</div>
+        </div>
+        <div class="p-4 rounded border classic-card">
+          <div class="text-gray-600 text-sm">Pending Messages</div>
+          <div id="stat-messages" class="text-3xl font-bold">-</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button id="userSyncButton" class="classic-btn" onclick="refreshDashboard()">Refresh Stats</button>
+      </div>
+    </section>
+
+    <!-- Users & Sessions Tab -->
+    <section id="users" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">Users & Sessions</h2>
+      <div class="flex gap-2 mb-4">
+        <input id="userSearch" type="text" placeholder="Search users (email or name)" class="flex-1 border rounded px-3 py-2">
+        <button onclick="searchUsers()" class="classic-btn">Search</button>
+        <button onclick="loadAllUsers()" class="classic-btn">Load All</button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-semibold mb-2">All Users</h3>
+          <div id="usersList" class="text-sm text-gray-700">Click "Load All" to view users...</div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Active Sessions</h3>
+          <div id="sessionsList" class="text-sm text-gray-700">Loading sessions...</div>
+          <button onclick="loadActiveSessions()" class="classic-btn mt-2">Refresh Sessions</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Controls Tab -->
+    <section id="system" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">System Controls</h2>
+      <div class="mb-4">
+        <button id="toggleFallbackBtn" class="classic-btn">Loading status…</button>
+        <p id="fallbackStatusMsg" class="text-sm text-gray-700 mt-2"></p>
+      </div>
+      <div class="mb-4">
+        <p class="text-sm">Crisis flags:</p>
+        <ul id="crisisFlags" class="text-sm text-red-600"></ul>
+        <button id="clearCrisisBtn" class="classic-btn mt-2">Clear All Crisis Flags</button>
+      </div>
+    </section>
+
+    <!-- File Manager Tab -->
+    <section id="files" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">File Manager</h2>
+      <form onsubmit="uploadFile(event)" class="grid md:grid-cols-2 gap-4 mb-4">
+        <input id="fileTitle" type="text" placeholder="Title" class="border rounded px-3 py-2" />
+        <input id="filePrice" type="number" min="0" step="1" placeholder="Price (USD)" class="border rounded px-3 py-2" />
+        <textarea id="fileDescription" placeholder="Description" class="md:col-span-2 border rounded px-3 py-2 h-20"></textarea>
+        <input id="fileInput" type="file" class="md:col-span-2 border rounded px-3 py-2" />
+        <div class="md:col-span-2 flex items-center justify-between">
+          <div id="uploadStatus" class="text-sm text-gray-600"></div>
+          <button type="submit" class="classic-btn">Upload</button>
+        </div>
+      </form>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Files</h3>
+        <div id="filesList" class="text-sm text-gray-700"></div>
+      </div>
+    </section>
+
+    <!-- Support Messages Tab -->
+    <section id="messages" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold gradient-text">Support Messages</h2>
+        <button onclick="refreshMessages()" class="classic-btn">Refresh</button>
+      </div>
+      <div id="messagesList" class="text-sm text-gray-700"></div>
+    </section>
+
+    <!-- Payments Tab -->
+    <section id="payments" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">Payments Management</h2>
+
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-4">Transaction History & Analytics</h3>
+        <div id="adminTransactionsContainer" class="transactions-container"></div>
+      </div>
+
+      <hr class="my-6">
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-xl font-semibold mb-2">All Payment Ledger</h3>
+          <div class="flex items-center gap-2 mb-2">
+            <button onclick="loadPaymentsLedger()" class="classic-btn">Load Payments</button>
+            <button onclick="exportKCBCSV()" class="classic-btn">Export KCB CSV</button>
+          </div>
+          <div id="paymentsLedger" class="text-sm text-gray-700 max-h-96 overflow-y-auto border rounded p-3 bg-gray-50">Click "Load Payments" to view the latest ledger.</div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-semibold mb-2">Manual Bank Transfers (KCB)</h3>
+          <div id="kcbTransfersList" class="text-sm text-gray-700 max-h-96 overflow-y-auto border rounded p-3 bg-gray-50">Click "Payments" tab to load transfers.</div>
+          <div class="mt-3">
+            <textarea id="reconcileData" placeholder='Paste JSON array for reconciliation' class="w-full border rounded p-2 h-24"></textarea>
+            <button onclick="reconcileBankEntries()" class="classic-btn mt-2">Reconcile</button>
+            <div id="reconcileResult" class="text-sm mt-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-6">
+
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Request Payment Review</h3>
+        <div class="flex gap-2">
+          <input id="paymentId" type="text" placeholder="Payment ID" class="flex-1 border rounded px-3 py-2"/>
+          <button onclick="requestPaymentReview()" class="classic-btn">Request Review</button>
+        </div>
+        <div id="reviewStatus" class="text-sm mt-2"></div>
+      </div>
+    </section>
+
+    <!-- Email Tools Tab -->
+    <section id="email" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">Email Tools</h2>
+
+      <div class="mb-4 border p-4 rounded bg-yellow-50 classic-card">
+        <h3 class="font-semibold mb-2">Send Email to User</h3>
+        <div class="space-y-2">
+          <input type="email" id="emailTo" placeholder="Recipient email" class="w-full border rounded p-2" required>
+          <input type="text" id="emailSubject" placeholder="Subject" class="w-full border rounded p-2" required>
+          <textarea id="emailBody" placeholder="Email body (HTML or plain text)" class="w-full border rounded p-2 h-32" required></textarea>
+          <button onclick="sendEmail()" class="classic-btn w-full">Send Email</button>
+        </div>
+        <div id="emailStatus" class="text-sm mt-2"></div>
+      </div>
+
+      <div class="border p-4 rounded classic-card">
+        <h3 class="font-semibold mb-2">Send Bulk Email</h3>
+        <div class="space-y-2">
+          <input type="text" id="bulkSubject" placeholder="Subject" class="w-full border rounded p-2" required>
+          <textarea id="bulkBody" placeholder="Email body" class="w-full border rounded p-2 h-24" required></textarea>
+          <select id="bulkRecipients" class="w-full border rounded p-2">
+            <option value="">-- Select Recipients --</option>
+            <option value="all-users">All Users</option>
+            <option value="premium-users">Premium Users Only</option>
+            <option value="free-users">Free Users Only</option>
+            <option value="inactive">Inactive Users (7+ days)</option>
+          </select>
+          <button onclick="sendBulkEmail()" class="classic-btn w-full">Send Bulk Email</button>
+        </div>
+        <div id="bulkStatus" class="text-sm mt-2"></div>
+      </div>
+    </section>
+
+    <!-- Storage Complex Tab -->
+    <section id="storage" class="tab-content bg-white p-6 rounded shadow classic-card mb-4">
+      <h2 class="text-2xl font-bold mb-4 gradient-text">Storage Complex</h2>
+      <p class="text-sm text-gray-600 mb-4">Centralized storage for all data: cache, crashes, users, admin actions, and logs. All entries include timestamps.</p>
+      
+      <div class="mb-4 flex gap-2 items-center">
+        <button onclick="loadStorageStats()" class="classic-btn">Refresh Stats</button>
+        <button onclick="loadAllStorageData()" class="classic-btn">Load All Data</button>
+      </div>
+
+      <!-- Storage Statistics -->
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Storage Statistics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Cache</div>
+            <div id="stat-cache" class="text-2xl font-bold">-</div>
+          </div>
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Crashes</div>
+            <div id="stat-crashes" class="text-2xl font-bold">-</div>
+          </div>
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Users</div>
+            <div id="stat-storage-users" class="text-2xl font-bold">-</div>
+          </div>
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Admin</div>
+            <div id="stat-admin" class="text-2xl font-bold">-</div>
+          </div>
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Logs</div>
+            <div id="stat-logs" class="text-2xl font-bold">-</div>
+          </div>
+          <div class="p-3 rounded border classic-card text-center">
+            <div class="text-xs text-gray-600">Total</div>
+            <div id="stat-total" class="text-2xl font-bold text-blue-600">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Storage Type Selector -->
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">View by Type</h3>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="loadStorageByType('cache')" class="classic-btn">Cache</button>
+          <button onclick="loadStorageByType('crashes')" class="classic-btn">Crashes</button>
+          <button onclick="loadStorageByType('users')" class="classic-btn">Users</button>
+          <button onclick="loadStorageByType('admin')" class="classic-btn">Admin</button>
+          <button onclick="loadStorageByType('logs')" class="classic-btn">Logs</button>
+        </div>
+      </div>
+
+      <!-- Storage Data Display -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xl font-semibold">Storage Data</h3>
+          <button onclick="exportStorageData()" class="text-sm classic-btn">Export JSON</button>
+        </div>
+        <div id="storageData" class="text-sm text-gray-700 max-h-96 overflow-y-auto border rounded p-3 bg-gray-50">
+          Click "Load All Data" or select a type to view storage data.
+        </div>
+      </div>
+
+      <!-- Clear Storage Options -->
+      <div class="mt-6 border-t pt-4">
+        <h3 class="text-xl font-semibold mb-2 text-red-600">Clear Storage (Dangerous)</h3>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="clearStorageType('cache')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Clear Cache</button>
+          <button onclick="clearStorageType('crashes')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Clear Crashes</button>
+          <button onclick="clearStorageType('users')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Clear Users</button>
+          <button onclick="clearStorageType('logs')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Clear Logs</button>
+        </div>
+        <div id="clearStatus" class="text-sm mt-2"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="classic-footer py-8 px-4">
+    <div class="max-w-6xl mx-auto text-center">
+      <p>&copy; 2026 SmartInvestsi. All rights reserved.</p>
+      <div class="mt-2 text-sm" id="adminContactLine">Contact: --</div>
+    </div>
+  </footer>
+
+  <script src="/public/js/auth.js"></script>
+  <script>
+    // wrapper to perform admin-only page initialization
+    (async () => {
+      const user = await requireAuth('/login.html');
+      if (!user) return; // redirected
+      if (!user.isAdmin) {
+        window.location.href = '/403.html';
+        return;
+      }
+
+      function authFetch(url, opts = {}) {
+        opts.credentials = 'include';
+        return fetch(url, opts);
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Load data after auth confirmed
+      loadContactLine();
+      refreshDashboard();
+      window.AdminFiles && window.AdminFiles.loadFiles();
+      loadMessages();
+      loadKCBTransfers();
+      loadStorageStats();
+
+      if (window.TransactionHistoryViewer) {
+        const adminHistoryViewer = new window.TransactionHistoryViewer({
+          apiBase: '/api/payments',
+          containerId: 'adminTransactionsContainer',
+          adminMode: true,
+          pageSize: 15
+        });
+        adminHistoryViewer.init();
+      }
+    })();
+  </script>
+
+  <script>
+
+    async function refreshDashboard() {
+      try {
+        const headers = await window.AdminAuth.getAuthHeaders();
+        const res = await fetch('/api/admin/dashboard-stats', { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('stat-users').textContent = data.totalUsers ?? '-';
+        document.getElementById('stat-premium').textContent = data.premiumUsers ?? '-';
+        document.getElementById('stat-files').textContent = data.filesUploaded ?? data.filesCount ?? '-';
+        document.getElementById('stat-messages').textContent = data.pendingMessages ?? '-';
+      } catch (e) { console.error(e); }
+    }
+
+    async function uploadFile(event) {
+      event?.preventDefault?.();
+      const fileInput = document.getElementById('fileInput');
+      const fd = new FormData();
+      fd.append('file', fileInput.files[0]);
+      fd.append('title', document.getElementById('fileTitle').value);
+      fd.append('price', document.getElementById('filePrice').value || '0');
+      fd.append('description', document.getElementById('fileDescription').value);
+      try {
+        const headers = await getAuthHeaders();
+        // Remove content-type for FormData
+        delete headers['Content-Type'];
+        const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, headers });
+        const data = await res.json();
+        const status = document.getElementById('uploadStatus');
+        if (data.success) {
+          status.textContent = '✓ File uploaded successfully';
+          status.className = 'text-sm text-green-600';
+          document.getElementById('fileTitle').value = '';
+          document.getElementById('filePrice').value = '0';
+          document.getElementById('fileDescription').value = '';
+          fileInput.value = '';
+          setTimeout(window.AdminFiles.loadFiles, 800);
+        } else {
+          status.textContent = '✗ Upload failed: ' + (data.error || '');
+          status.className = 'text-sm text-red-600';
+        }
+      } catch (e) {
+        const status = document.getElementById('uploadStatus');
+        status.textContent = '✗ Error: ' + e.message;
+        status.className = 'text-sm text-red-600';
+      }
+    }
+
+    function exportFilesList() { alert('Export functionality to be implemented'); }
+
+    // messages are handled by public/js/admin-messages.js
+
+
+    async function replyMessage(id) {
+      const input = document.getElementById(`reply_${id}`);
+      const text = input.value.trim();
+      if (!text) return alert('Enter a reply');
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch(`/api/admin/messages/${id}/reply`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ reply: text })
+        });
+        const data = await res.json();
+        if (data.success) { input.value = ''; loadMessages(); }
+        else { alert('Error: ' + (data.error || 'Failed')); }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    function refreshMessages() { loadMessages(); }
+
+    async function loadKCBTransfers() {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/kcb-transfers', { headers });
+        const data = await res.json();
+        const list = document.getElementById('kcbTransfersList');
+        if (!data.success || !data.transfers?.length) {
+          list.innerHTML = '<div class="text-gray-600">No transfers found.</div>';
+          return;
+        }
+        const rows = data.transfers.map(t => `
+          <div class="border rounded p-2 mb-2 text-sm">
+            <div class="flex justify-between">
+              <div>
+                <strong>${escapeHtml(t.name)}</strong> (${escapeHtml(t.email)})<br>
+                <small class="text-gray-600">KES ${escapeHtml(t.amount)} - Ref: ${escapeHtml(t.reference || 'N/A')}</small>
+              </div>
+              <div class="text-right">
+                <span class="text-xs px-2 py-1 rounded" style="background:${t.status === 'paid' ? '#dcfce7' : '#fef9c3'}">${escapeHtml(t.status)}</span><br>
+                <small class="text-gray-500">${escapeHtml(t.timestamp)}</small>
+              </div>
+            </div>
+            ${t.status !== 'paid' ? `<button onclick="markPaid('${escapeHtml(t.timestamp)}')" class="classic-btn mt-1 text-xs">Mark Paid</button>` : ''}
+          </div>
+        `).join('');
+        list.innerHTML = rows;
+      } catch (e) {
+        document.getElementById('kcbTransfersList').innerHTML = '<div class="text-red-600">Error loading transfers</div>';
+      }
+    }
+
+    async function markPaid(ts) {
+      const note = prompt('Optional note for this transfer:');
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch('/api/admin/kcb/mark-paid', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ timestamp: ts, note })
+        });
+        const data = await res.json();
+        if (data.success) { alert('Transfer marked as paid'); loadKCBTransfers(); }
+        else { alert('Error: ' + (data.error || 'Failed')); }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function exportKCBCSV() {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/kcb-export', { headers });
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'kcb-transfers.csv';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      } catch (e) { alert('Export failed: ' + e.message); }
+    }
+
+    async function reconcileBankEntries() {
+      const txt = document.getElementById('reconcileData').value.trim();
+      if (!txt) return alert('Paste JSON array');
+      let arr; try { arr = JSON.parse(txt); } catch (e) { return alert('Invalid JSON: ' + e.message); }
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch('/api/admin/kcb/reconcile', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ entries: arr })
+        });
+        const data = await res.json();
+        const result = document.getElementById('reconcileResult');
+        if (data.success) {
+          result.textContent = `✓ Matched: ${data.summary?.matched ?? 0}, Unmatched: ${data.summary?.unmatched ?? 0}`;
+          result.className = 'text-sm text-green-600 mt-2';
+          loadKCBTransfers();
+        } else {
+          result.textContent = '✗ Error: ' + (data.error || '');
+          result.className = 'text-sm text-red-600 mt-2';
+        }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function requestPaymentReview() {
+      const paymentId = document.getElementById('paymentId').value.trim();
+      if (!paymentId) return alert('Enter payment ID');
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch('/api/admin/payment-review', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ paymentId })
+        });
+        const data = await res.json();
+        const status = document.getElementById('reviewStatus');
+        if (data.success) { status.textContent = `✓ Review requested for payment ${paymentId}`; status.className = 'text-sm text-green-600'; document.getElementById('paymentId').value = ''; }
+        else { status.textContent = '✗ Error: ' + (data.error || 'Failed'); status.className = 'text-sm text-red-600'; }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function loadPaymentsLedger() {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/payments', { headers });
+        const data = await res.json();
+        const list = document.getElementById('paymentsLedger');
+        if (!data.success) { list.innerHTML = '<div class="text-red-600">Error loading payments ledger.</div>'; return; }
+        if (!data.payments?.length) { list.innerHTML = '<div class="text-gray-600">No payments recorded yet.</div>'; return; }
+        const rows = data.payments.map(p => `
+          <div class="bg-white border rounded p-3 mb-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-xs uppercase tracking-wide text-gray-500">${escapeHtml(p.provider)}</div>
+                <div class="font-semibold">${escapeHtml(p.amount ? p.amount : 'N/A')} ${escapeHtml(p.currency || '')}</div>
+                <div class="text-xs text-gray-600">${p.fileTitle ? 'File: ' + escapeHtml(p.fileTitle) : ''}</div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs px-2 py-1 rounded" style="background:${(p.status === 'success' || p.status === 'paid') ? '#dcfce7' : p.status === 'pending' ? '#fef9c3' : '#fee2e2'}">${escapeHtml(p.status)}</span><br>
+                <small class="text-gray-500">${escapeHtml(p.createdAt || '')}</small>
+              </div>
+            </div>
+            <div class="text-xs text-gray-700 mt-2">User: ${escapeHtml(p.email || 'N/A')} ${p.phone ? '(' + escapeHtml(p.phone) + ')' : ''}</div>
+            <div class="text-xs text-gray-600">Reference: ${escapeHtml(p.reference || 'N/A')} ${p.receipt ? ' • Receipt: ' + escapeHtml(p.receipt) : ''}</div>
+            ${p.note ? `<div class="text-xs text-gray-600">Note: ${escapeHtml(p.note)}</div>` : ''}
+          </div>
+        `).join('');
+        list.innerHTML = rows;
+      } catch (e) {
+        document.getElementById('paymentsLedger').innerHTML = '<div class="text-red-600">Error loading payments</div>';
+      }
+    }
+
+    async function sendEmail() {
+      const to = document.getElementById('emailTo').value;
+      const subject = document.getElementById('emailSubject').value;
+      const body = document.getElementById('emailBody').value;
+      if (!to || !subject || !body) return alert('Fill all fields');
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch('/api/admin/send-email', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ to, subject, body })
+        });
+        const data = await res.json();
+        const status = document.getElementById('emailStatus');
+        if (data.success) { status.textContent = '✓ Email sent to ' + to; status.className = 'text-sm text-green-600'; document.getElementById('emailTo').value = ''; document.getElementById('emailSubject').value = ''; document.getElementById('emailBody').value = ''; }
+        else { status.textContent = '✗ Error: ' + (data.error || 'Failed'); status.className = 'text-sm text-red-600'; }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function sendBulkEmail() {
+      const subject = document.getElementById('bulkSubject').value;
+      const body = document.getElementById('bulkBody').value;
+      const recipients = document.getElementById('bulkRecipients').value;
+      if (!subject || !body || !recipients) return alert('Fill all fields');
+      try {
+        const headers = await getAuthHeaders();
+        headers['Content-Type'] = 'application/json';
+        const res = await fetch('/api/admin/send-bulk-email', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ subject, body, recipients })
+        });
+        const data = await res.json();
+        const status = document.getElementById('bulkStatus');
+        if (data.success) { status.textContent = `✓ Email sent to ${data.sentCount} recipients`; status.className = 'text-sm text-green-600'; document.getElementById('bulkSubject').value = ''; document.getElementById('bulkBody').value = ''; document.getElementById('bulkRecipients').value = ''; }
+        else { status.textContent = '✗ Error: ' + (data.error || 'Failed'); status.className = 'text-sm text-red-600'; }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    // Storage Complex Functions
+    async function loadStorageStats() {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/storage-stats', { headers });
+        if (!res.ok) throw new Error('Failed to load stats');
+        const data = await res.json();
+        if (data.success && data.stats) {
+          document.getElementById('stat-cache').textContent = data.stats.cache || '0';
+          document.getElementById('stat-crashes').textContent = data.stats.crashes || '0';
+          document.getElementById('stat-storage-users').textContent = data.stats.users || '0';
+          document.getElementById('stat-admin').textContent = data.stats.admin || '0';
+          document.getElementById('stat-logs').textContent = data.stats.logs || '0';
+          document.getElementById('stat-total').textContent = data.stats.total || '0';
+        }
+      } catch (e) {
+        console.error('Error loading storage stats:', e);
+      }
+    }
+
+    async function loadAllStorageData() {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch('/api/admin/storage-complex', { headers });
+        if (!res.ok) throw new Error('Failed to load storage data');
+        const result = await res.json();
+        if (result.success && result.data) {
+          displayStorageData(result.data, 'All Storage Data');
+          loadStorageStats();
+        }
+      } catch (e) {
+        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading storage data: ' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    async function loadStorageByType(type) {
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/admin/storage-complex/${type}`, { headers });
+        if (!res.ok) throw new Error('Failed to load data');
+        const result = await res.json();
+        if (result.success) {
+          displayStorageData({ [type]: result.data }, `${type.charAt(0).toUpperCase() + type.slice(1)} Data`);
+          loadStorageStats();
+        }
+      } catch (e) {
+        document.getElementById('storageData').innerHTML = '<div class="text-red-600">Error loading ' + escapeHtml(type) + ' data: ' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    function displayStorageData(data, title) {
+      const container = document.getElementById('storageData');
+      let html = `<div class="mb-2 font-bold text-lg">${title}</div>`;
+      
+      for (const [type, entries] of Object.entries(data)) {
+        html += `<div class="mb-4">`;
+        html += `<div class="font-semibold text-md mb-2 capitalize">${type} (${entries.length} entries)</div>`;
+        
+        if (entries.length === 0) {
+          html += `<div class="text-gray-500 text-sm ml-2">No entries</div>`;
+        } else {
+          // Show most recent 50 entries
+          const recentEntries = entries.slice(-50).reverse();
+          html += `<div class="space-y-1">`;
+          for (const entry of recentEntries) {
+            html += `<div class="border-l-2 border-blue-400 pl-2 py-1 text-xs bg-white">`;
+            html += `<div class="text-gray-500">${escapeHtml(entry.date)} ${escapeHtml(entry.time)}</div>`;
+            html += `<div class="font-mono">${escapeHtml(JSON.stringify(entry, null, 2).substring(0, 200))}${JSON.stringify(entry).length > 200 ? '...' : ''}</div>`;
+            html += `</div>`;
+          }
+          html += `</div>`;
+          if (entries.length > 50) {
+            html += `<div class="text-sm text-gray-600 mt-2">Showing most recent 50 of ${entries.length} entries</div>`;
+          }
+        }
+        html += `</div>`;
+      }
+      
+      container.innerHTML = html;
+    }
+
+    async function clearStorageType(type) {
+      if (!confirm(`Are you sure you want to clear all ${type} data? This cannot be undone.`)) return;
+      try {
+        const headers = await getAuthHeaders();
+        const res = await fetch(`/api/admin/storage-complex/${type}/clear`, { 
+          method: 'POST', 
+          headers 
+        });
+        const data = await res.json();
+        const status = document.getElementById('clearStatus');
+        if (data.success) {
+          status.textContent = `✓ ${type} storage cleared successfully`;
+          status.className = 'text-sm text-green-600';
+          loadStorageStats();
+          loadStorageByType(type);
+        } else {
+          status.textContent = `✗ Error: ${data.error || 'Failed'}`;
+          status.className = 'text-sm text-red-600';
+        }
+      } catch (e) {
+        document.getElementById('clearStatus').innerHTML = '<div class="text-red-600">Error: ' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    function exportStorageData() {
+      getAuthHeaders().then(headers => {
+        fetch('/api/admin/storage-complex', { headers })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success && result.data) {
+            const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `storage-complex-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+        })
+        .catch(e => alert('Export failed: ' + e.message));
+    }
+
+    window.addEventListener('load', () => {
+      loadContactLine();
+      refreshDashboard();
+      window.AdminFiles.loadFiles();
+      loadMessages();
+      loadKCBTransfers();
+      loadStorageStats();
+      
+      // initialize fallback toggle UI
+      async function refreshFallbackUI() {
+        try {
+          const res = await fetch('/.netlify/functions/admin-db-failover', {
+            headers: await window.AdminAuth.getAuthHeaders()
+          });
+          if (!res.ok) throw new Error('Auth failed');
+          const status = await res.json();
+          const enabled = status.mode === 'fallback';
+          const btn = document.getElementById('toggleFallbackBtn');
+          btn.textContent = enabled ? 'Switch Back to Primary (Supabase)' : 'Switch to Fallback (Netlify DB)';
+          btn.onclick = async () => {
+            try {
+              const newMode = enabled ? 'primary' : 'fallback';
+              const toggleRes = await fetch('/.netlify/functions/admin-db-failover', {
+                method: 'POST',
+                headers: { 
+                  ...await window.AdminAuth.getAuthHeaders(),
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mode: newMode })
+              });
+              if (toggleRes.ok) {
+                refreshFallbackUI();
+                refreshCrisisUI();
+              } else {
+                alert('Toggle failed');
+              }
+            } catch (err) {
+              alert('Error: ' + err.message);
+            }
+          };
+          document.getElementById('fallbackStatusMsg').textContent = `Current: ${status.mode.toUpperCase()} (Last switch: ${status.lastSwitch || 'never'})`;
+        } catch (err) {
+          console.error(err);
+          document.getElementById('fallbackStatusMsg').textContent = 'Failed to load status';
+        }
+      }
+      refreshFallbackUI();
+
+      async function refreshCrisisUI() {
+        try {
+          const res = await fetch('/api/crisis', { credentials: 'include' });
+          if (!res.ok) throw new Error('unable to query crisis');
+          const body = await res.json();
+          const list = document.getElementById('crisisFlags');
+          list.innerHTML = '';
+          if (body.errorFlag) {
+            const li = document.createElement('li');
+            li.textContent = 'Unhandled server error occurred';
+            list.appendChild(li);
+          }
+          if (body.slowFlag) {
+            const li = document.createElement('li');
+            li.textContent = 'Slow request detected';
+            list.appendChild(li);
+          }
+          if (body.fallbackReq) {
+            const li = document.createElement('li');
+            li.textContent = 'Auth fallback was triggered';
+            list.appendChild(li);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      refreshCrisisUI();
+
+      document.getElementById('clearCrisisBtn').onclick = async () => {
+        try {
+          await fetch('/api/crisis/clear', { method: 'POST', credentials: 'include' });
+          refreshCrisisUI();
+        } catch (e) {
+          alert('Failed to clear crisis flags: ' + e.message);
+        }
+      };
+
+      // Initialize transaction history viewer for admin
+      if (window.TransactionHistoryViewer) {
+        const adminHistoryViewer = new window.TransactionHistoryViewer({
+          apiBase: '/api/payments',
+          containerId: 'adminTransactionsContainer',
+          adminMode: true,
+          pageSize: 15
+        });
+        
+        // Initialize when admin loads the payments tab
+        adminHistoryViewer.init();
+      }
+    });
+  </script>
+
+  <script src="/admin/auth.js"></script>
+  <script src="/admin/users.js"></script>
+  <script src="/admin/files.js"></script>
+  <script src="/public/js/admin-access-control.js"></script>
+  <script src="/public/js/modern-payment-interface.js"></script>
+  <script src="/public/js/transaction-history-viewer.js"></script>
+  <script src="/public/js/dashboard-hub.js"></script>
+  <script src="/public/js/chat-client.js"></script>
+  <script>
+    <script>
+      (function() {
+        if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+          window.chatbase = (...arguments) => {
+            if (!window.chatbase.q) {
+              window.chatbase.q = []
+            }
+            window.chatbase.q.push(arguments)
+          };
+          window.chatbase = new Proxy(window.chatbase, {
+            get(target, prop) {
+              if (prop === "q") {
+                return target.q
+              }
+              return (...args) => target(prop, ...args)
+            }
+          })
+        }
+        const onLoad = function() {
+          const script = document.createElement("script");
+          script.src = "https://www.chatbase.co/embed.min.js";
+          script.id = "DH09Xb_YLRjwTDDhXSIQ4";
+          script.domain = "www.chatbase.co";
+          document.body.appendChild(script)
+        };
+        if (document.readyState === "complete") {
+          onLoad()
+        } else {
+          window.addEventListener("load", onLoad)
+        }
+      })();
+    </script>
+  </script>
+</body>
+</html>

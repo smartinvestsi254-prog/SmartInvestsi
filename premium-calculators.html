@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Calculators Suite - SmartInvestsi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-slate-950 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Premium Calculators</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="showCalculator('overview')" class="nav-btn px-4 py-2 rounded-lg hover:bg-slate-800 transition">Overview</button>
+                    <button onclick="showCalculator('bond')" class="nav-btn px-4 py-2 rounded-lg hover:bg-slate-800 transition">Bond</button>
+                    <button onclick="showCalculator('options')" class="nav-btn px-4 py-2 rounded-lg hover:bg-slate-800 transition">Options</button>
+                    <button onclick="showCalculator('crypto')" class="nav-btn px-4 py-2 rounded-lg hover:bg-slate-800 transition">Crypto</button>
+                    <button onclick="showCalculator('portfolio')" class="nav-btn px-4 py-2 rounded-lg hover:bg-slate-800 transition">Portfolio</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Overview Section -->
+        <section id="overview" class="calculator-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-8 border border-blue-700">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <span class="text-3xl">📊</span> Bond Calculator
+                    </h3>
+                    <p class="text-blue-100 mb-4">Advanced fixed income analysis including YTM, duration, convexity, and bond ladders.</p>
+                    <button onclick="showCalculator('bond')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition">Launch</button>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-900 to-purple-800 rounded-xl p-8 border border-purple-700">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <span class="text-3xl">📈</span> Options Calculator
+                    </h3>
+                    <p class="text-purple-100 mb-4">Black-Scholes pricing, Greeks, implied volatility, and option strategies.</p>
+                    <button onclick="showCalculator('options')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg transition">Launch</button>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-900 to-orange-800 rounded-xl p-8 border border-orange-700">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <span class="text-3xl">₿</span> Crypto Calculator
+                    </h3>
+                    <p class="text-orange-100 mb-4">DCA, staking rewards, impermanent loss, and DeFi yield analysis.</p>
+                    <button onclick="showCalculator('crypto')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition">Launch</button>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-900 to-green-800 rounded-xl p-8 border border-green-700">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                        <span class="text-3xl">📋</span> Portfolio Analytics
+                    </h3>
+                    <p class="text-green-100 mb-4">Sharpe ratio, VaR, Monte Carlo simulation, and efficient frontier.</p>
+                    <button onclick="showCalculator('portfolio')" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition">Launch</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bond Calculator -->
+        <section id="bond" class="calculator-section hidden">
+            <div class="bg-slate-800 rounded-xl p-8 border border-slate-700">
+                <h2 class="text-3xl font-bold mb-6 text-blue-400">Bond Calculator</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Bond Price Calculator -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-blue-300">Bond Pricing</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Face Value ($)</label>
+                                <input type="number" id="bondFaceValue" value="1000" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white" placeholder="1000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Coupon Rate (%)</label>
+                                <input type="number" id="bondCouponRate" value="5" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Yield to Maturity (%)</label>
+                                <input type="number" id="bondYTM" value="4" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Years to Maturity</label>
+                                <input type="number" id="bondYears" value="10" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <button onclick="calculateBondPrice()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Calculate</button>
+                        </div>
+                    </div>
+
+                    <!-- Bond Results -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-blue-300">Results</h3>
+                        <div id="bondResults" class="space-y-3 text-sm">
+                            <div class="text-slate-400">Enter values and click Calculate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bond Duration Analysis -->
+                <div class="mt-8 bg-slate-900 rounded-lg p-6 border border-slate-600">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-300">Duration & Convexity Analysis</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Current Yield (%)</label>
+                            <input type="number" id="bondCurrentYield" value="4.5" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Frequency</label>
+                            <select id="bondFrequency" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                                <option value="2">Semi-Annual</option>
+                                <option value="4">Quarterly</option>
+                                <option value="12">Monthly</option>
+                            </select>
+                        </div>
+                        <button onclick="calculateBondDuration()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">Analyze</button>
+                    </div>
+                    <div id="durationResults" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Options Calculator -->
+        <section id="options" class="calculator-section hidden">
+            <div class="bg-slate-800 rounded-xl p-8 border border-slate-700">
+                <h2 class="text-3xl font-bold mb-6 text-purple-400">Options Calculator</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Black-Scholes Calculator -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-purple-300">Black-Scholes Pricing</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Stock Price ($)</label>
+                                <input type="number" id="optSpotPrice" value="100" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Strike Price ($)</label>
+                                <input type="number" id="optStrikePrice" value="100" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Time to Expiry (Years)</label>
+                                <input type="number" id="optTimeToExpiry" value="0.25" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Volatility (%) Annual</label>
+                                <input type="number" id="optVolatility" value="20" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Risk-Free Rate (%)</label>
+                                <input type="number" id="optRiskFreeRate" value="5" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Option Type</label>
+                                <select id="optOptionType" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                                    <option value="call">Call</option>
+                                    <option value="put">Put</option>
+                                </select>
+                            </div>
+                            <button onclick="calculateOptionPrice()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition">Calculate</button>
+                        </div>
+                    </div>
+
+                    <!-- Option Results -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-purple-300">Results</h3>
+                        <div id="optionResults" class="space-y-3">
+                            <div class="text-slate-400">Enter values and click Calculate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Greeks Display -->
+                <div class="mt-8 bg-slate-900 rounded-lg p-6 border border-slate-600">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-300">Greeks Analysis</h3>
+                    <button onclick="calculateGreeks()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg transition mb-4">Calculate Greeks</button>
+                    <div id="greeksResults" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crypto Calculator -->
+        <section id="crypto" class="calculator-section hidden">
+            <div class="bg-slate-800 rounded-xl p-8 border border-slate-700">
+                <h2 class="text-3xl font-bold mb-6 text-orange-400">Cryptocurrency Calculator</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- DCA Calculator -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-orange-300">Dollar-Cost Averaging</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Monthly Investment ($)</label>
+                                <input type="number" id="cryptoMonthlyDCA" value="500" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Months</label>
+                                <input type="number" id="cryptoMonthsDCA" value="12" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Average Price ($)</label>
+                                <input type="number" id="cryptoAvgPriceDCA" value="50000" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <button onclick="calculateCryptoDCA()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition">Calculate</button>
+                        </div>
+                    </div>
+
+                    <!-- Staking Rewards -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-orange-300">Staking Rewards</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Staked Amount ($)</label>
+                                <input type="number" id="cryptoStakedAmount" value="10000" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Annual APY (%)</label>
+                                <input type="number" id="cryptoAPY" value="8" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Years</label>
+                                <input type="number" id="cryptoStakingYears" value="5" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <button onclick="calculateStaking()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition">Calculate</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impermanent Loss -->
+                <div class="mt-8 bg-slate-900 rounded-lg p-6 border border-slate-600">
+                    <h3 class="text-xl font-semibold mb-4 text-orange-300">Impermanent Loss (DeFi)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Initial Price Ratio</label>
+                            <input type="number" id="cryptoInitialPriceRatio" value="1" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Final Price Ratio</label>
+                            <input type="number" id="cryptoFinalPriceRatio" value="1.5" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <button onclick="calculateImpermanentLoss()" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">Calculate</button>
+                    </div>
+                    <div id="ilResults" class="mt-4 text-sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Analytics -->
+        <section id="portfolio" class="calculator-section hidden">
+            <div class="bg-slate-800 rounded-xl p-8 border border-slate-700">
+                <h2 class="text-3xl font-bold mb-6 text-green-400">Portfolio Analytics</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Sharpe Ratio -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-green-300">Sharpe Ratio</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Portfolio Return (%) Annual</label>
+                                <input type="number" id="portReturn" value="10" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Standard Deviation (%) Annual</label>
+                                <input type="number" id="portStdDev" value="15" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Risk-Free Rate (%) Annual</label>
+                                <input type="number" id="portRiskFreeRate" value="4" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <button onclick="calculateSharpe()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition">Calculate</button>
+                        </div>
+                    </div>
+
+                    <!-- Monte Carlo -->
+                    <div class="bg-slate-900 rounded-lg p-6 border border-slate-600">
+                        <h3 class="text-xl font-semibold mb-4 text-green-300">Monte Carlo Simulation</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Initial Portfolio ($)</label>
+                                <input type="number" id="mcInitialValue" value="100000" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Expected Return (%)</label>
+                                <input type="number" id="mcExpReturn" value="10" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Volatility (%)</label>
+                                <input type="number" id="mcVolatility" value="15" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Years</label>
+                                <input type="number" id="mcYears" value="10" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                            </div>
+                            <button onclick="calculateMonteCarlo()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition">Simulate</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VAR Analysis -->
+                <div class="mt-8 bg-slate-900 rounded-lg p-6 border border-slate-600">
+                    <h3 class="text-xl font-semibold mb-4 text-green-300">Value at Risk (VaR)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Portfolio Value ($)</label>
+                            <input type="number" id="varPortfolioValue" value="500000" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Expected Return (%)</label>
+                            <input type="number" id="varExpReturn" value="7" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Volatility (%)</label>
+                            <input type="number" id="varVolatility" value="12" step="0.1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white">
+                        </div>
+                        <button onclick="calculateVaR()" class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition self-end">Calculate</button>
+                    </div>
+                    <div id="varResults" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = '/api/calculators';
+
+        function showCalculator(calculator) {
+            document.querySelectorAll('.calculator-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(calculator).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function calculateBondPrice() {
+            const faceValue = parseFloat(document.getElementById('bondFaceValue').value);
+            const couponRate = parseFloat(document.getElementById('bondCouponRate').value) / 100;
+            const ytm = parseFloat(document.getElementById('bondYTM').value) / 100;
+            const years = parseFloat(document.getElementById('bondYears').value);
+            
+            const couponPayment = faceValue * couponRate;
+            
+            try {
+                const response = await fetch(`${API_BASE}/bond/price`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        couponPayment,
+                        yieldRate: ytm,
+                        yearsToMaturity: years,
+                        faceValue,
+                        frequency: 2
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const results = data.data;
+                    document.getElementById('bondResults').innerHTML = `
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Bond Price</div>
+                            <div class="text-2xl font-bold text-green-400">$${results.bondPrice}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Price as % of Par</div>
+                            <div class="text-2xl font-bold text-blue-400">${results.pricePct}%</div>
+                        </div>
+                        ${results.premium ? `<div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Bond Premium</div>
+                            <div class="text-xl font-bold text-yellow-400">$${results.premium}</div>
+                        </div>` : ''}
+                    `;
+                }
+            } catch (error) {
+                alert('Error calculating bond price: ' + error.message);
+            }
+        }
+
+        async function calculateBondDuration() {
+            const faceValue = parseFloat(document.getElementById('bondFaceValue').value);
+            const couponRate = parseFloat(document.getElementById('bondCouponRate').value) / 100;
+            const currentYield = parseFloat(document.getElementById('bondCurrentYield').value) / 100;
+            const years = parseFloat(document.getElementById('bondYears').value);
+            const frequency = parseInt(document.getElementById('bondFrequency').value);
+            
+            const couponPayment = faceValue * couponRate;
+            
+            try {
+                const response = await fetch(`${API_BASE}/bond/duration`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        couponPayment,
+                        currentYield,
+                        yearsToMaturity: years,
+                        faceValue,
+                        frequency
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const r = data.data;
+                    document.getElementById('durationResults').innerHTML = `
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Macaulay Duration (years)</div>
+                            <div class="text-2xl font-bold text-blue-400">${r.macaulayDuration}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Modified Duration (years)</div>
+                            <div class="text-2xl font-bold text-purple-400">${r.modifiedDuration}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Convexity</div>
+                            <div class="text-2xl font-bold text-green-400">${r.convexity}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error calculating duration: ' + error.message);
+            }
+        }
+
+        async function calculateOptionPrice() {
+            const spotPrice = parseFloat(document.getElementById('optSpotPrice').value);
+            const strikePrice = parseFloat(document.getElementById('optStrikePrice').value);
+            const timeToMaturity = parseFloat(document.getElementById('optTimeToExpiry').value);
+            const volatility = parseFloat(document.getElementById('optVolatility').value) / 100;
+            const riskFreeRate = parseFloat(document.getElementById('optRiskFreeRate').value) / 100;
+            const optionType = document.getElementById('optOptionType').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/options/price`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        spotPrice,
+                        strikePrice,
+                        timeToMaturity,
+                        riskFreeRate,
+                        volatility,
+                        dividendYield: 0,
+                        optionType
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const r = data.data;
+                    document.getElementById('optionResults').innerHTML = `
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">${r.optionType.toUpperCase()} Option Price</div>
+                            <div class="text-3xl font-bold text-green-400">$${r.optionPrice}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Intrinsic Value</div>
+                            <div class="text-xl font-bold text-blue-400">$${r.intrinsicValue}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Time Value</div>
+                            <div class="text-xl font-bold text-yellow-400">$${r.timeValue}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error calculating option price: ' + error.message);
+            }
+        }
+
+        async function calculateGreeks() {
+            const spotPrice = parseFloat(document.getElementById('optSpotPrice').value);
+            const strikePrice = parseFloat(document.getElementById('optStrikePrice').value);
+            const timeToMaturity = parseFloat(document.getElementById('optTimeToExpiry').value);
+            const volatility = parseFloat(document.getElementById('optVolatility').value) / 100;
+            const riskFreeRate = parseFloat(document.getElementById('optRiskFreeRate').value) / 100;
+            const optionType = document.getElementById('optOptionType').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/options/greeks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        spotPrice,
+                        strikePrice,
+                        timeToMaturity,
+                        riskFreeRate,
+                        volatility,
+                        optionType
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const g = data.data;
+                    document.getElementById('greeksResults').innerHTML = `
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600 text-center">
+                            <div class="text-sm text-slate-400 mb-1">Delta (Δ)</div>
+                            <div class="text-2xl font-bold text-blue-400">${g.delta}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600 text-center">
+                            <div class="text-sm text-slate-400 mb-1">Gamma (Γ)</div>
+                            <div class="text-2xl font-bold text-purple-400">${g.gamma}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600 text-center">
+                            <div class="text-sm text-slate-400 mb-1">Theta (Θ)</div>
+                            <div class="text-2xl font-bold text-yellow-400">${g.theta}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600 text-center">
+                            <div class="text-sm text-slate-400 mb-1">Vega (ν)</div>
+                            <div class="text-2xl font-bold text-green-400">${g.vega}</div>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600 text-center">
+                            <div class="text-sm text-slate-400 mb-1">Rho (ρ)</div>
+                            <div class="text-2xl font-bold text-pink-400">${g.rho}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error calculating Greeks: ' + error.message);
+            }
+        }
+
+        async function calculateCryptoDCA() {
+            const monthlyInvestment = parseFloat(document.getElementById('cryptoMonthlyDCA').value);
+            const months = parseInt(document.getElementById('cryptoMonthsDCA').value);
+            const averagePrice = parseFloat(document.getElementById('cryptoAvgPriceDCA').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/crypto/dca`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        monthlyInvestment,
+                        months,
+                        averagePrice,
+                        historicalPrices: []
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(`DCA Analysis:\nTotal Invested: $${(monthlyInvestment * months).toFixed(2)}\nCoins Acquired: ${data.data.totalCoinsAcquired ? data.data.totalCoinsAcquired.toFixed(4) : 'N/A'}`);
+                }
+            } catch (error) {
+                alert('Error calculating DCA: ' + error.message);
+            }
+        }
+
+        async function calculateStaking() {
+            const stakedAmount = parseFloat(document.getElementById('cryptoStakedAmount').value);
+            const apy = parseFloat(document.getElementById('cryptoAPY').value) / 100;
+            const years = parseInt(document.getElementById('cryptoStakingYears').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/crypto/staking`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stakedAmount, apy, years })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const rewards = data.data.yearlyRewards || [];
+                    alert(`Staking Rewards:\nInitial: $${stakedAmount.toFixed(2)}\nRewards Year 1: $${rewards[0] ? rewards[0].toFixed(2) : 'N/A'}`);
+                }
+            } catch (error) {
+                alert('Error calculating staking: ' + error.message);
+            }
+        }
+
+        async function calculateImpermanentLoss() {
+            const initialPriceRatio = parseFloat(document.getElementById('cryptoInitialPriceRatio').value);
+            const finalPriceRatio = parseFloat(document.getElementById('cryptoFinalPriceRatio').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/crypto/impermanent-loss`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initialPriceRatio, finalPriceRatio })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('ilResults').innerHTML = `
+                        <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                            <div class="text-sm text-slate-400 mb-1">Impermanent Loss</div>
+                            <div class="text-2xl font-bold text-red-400">${data.data.lossPercentage}%</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error calculating IL: ' + error.message);
+            }
+        }
+
+        async function calculateSharpe() {
+            const returns = parseFloat(document.getElementById('portReturn').value) / 100;
+            const stdDev = parseFloat(document.getElementById('portStdDev').value) / 100;
+            const riskFreeRate = parseFloat(document.getElementById('portRiskFreeRate').value) / 100;
+            
+            const sharpeRatio = (returns - riskFreeRate) / stdDev;
+            
+            alert(`Sharpe Ratio: ${sharpeRatio.toFixed(4)}\n\nInterpretation: ${sharpeRatio > 1 ? 'Excellent' : sharpeRatio > 0.5 ? 'Good' : 'Moderate'} risk-adjusted returns`);
+        }
+
+        async function calculateMonteCarlo() {
+            const initialValue = parseFloat(document.getElementById('mcInitialValue').value);
+            const expectedReturn = parseFloat(document.getElementById('mcExpReturn').value) / 100;
+            const volatility = parseFloat(document.getElementById('mcVolatility').value) / 100;
+            const years = parseInt(document.getElementById('mcYears').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/portfolio/monte-carlo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        initialValue,
+                        expectedReturn,
+                        volatility,
+                        years,
+                        simulations: 10000
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const r = data.data;
+                    alert(`Monte Carlo Results (${years} years):\nMedian: $${r.medianValue}\n5th Percentile: $${r.percentile5}\n95th Percentile: $${r.percentile95}`);
+                }
+            } catch (error) {
+                alert('Error running simulation: ' + error.message);
+            }
+        }
+
+        async function calculateVaR() {
+            const portfolioValue = parseFloat(document.getElementById('varPortfolioValue').value);
+            const expReturn = parseFloat(document.getElementById('varExpReturn').value) / 100;
+            const volatility = parseFloat(document.getElementById('varVolatility').value) / 100;
+            
+            // Simplified VaR calculation
+            const var95 = (expReturn - 1.645 * volatility);
+            const var99 = (expReturn - 2.326 * volatility);
+            
+            document.getElementById('varResults').innerHTML = `
+                <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                    <div class="text-sm text-slate-400 mb-1">VaR 95%</div>
+                    <div class="text-xl font-bold text-orange-400">$${(portfolioValue * Math.abs(var95)).toFixed(2)}</div>
+                </div>
+                <div class="p-4 bg-slate-800 rounded border border-slate-600">
+                    <div class="text-sm text-slate-400 mb-1">VaR 99%</div>
+                    <div class="text-xl font-bold text-red-400">$${(portfolioValue * Math.abs(var99)).toFixed(2)}</div>
+                </div>
+            `;
+        }
+
+        // Initialize with overview
+        showCalculator('overview');
+    </script>
+</body>
+</html>

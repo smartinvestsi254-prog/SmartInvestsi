@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dividend Tracking - SmartInvestsi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .navbar { background: rgba(0,0,0,0.3) !important; backdrop-filter: blur(10px); }
+    .card { border: none; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .dividend-item { border-left: 5px solid #28a745; padding: 15px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark navbar-expand-lg mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fas fa-chart-line"></i> SmartInvest</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="enhanced-dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#dividends">Dividends</a></li>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <!-- Summary Cards -->
+    <div class="row mb-4 g-4">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Last Month</h6>
+            <h3 class="text-success">$184.50</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-2">This Year</h6>
+            <h3 class="text-success">$2,456.80</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Next Payment</h6>
+            <h3>$325.00</h3>
+            <small class="text-muted">2 days</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Dividend Yield</h6>
+            <h3 class="text-info">3.2%</h3>
+            <small class="text-muted">Annual</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-4"><i class="fas fa-history"></i> Dividend History</h5>
+            
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Symbol</th>
+                    <th>Shares</th>
+                    <th>Yield</th>
+                    <th>Amount</th>
+                    <th>Ex-Date</th>
+                    <th>Pay Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Apple Inc.</strong></td>
+                    <td>AAPL</td>
+                    <td>50</td>
+                    <td>0.48%</td>
+                    <td class="text-success">$24.00</td>
+                    <td>Nov 11, 2024</td>
+                    <td>Nov 18, 2024</td>
+                    <td><span class="badge bg-success">PAID</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Microsoft Corp.</strong></td>
+                    <td>MSFT</td>
+                    <td>30</td>
+                    <td>0.77%</td>
+                    <td class="text-success">$21.60</td>
+                    <td>Nov 15, 2024</td>
+                    <td>Dec 12, 2024</td>
+                    <td><span class="badge bg-success">PAID</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Coca-Cola Co.</strong></td>
+                    <td>KO</td>
+                    <td>100</td>
+                    <td>2.90%</td>
+                    <td class="text-warning">$72.50</td>
+                    <td>Nov 22, 2024</td>
+                    <td>Dec 19, 2024</td>
+                    <td><span class="badge bg-info">UPCOMING</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Verizon Comm.</strong></td>
+                    <td>VZ</td>
+                    <td>75</td>
+                    <td>6.48%</td>
+                    <td class="text-warning">$96.30</td>
+                    <td>Dec 5, 2024</td>
+                    <td>Jan 2, 2025</td>
+                    <td><span class="badge bg-info">UPCOMING</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Johnson & Johnson</strong></td>
+                    <td>JNJ</td>
+                    <td>40</td>
+                    <td>2.54%</td>
+                    <td class="text-warning">$35.60</td>
+                    <td>Dec 10, 2024</td>
+                    <td>Jan 15, 2025</td>
+                    <td><span class="badge bg-secondary">PENDING</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title mb-4"><i class="fas fa-chart-bar"></i> Dividend by Month</h5>
+            <canvas id="dividendChart" height="80"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-calendar"></i> Dividend Calendar</h6>
+            <div class="list-group list-group-flush">
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Nov 28</strong>
+                  <p class="mb-0" style="font-size: 0.85rem; color: #666;">Coca-Cola (KO)</p>
+                </div>
+                <span class="badge bg-warning">$72.50</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Dec 12</strong>
+                  <p class="mb-0" style="font-size: 0.85rem; color: #666;">Verizon (VZ)</p>
+                </div>
+                <span class="badge bg-warning">$96.30</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Jan 15</strong>
+                  <p class="mb-0" style="font-size: 0.85rem; color: #666;">J&J (JNJ)</p>
+                </div>
+                <span class="badge bg-secondary">$35.60</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Jan 28</strong>
+                  <p class="mb-0" style="font-size: 0.85rem; color: #666;">APL Holdings</p>
+                </div>
+                <span class="badge bg-secondary">$45.20</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm w-100 mt-3" onclick="viewDividendCalendar()">Full Calendar</button>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-bar-chart"></i> Top Dividend Stocks</h6>
+            <div class="list-group list-group-flush" style="font-size: 0.9rem;">
+              <div class="list-group-item d-flex justify-content-between">
+                <span><strong>Verizon (VZ)</strong><br><small style="color: #999;">6.48% yield</small></span>
+                <span class="text-success">$96.30</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between">
+                <span><strong>Coca-Cola (KO)</strong><br><small style="color: #999;">2.90% yield</small></span>
+                <span class="text-success">$72.50</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between">
+                <span><strong>J&J (JNJ)</strong><br><small style="color: #999;">2.54% yield</small></span>
+                <span class="text-success">$35.60</span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between">
+                <span><strong>Procter & Gamble (PG)</strong><br><small style="color: #999;">2.20% yield</small></span>
+                <span class="text-success">$28.50</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-lightbulb"></i> Actions</h6>
+            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="reinvestDividends()">
+              <i class="fas fa-redo"></i> Reinvest Dividends
+            </button>
+            <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="downloadReport()">
+              <i class="fas fa-download"></i> Download Report
+            </button>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="setupAutoReinvest()">
+              <i class="fas fa-cog"></i> Auto DRIP
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Chart for dividend by month
+    const ctx = document.getElementById('dividendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Dividends Received',
+          data: [180, 210, 195, 220, 240, 185, 200, 215, 230, 250, 185, 0],
+          backgroundColor: '#667eea',
+          borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: function(value) { return '$' + value; } }
+          }
+        }
+      }
+    });
+
+    function viewDividendCalendar() { window.location.href = 'dividend-calendar.html'; }
+    function reinvestDividends() { alert('Dividend reinvestment initiated'); }
+    function downloadReport() { alert('Downloading dividend report...'); }
+    function setupAutoReinvest() { alert('Auto DRIP setup dialog'); }
+  </script>
+</body>
+</html>

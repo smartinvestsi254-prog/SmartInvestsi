@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Investment Calculator (SPA)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- KaTeX for rendering formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="document.dispatchEvent(new Event('katex-ready'))"></script>
+  <style>
+    .formula { background: #f8fafc; padding: 0.5rem; border-radius: 6px; margin-top:8px; }
+  </style>
+</head>
+<body class="p-6 bg-gray-50">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Investment — Amortization — Insurance</h1>
+    <div id="toast_container" class="fixed top-4 right-4 space-y-2 z-50" aria-live="polite"></div>
+    <!-- Modals: name input and admin auth -->
+    <div id="modal_backdrop" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-40"></div>
+    <div id="name_modal" class="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow hidden z-50 w-11/12 max-w-md">
+      <h3 class="font-semibold mb-2">Scenario name</h3>
+      <input id="name_input" class="w-full border rounded p-2 mb-3" placeholder="Enter a name">
+      <div class="flex justify-end gap-2"><button id="name_cancel" class="px-3 py-1 rounded bg-gray-200">Cancel</button><button id="name_ok" class="px-3 py-1 rounded bg-blue-600 text-white">OK</button></div>
+    </div>
+    <div id="admin_modal" class="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow hidden z-50 w-11/12 max-w-md">
+      <h3 class="font-semibold mb-2">Admin credentials</h3>
+      <input id="admin_user" class="w-full border rounded p-2 mb-2" placeholder="Admin user">
+      <input id="admin_pass" type="password" class="w-full border rounded p-2 mb-3" placeholder="Password">
+      <div class="flex justify-end gap-2"><button id="admin_cancel" class="px-3 py-1 rounded bg-gray-200">Cancel</button><button id="admin_ok" class="px-3 py-1 rounded bg-blue-600 text-white">OK</button></div>
+    </div>
+
+    <div class="mb-4">
+      <nav class="flex gap-2">
+        <button class="tab bg-blue-600 text-white px-3 py-1 rounded" data-tab="investment">Investment</button>
+        <button class="tab bg-gray-200 px-3 py-1 rounded" data-tab="amort">Amortization</button>
+        <button class="tab bg-gray-200 px-3 py-1 rounded" data-tab="insurance">Insurance</button>
+        <button class="tab bg-gray-200 px-3 py-1 rounded" data-tab="scenarios">Scenarios</button>
+      </nav>
+    </div>
+
+    <div id="content">
+      <!-- Investment -->
+      <section id="investment" class="tab-pane">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm">Initial amount</label>
+            <input id="inv_initial" type="number" class="w-full border rounded p-2" value="1000">
+          </div>
+          <div>
+            <label class="block text-sm">Monthly contribution</label>
+            <input id="inv_monthly" type="number" class="w-full border rounded p-2" value="100">
+          </div>
+          <div>
+            <label class="block text-sm">Annual rate (%)</label>
+            <input id="inv_rate" type="number" class="w-full border rounded p-2" value="6">
+          </div>
+          <div>
+            <label class="block text-sm">Years</label>
+            <input id="inv_years" type="number" class="w-full border rounded p-2" value="10">
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button id="inv_calc" class="bg-blue-600 text-white px-4 py-2 rounded">Calculate</button>
+          <button id="inv_csv" class="bg-gray-200 px-4 py-2 rounded">CSV</button>
+          <button id="inv_save" class="bg-green-600 text-white px-4 py-2 rounded">Save Scenario</button>
+        </div>
+        <div id="inv_result" class="mt-4"></div>
+      </section>
+
+      <!-- Amortization -->
+      <section id="amort" class="tab-pane hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm">Loan amount</label>
+            <input id="loan_amount" type="number" class="w-full border rounded p-2" value="50000">
+          </div>
+          <div>
+            <label class="block text-sm">Annual rate (%)</label>
+            <input id="loan_rate" type="number" class="w-full border rounded p-2" value="8">
+          </div>
+          <div>
+            <label class="block text-sm">Years</label>
+            <input id="loan_years" type="number" class="w-full border rounded p-2" value="5">
+          </div>
+          <div>
+            <label class="block text-sm">Payments per year</label>
+            <input id="loan_freq" type="number" class="w-full border rounded p-2" value="12">
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button id="loan_calc" class="bg-blue-600 text-white px-4 py-2 rounded">Generate Amortization</button>
+          <button id="loan_csv" class="bg-gray-200 px-4 py-2 rounded">CSV</button>
+          <button id="loan_save" class="bg-green-600 text-white px-4 py-2 rounded">Save Scenario</button>
+        </div>
+        <div id="loan_result" class="mt-4"></div>
+      </section>
+
+      <!-- Insurance -->
+      <section id="insurance" class="tab-pane hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm">Coverage amount</label>
+            <input id="ins_coverage" type="number" class="w-full border rounded p-2" value="100000">
+          </div>
+          <div>
+            <label class="block text-sm">Base rate (% per year)</label>
+            <input id="ins_rate" type="number" class="w-full border rounded p-2" value="1">
+          </div>
+          <div>
+            <label class="block text-sm">Age</label>
+            <input id="ins_age" type="number" class="w-full border rounded p-2" value="35">
+          </div>
+          <div>
+            <label class="block text-sm">Term (years)</label>
+            <input id="ins_term" type="number" class="w-full border rounded p-2" value="20">
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button id="ins_calc" class="bg-blue-600 text-white px-4 py-2 rounded">Calculate Premiums</button>
+          <button id="ins_csv" class="bg-gray-200 px-4 py-2 rounded">CSV</button>
+          <button id="ins_save" class="bg-green-600 text-white px-4 py-2 rounded">Save Scenario</button>
+        </div>
+        <div id="ins_result" class="mt-4"></div>
+      </section>
+
+      <!-- Scenarios -->
+      <section id="scenarios" class="tab-pane hidden">
+        <div class="flex gap-2 mb-4">
+          <button id="load_scenarios" class="bg-indigo-600 text-white px-3 py-1 rounded">Refresh</button>
+        </div>
+        <div id="scenarios_list" class="text-sm"></div>
+      </section>
+    </div>
+  </div>
+
+<script>
+function $qs(sel,root=document){return root.querySelector(sel)}
+function $qa(sel,root=document){return Array.from(root.querySelectorAll(sel))}
+function fmt(n){return Number(n).toLocaleString(undefined,{maximumFractionDigits:2})}
+
+// Toast helper
+function showToast(message, type='success'){
+  const container = $qs('#toast_container'); if(!container) return;
+  const el = document.createElement('div');
+  const bg = type==='error'? 'bg-red-600' : (type==='info'? 'bg-blue-600' : 'bg-green-600');
+  el.className = `text-white px-4 py-2 rounded shadow ${bg} transform transition-all duration-300 opacity-0`;
+  el.textContent = message;
+  container.appendChild(el);
+  // animate in
+  requestAnimationFrame(()=> el.classList.remove('opacity-0'));
+  // remove after timeout
+  setTimeout(()=>{ el.classList.add('opacity-0'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+// Button loading/disable visual
+function setLoading(btn, loading){ if(!btn) return; btn.disabled = !!loading; if(loading){ btn.classList.add('opacity-50','cursor-not-allowed'); } else { btn.classList.remove('opacity-50','cursor-not-allowed'); } }
+
+// Modal helpers
+function showBackdrop(show){ const b = $qs('#modal_backdrop'); if(!b) return; b.classList.toggle('hidden', !show); b.style.display = show? 'flex' : 'none'; }
+
+function showNameModal(){
+  return new Promise((resolve)=>{
+    const modal = $qs('#name_modal'); const input = $qs('#name_input'); const ok = $qs('#name_ok'); const cancel = $qs('#name_cancel');
+    function cleanup(){ ok.removeEventListener('click',onOk); cancel.removeEventListener('click',onCancel); showBackdrop(false); modal.classList.add('hidden'); }
+    function onOk(){ const v = input.value && input.value.trim(); cleanup(); resolve(v || null); }
+    function onCancel(){ cleanup(); resolve(null); }
+    input.value = '';
+    ok.addEventListener('click', onOk); cancel.addEventListener('click', onCancel);
+    showBackdrop(true); modal.classList.remove('hidden'); input.focus();
+  });
+}
+
+function showAdminModal(){
+  return new Promise((resolve)=>{
+    const modal = $qs('#admin_modal'); const user = $qs('#admin_user'); const pass = $qs('#admin_pass'); const ok = $qs('#admin_ok'); const cancel = $qs('#admin_cancel');
+    function cleanup(){ ok.removeEventListener('click',onOk); cancel.removeEventListener('click',onCancel); showBackdrop(false); modal.classList.add('hidden'); }
+    function onOk(){ const u = user.value && user.value.trim(); const p = pass.value || ''; cleanup(); resolve({ user: u || null, pass: p }); }
+    function onCancel(){ cleanup(); resolve(null); }
+    user.value = ''; pass.value = '';
+    ok.addEventListener('click', onOk); cancel.addEventListener('click', onCancel);
+    showBackdrop(true); modal.classList.remove('hidden'); user.focus();
+  });
+}
+
+// Tabs
+$qa('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+  const tab = btn.dataset.tab;
+  $qa('.tab').forEach(b=>b.classList.remove('bg-blue-600','text-white'));
+  btn.classList.add('bg-blue-600','text-white');
+  $qa('.tab-pane').forEach(p=>p.classList.add('hidden'));
+  $qs('#'+tab).classList.remove('hidden');
+}));
+
+// Helper: render LaTeX to an element (requires KaTeX loaded)
+function renderLatex(el, latex, displayMode=true){
+  if (!window.katex) {
+    // wait for katex-ready event then retry once
+    document.addEventListener('katex-ready', ()=> {
+      try { el.innerHTML = katex.renderToString(latex, {throwOnError:false, displayMode: displayMode}); } catch(e){ el.textContent = latex; }
+    }, { once: true });
+    // fallback text until katex loads
+    el.textContent = latex;
+    return;
+  }
+  try { el.innerHTML = katex.renderToString(latex, {throwOnError:false, displayMode: displayMode}); } catch(e){ el.textContent = latex; }
+}
+
+// Investment detailed monthly schedule
+function invSchedule(initial, monthly, annualRate, years){
+  const months = years*12; const monthlyRate = Math.pow(1+annualRate/100,1/12)-1;
+  const rows = []; let bal=initial, totalContrib=initial, totalInterest=0;
+  for(let m=1;m<=months;m++){
+    bal += monthly; totalContrib += monthly;
+    const interest = bal * monthlyRate; bal += interest; totalInterest += interest;
+    rows.push({month:m,balance:bal,contrib: totalContrib,interest: totalInterest});
+  }
+  return { rows, monthlyRate };
+}
+
+function renderInv(){
+  const initial=Number($qs('#inv_initial').value)||0;
+  const monthly=Number($qs('#inv_monthly').value)||0;
+  const rate=Number($qs('#inv_rate').value)||0;
+  const years=Number($qs('#inv_years').value)||0;
+  const out = invSchedule(initial,monthly,rate,years);
+  const rows = out.rows;
+  const r_m = out.monthlyRate;
+  const n = years*12;
+  const finalBal = rows.length? rows[rows.length-1].balance : initial;
+
+  // LaTeX formula (symbols)
+  const formula = String.raw`F = P(1+r_m)^{n} + PMT \cdot \frac{(1+r_m)^{n}-1}{r_m}, \quad r_m = (1+R)^{1/12}-1`;
+  const substituted = String.raw`F = ${initial} (1 + ${r_m.toFixed(8)})^{${n}} + ${monthly} \cdot \frac{(1 + ${r_m.toFixed(8)})^{${n}} - 1}{${r_m.toFixed(8)}} = ${finalBal.toFixed(2)}`;
+
+  let html = `<div class="formula" id="inv_formula_tex"></div>`;
+  html += `<p class="mt-2">Final balance: <strong>${fmt(finalBal)}</strong></p>`;
+  html += `<div class="mt-3 overflow-auto"><table class="w-full text-sm"><thead><tr><th class="border px-2">Month</th><th class="border px-2">Balance</th><th class="border px-2">Contrib</th><th class="border px-2">Interest</th></tr></thead><tbody>`;
+  rows.forEach(r=> html+=`<tr class="border-b"><td class="px-2">${r.month}</td><td class="px-2">${fmt(r.balance)}</td><td class="px-2">${fmt(r.contrib)}</td><td class="px-2">${fmt(r.interest)}</td></tr>`);
+  html += `</tbody></table></div>`;
+  $qs('#inv_result').innerHTML = html;
+  // render LaTeX into formula container
+  const fEl = $qs('#inv_formula_tex');
+  renderLatex(fEl, formula);
+  const fEl2 = document.createElement('div'); fEl2.className='mt-2 text-sm text-gray-700'; fEl2.textContent = substituted;
+  $qs('#inv_result').insertBefore(fEl2, $qs('#inv_result').firstChild.nextSibling);
+
+  window._inv_rows = rows;
+}
+
+$qs('#inv_calc').addEventListener('click', renderInv);
+$qs('#inv_csv').addEventListener('click', ()=>{
+  const rows = window._inv_rows||[]; if(!rows.length) return alert('Run calculation first');
+  let csv='month,balance,contrib,interest\n'; rows.forEach(r=>csv+=`${r.month},${r.balance},${r.contrib},${r.interest}\n`);
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='investment_monthly.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save scenario
+$qs('#inv_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#inv_save'); setLoading(btn, true);
+  const settings = { initial: Number($qs('#inv_initial').value)||0, monthly: Number($qs('#inv_monthly').value)||0, rate: Number($qs('#inv_rate').value)||0, years: Number($qs('#inv_years').value)||0 };
+  const rows = window._inv_rows||[]; const result = { final: rows.length?rows[rows.length-1].balance:null };
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'investment', settings, result })});
+    const d = await res.json();
+    if(d.success){ showToast('Scenario saved'); } else { showToast('Save failed','error'); }
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Amortization schedule (standard)
+function amortSchedule(amount, annualRate, years, freq){
+  const n = years*freq; const r = annualRate/100/freq; const payment = r===0? amount/n : (amount * r / (1 - Math.pow(1+r, -n)));
+  let bal=amount; const rows=[]; let totalInt=0;
+  for(let i=1;i<=n;i++){
+    const interest = bal * r; const principal = payment - interest; bal -= principal; if(bal<0) bal=0;
+    totalInt += interest; rows.push({period:i,payment,principal,interest,balance:bal});
+  }
+  return {rows,payment,totalInterest: totalInt, r, n};
+}
+
+$qs('#loan_calc').addEventListener('click', ()=>{
+  const amt=Number($qs('#loan_amount').value)||0; const rate=Number($qs('#loan_rate').value)||0; const yrs=Number($qs('#loan_years').value)||0; const freq=Number($qs('#loan_freq').value)||12;
+  const out = amortSchedule(amt,rate,yrs,freq);
+  let html = `<div class="formula" id="loan_formula_tex"></div>`;
+  html += `<p>Payment: <strong>${fmt(out.payment)}</strong> — Total interest: <strong>${fmt(out.totalInterest)}</strong></p>`;
+  html += `<div class="mt-3 overflow-auto"><table class="w-full text-sm"><thead><tr><th class="border px-2">#</th><th class="border px-2">Payment</th><th class="border px-2">Principal</th><th class="border px-2">Interest</th><th class="border px-2">Balance</th></tr></thead><tbody>`;
+  out.rows.forEach(r=> html+=`<tr class="border-b"><td class="px-2">${r.period}</td><td class="px-2">${fmt(r.payment)}</td><td class="px-2">${fmt(r.principal)}</td><td class="px-2">${fmt(r.interest)}</td><td class="px-2">${fmt(r.balance)}</td></tr>`);
+  html += `</tbody></table></div>`;
+  $qs('#loan_result').innerHTML = html;
+  // formula display using LaTeX symbols
+  const formula = String.raw`PMT = \dfrac{r \cdot PV}{1-(1+r)^{-n}}, \quad r = \dfrac{R}{m}, \; n = m \cdot t`;
+  renderLatex($qs('#loan_formula_tex'), formula);
+  const substituted = `PMT = (${out.r.toFixed(8)} \\cdot ${amt}) / (1 - (1+${out.r.toFixed(8)})^{-${out.n}}) = ${out.payment.toFixed(2)}`;
+  const subEl = document.createElement('div'); subEl.className='mt-2 text-sm text-gray-700'; subEl.textContent = substituted;
+  $qs('#loan_result').insertBefore(subEl, $qs('#loan_result').firstChild.nextSibling);
+
+  window._loan_out = out;
+});
+
+$qs('#loan_csv').addEventListener('click', ()=>{
+  const out = window._loan_out; if(!out) return alert('Generate amortization first');
+  let csv='period,payment,principal,interest,balance\n'; out.rows.forEach(r=>csv+=`${r.period},${r.payment},${r.principal},${r.interest},${r.balance}\n`);
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='amortization.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save amortization scenario
+$qs('#loan_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#loan_save'); setLoading(btn, true);
+  const settings = { amount: Number($qs('#loan_amount').value)||0, rate: Number($qs('#loan_rate').value)||0, years: Number($qs('#loan_years').value)||0, freq: Number($qs('#loan_freq').value)||12 };
+  const result = { payment: window._loan_out? window._loan_out.payment : null };
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'amort', settings, result })});
+    const j = await res.json(); if(j.success) showToast('Scenario saved'); else showToast('Save failed','error');
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Insurance advanced formulas
+function calcInsurancePremium(coverage, baseRate, age, term){
+  // base annual premium = coverage * baseRate%
+  // age loading: simple factor: 1 + (age-30)*0.01 after 30
+  const ageFactor = age>30? 1 + ((age-30)*0.01) : 1;
+  // term discount: longer term gets small discount
+  const termFactor = term>20? 0.95 : 1;
+  const annual = coverage * (baseRate/100) * ageFactor * termFactor;
+  const total = annual * term;
+  return { annual, total, ageFactor, termFactor };
+}
+
+$qs('#ins_calc').addEventListener('click', ()=>{
+  const coverage=Number($qs('#ins_coverage').value)||0; const rate=Number($qs('#ins_rate').value)||0; const age=Number($qs('#ins_age').value)||30; const term=Number($qs('#ins_term').value)||10;
+  const res = calcInsurancePremium(coverage,rate,age,term);
+
+  // Display formula using actuarial symbols
+  const formula = String.raw`Annual = C \cdot \rho \cdot \alpha \cdot \tau, \quad \alpha = 1 + 0.01\max(0,\,age-30), \; \tau = \begin{cases}0.95 & t>20\\1 & t\le 20\end{cases}`;
+  const substituted = `Annual = ${coverage} \\cdot ${rate/100} \\cdot ${res.ageFactor.toFixed(3)} \\cdot ${res.termFactor.toFixed(3)} = ${res.annual.toFixed(2)}`;
+
+  let html = `<div class="formula" id="ins_formula_tex"></div>`;
+  html += `<p>Estimated annual premium: <strong>${fmt(res.annual)}</strong></p><p>Total over term (${term}y): <strong>${fmt(res.total)}</strong></p><p class="text-sm text-gray-600">Age factor: ${res.ageFactor.toFixed(2)}, Term factor: ${res.termFactor.toFixed(2)}</p>`;
+  $qs('#ins_result').innerHTML = html;
+  renderLatex($qs('#ins_formula_tex'), formula);
+  const subEl = document.createElement('div'); subEl.className='mt-2 text-sm text-gray-700'; subEl.textContent = substituted;
+  $qs('#ins_result').insertBefore(subEl, $qs('#ins_result').firstChild.nextSibling);
+
+  window._ins_res = res;
+});
+
+$qs('#ins_csv').addEventListener('click', ()=>{
+  const r = window._ins_res; if(!r) return alert('Calculate first');
+  const coverage=Number($qs('#ins_coverage').value)||0; const rate=Number($qs('#ins_rate').value)||0; const term=Number($qs('#ins_term').value)||0;
+  const csv = `coverage,rate,term,annual,total\n${coverage},${rate},${term},${r.annual},${r.total}`;
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='insurance.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save insurance scenario
+$qs('#ins_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#ins_save'); setLoading(btn, true);
+  const settings = { coverage: Number($qs('#ins_coverage').value)||0, rate: Number($qs('#ins_rate').value)||0, age: Number($qs('#ins_age').value)||30, term: Number($qs('#ins_term').value)||10 };
+  const result = window._ins_res || {};
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'insurance', settings, result })});
+    const j = await res.json(); if(j.success) showToast('Scenario saved'); else showToast('Save failed','error');
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Scenarios list
+async function loadScenarios(){
+  const refreshBtn = $qs('#load_scenarios'); setLoading(refreshBtn, true);
+  try{
+    const res = await fetch('/api/scenarios'); const d = await res.json(); if(!d.success) { $qs('#scenarios_list').textContent='Failed to load'; setLoading(refreshBtn,false); return; }
+    const list = d.scenarios || [];
+    if(!list.length) { $qs('#scenarios_list').innerHTML='<div class="text-gray-600">No scenarios saved.</div>'; setLoading(refreshBtn,false); return; }
+    let html = '<ul class="space-y-2">';
+    list.forEach(s=>{
+      html += `<li class="border p-2 rounded"><div class="flex justify-between items-center"><div><strong>${s.name}</strong> <span class="text-xs text-gray-600">${s.type}</span><div class="text-xs text-gray-600">${new Date(s.createdAt).toLocaleString()}</div></div><div class="flex gap-2"><button data-id="${s.id}" class="load btn bg-indigo-600 text-white px-2 py-1 rounded">Load</button><button data-id="${s.id}" class="del btn bg-red-600 text-white px-2 py-1 rounded">Delete</button></div></div></li>`;
+    });
+    html += '</ul>';
+    $qs('#scenarios_list').innerHTML = html;
+    $qa('.load').forEach(b=>b.addEventListener('click', async e=>{
+      const id = e.currentTarget.dataset.id; const btn = e.currentTarget; setLoading(btn, true);
+      try{
+        const r = await fetch('/api/scenarios/'+id); const j = await r.json(); if(!j.success){ showToast('Failed to load scenario','error'); setLoading(btn,false); return; }
+        const s = j.scenario; if(!s){ showToast('Scenario missing','error'); setLoading(btn,false); return; }
+        const tabName = s.type || 'investment'; const tabBtn = $qs('.tab[data-tab="'+tabName+'"]'); if(tabBtn) tabBtn.click();
+        if(tabName === 'investment'){
+          const st = s.settings||{}; $qs('#inv_initial').value = st.initial || 0; $qs('#inv_monthly').value = st.monthly || 0; $qs('#inv_rate').value = st.rate || 0; $qs('#inv_years').value = st.years || 0; renderInv();
+        } else if(tabName === 'amort' || tabName === 'amortization'){
+          const st = s.settings||{}; $qs('#loan_amount').value = st.amount || st.loanAmount || 0; $qs('#loan_rate').value = st.rate || 0; $qs('#loan_years').value = st.years || 0; $qs('#loan_freq').value = st.freq || st.paymentsPerYear || 12; $qs('#loan_calc').click();
+        } else if(tabName === 'insurance'){
+          const st = s.settings||{}; $qs('#ins_coverage').value = st.coverage || 0; $qs('#ins_rate').value = st.rate || 0; $qs('#ins_age').value = st.age || 30; $qs('#ins_term').value = st.term || 10; $qs('#ins_calc').click();
+        } else { const st = s.settings||{}; if(st.initial !== undefined) $qs('#inv_initial').value = st.initial; if(st.monthly !== undefined) $qs('#inv_monthly').value = st.monthly; renderInv(); }
+        showToast('Scenario loaded','info');
+      }catch(err){ console.error(err); showToast('Error loading scenario','error'); }
+      setLoading(e.currentTarget, false);
+    }));
+    $qa('.del').forEach(b=>b.addEventListener('click', async e=>{
+      const id = e.currentTarget.dataset.id; const ok = confirm('Delete scenario? (admin auth required)'); if(!ok) return;
+        const creds = await showAdminModal(); if(!creds) return;
+        const auth = 'Basic '+btoa((creds.user||'')+':'+(creds.pass||''));
+      const delBtn = e.currentTarget; setLoading(delBtn, true);
+      try{
+        const r = await fetch('/api.scenarios/'+id,{method:'DELETE',headers:{Authorization:auth}});
+        const j = await r.json(); if(r.ok && j.success){ showToast('Deleted'); loadScenarios(); } else { showToast('Delete failed','error'); }
+      }catch(err){ console.error(err); showToast('Delete error','error'); }
+      setLoading(delBtn, false);
+    }));
+  }catch(err){ console.error(err); $qs('#scenarios_list').textContent='Failed to load'; showToast('Failed to load scenarios','error'); }
+  setLoading(refreshBtn, false);
+}
+
+$qs('#load_scenarios').addEventListener('click', loadScenarios);
+
+// Activate default tab
+document.querySelector('.tab[data-tab="investment"]').click();
+
+// expose helper for external load
+window._loadScenarios = loadScenarios;
+</script>
+</body>
+</html>
+$qs('#inv_csv').addEventListener('click', ()=>{
+  const rows = window._inv_rows||[]; if(!rows.length) return alert('Run calculation first');
+  let csv='month,balance,contrib,interest\n'; rows.forEach(r=>csv+=`${r.month},${r.balance},${r.contrib},${r.interest}\n`);
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='investment_monthly.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save scenario
+$qs('#inv_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#inv_save'); setLoading(btn, true);
+  const settings = { initial: Number($qs('#inv_initial').value)||0, monthly: Number($qs('#inv_monthly').value)||0, rate: Number($qs('#inv_rate').value)||0, years: Number($qs('#inv_years').value)||0 };
+  const rows = window._inv_rows||[]; const result = { final: rows.length?rows[rows.length-1].balance:null };
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'investment', settings, result })});
+    const d = await res.json();
+    if(d.success){ showToast('Scenario saved'); } else { showToast('Save failed','error'); }
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Amortization schedule (standard)
+function amortSchedule(amount, annualRate, years, freq){
+  const n = years*freq; const r = annualRate/100/freq; const payment = r===0? amount/n : (amount * r / (1 - Math.pow(1+r, -n)));
+  let bal=amount; const rows=[]; let totalInt=0;
+  for(let i=1;i<=n;i++){
+    const interest = bal * r; const principal = payment - interest; bal -= principal; if(bal<0) bal=0;
+    totalInt += interest; rows.push({period:i,payment,principal,interest,balance:bal});
+  }
+  return {rows,payment,totalInterest: totalInt};
+}
+
+$qs('#loan_calc').addEventListener('click', ()=>{
+  const amt=Number($qs('#loan_amount').value)||0; const rate=Number($qs('#loan_rate').value)||0; const yrs=Number($qs('#loan_years').value)||0; const freq=Number($qs('#loan_freq').value)||12;
+  const out = amortSchedule(amt,rate,yrs,freq);
+  let html = `<p>Payment: <strong>${fmt(out.payment)}</strong> — Total interest: <strong>${fmt(out.totalInterest)}</strong></p>`;
+  html += `<div class="mt-3 overflow-auto"><table class="w-full text-sm"><thead><tr><th class="border px-2">#</th><th class="border px-2">Payment</th><th class="border px-2">Principal</th><th class="border px-2">Interest</th><th class="border px-2">Balance</th></tr></thead><tbody>`;
+  out.rows.forEach(r=> html+=`<tr class="border-b"><td class="px-2">${r.period}</td><td class="px-2">${fmt(r.payment)}</td><td class="px-2">${fmt(r.principal)}</td><td class="px-2">${fmt(r.interest)}</td><td class="px-2">${fmt(r.balance)}</td></tr>`);
+  html += `</tbody></table></div>`;
+  $qs('#loan_result').innerHTML = html; window._loan_out = out;
+});
+
+$qs('#loan_csv').addEventListener('click', ()=>{
+  const out = window._loan_out; if(!out) return alert('Generate amortization first');
+  let csv='period,payment,principal,interest,balance\n'; out.rows.forEach(r=>csv+=`${r.period},${r.payment},${r.principal},${r.interest},${r.balance}\n`);
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='amortization.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save amortization scenario
+$qs('#loan_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#loan_save'); setLoading(btn, true);
+  const settings = { amount: Number($qs('#loan_amount').value)||0, rate: Number($qs('#loan_rate').value)||0, years: Number($qs('#loan_years').value)||0, freq: Number($qs('#loan_freq').value)||12 };
+  const result = { payment: window._loan_out? window._loan_out.payment : null };
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'amort', settings, result })});
+    const j = await res.json(); if(j.success) showToast('Scenario saved'); else showToast('Save failed','error');
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Insurance advanced formulas
+function calcInsurancePremium(coverage, baseRate, age, term){
+  // base annual premium = coverage * baseRate%
+  // age loading: simple factor: 1 + (age-30)*0.01 after 30
+  const ageFactor = age>30? 1 + ((age-30)*0.01) : 1;
+  // term discount: longer term gets small discount
+  const termFactor = term>20? 0.95 : 1;
+  const annual = coverage * (baseRate/100) * ageFactor * termFactor;
+  const total = annual * term;
+  return { annual, total, ageFactor, termFactor };
+}
+
+$qs('#ins_calc').addEventListener('click', ()=>{
+  const coverage=Number($qs('#ins_coverage').value)||0; const rate=Number($qs('#ins_rate').value)||0; const age=Number($qs('#ins_age').value)||30; const term=Number($qs('#ins_term').value)||10;
+  const res = calcInsurancePremium(coverage,rate,age,term);
+  $qs('#ins_result').innerHTML = `<p>Estimated annual premium: <strong>${fmt(res.annual)}</strong></p><p>Total over term (${term}y): <strong>${fmt(res.total)}</strong></p><p class="text-sm text-gray-600">Age factor: ${res.ageFactor.toFixed(2)}, Term factor: ${res.termFactor.toFixed(2)}</p>`;
+  window._ins_res = res;
+});
+
+$qs('#ins_csv').addEventListener('click', ()=>{
+  const r = window._ins_res; if(!r) return alert('Calculate first');
+  const coverage=Number($qs('#ins_coverage').value)||0; const rate=Number($qs('#ins_rate').value)||0; const term=Number($qs('#ins_term').value)||0;
+  const csv = `coverage,rate,term,annual,total\n${coverage},${rate},${term},${r.annual},${r.total}`;
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='insurance.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Save insurance scenario
+$qs('#ins_save').addEventListener('click', async ()=>{
+  const name = await showNameModal(); if(!name) return;
+  const btn = $qs('#ins_save'); setLoading(btn, true);
+  const settings = { coverage: Number($qs('#ins_coverage').value)||0, rate: Number($qs('#ins_rate').value)||0, age: Number($qs('#ins_age').value)||30, term: Number($qs('#ins_term').value)||10 };
+  const result = window._ins_res || {};
+  try{
+    const res = await fetch('/api/scenarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ name, type:'insurance', settings, result })});
+    const j = await res.json(); if(j.success) showToast('Scenario saved'); else showToast('Save failed','error');
+  }catch(err){ console.error(err); showToast('Save error','error'); }
+  setLoading(btn, false);
+});
+
+// Scenarios list
+async function loadScenarios(){
+  const refreshBtn = $qs('#load_scenarios'); setLoading(refreshBtn, true);
+  try{
+    const res = await fetch('/api/scenarios'); const d = await res.json(); if(!d.success) { $qs('#scenarios_list').textContent='Failed to load'; setLoading(refreshBtn,false); return; }
+    const list = d.scenarios || [];
+    if(!list.length) { $qs('#scenarios_list').innerHTML='<div class="text-gray-600">No scenarios saved.</div>'; setLoading(refreshBtn,false); return; }
+    let html = '<ul class="space-y-2">';
+    list.forEach(s=>{
+      html += `<li class="border p-2 rounded"><div class="flex justify-between items-center"><div><strong>${s.name}</strong> <span class="text-xs text-gray-600">${s.type}</span><div class="text-xs text-gray-600">${new Date(s.createdAt).toLocaleString()}</div></div><div class="flex gap-2"><button data-id="${s.id}" class="load btn bg-indigo-600 text-white px-2 py-1 rounded">Load</button><button data-id="${s.id}" class="del btn bg-red-600 text-white px-2 py-1 rounded">Delete</button></div></div></li>`;
+    });
+    html += '</ul>';
+    $qs('#scenarios_list').innerHTML = html;
+    $qa('.load').forEach(b=>b.addEventListener('click', async e=>{
+      const id = e.currentTarget.dataset.id; const btn = e.currentTarget; setLoading(btn, true);
+      try{
+        const r = await fetch('/api/scenarios/'+id); const j = await r.json(); if(!j.success){ showToast('Failed to load scenario','error'); setLoading(btn,false); return; }
+        const s = j.scenario; if(!s){ showToast('Scenario missing','error'); setLoading(btn,false); return; }
+        const tabName = s.type || 'investment'; const tabBtn = $qs('.tab[data-tab="'+tabName+'"]'); if(tabBtn) tabBtn.click();
+        if(tabName === 'investment'){
+          const st = s.settings||{}; $qs('#inv_initial').value = st.initial || 0; $qs('#inv_monthly').value = st.monthly || 0; $qs('#inv_rate').value = st.rate || 0; $qs('#inv_years').value = st.years || 0; renderInv();
+        } else if(tabName === 'amort' || tabName === 'amortization'){
+          const st = s.settings||{}; $qs('#loan_amount').value = st.amount || st.loanAmount || 0; $qs('#loan_rate').value = st.rate || 0; $qs('#loan_years').value = st.years || 0; $qs('#loan_freq').value = st.freq || st.paymentsPerYear || 12; $qs('#loan_calc').click();
+        } else if(tabName === 'insurance'){
+          const st = s.settings||{}; $qs('#ins_coverage').value = st.coverage || 0; $qs('#ins_rate').value = st.rate || 0; $qs('#ins_age').value = st.age || 30; $qs('#ins_term').value = st.term || 10; $qs('#ins_calc').click();
+        } else { const st = s.settings||{}; if(st.initial !== undefined) $qs('#inv_initial').value = st.initial; if(st.monthly !== undefined) $qs('#inv_monthly').value = st.monthly; renderInv(); }
+        showToast('Scenario loaded','info');
+      }catch(err){ console.error(err); showToast('Error loading scenario','error'); }
+      setLoading(e.currentTarget, false);
+    }));
+    $qa('.del').forEach(b=>b.addEventListener('click', async e=>{
+      const id = e.currentTarget.dataset.id; const ok = confirm('Delete scenario? (admin auth required)'); if(!ok) return;
+        const creds = await showAdminModal(); if(!creds) return;
+        const auth = 'Basic '+btoa((creds.user||'')+':'+(creds.pass||''));
+      const delBtn = e.currentTarget; setLoading(delBtn, true);
+      try{
+        const r = await fetch('/api/scenarios/'+id,{method:'DELETE',headers:{Authorization:auth}});
+        const j = await r.json(); if(r.ok && j.success){ showToast('Deleted'); loadScenarios(); } else { showToast('Delete failed','error'); }
+      }catch(err){ console.error(err); showToast('Delete error','error'); }
+      setLoading(delBtn, false);
+    }));
+  }catch(err){ console.error(err); $qs('#scenarios_list').textContent='Failed to load'; showToast('Failed to load scenarios','error'); }
+  setLoading(refreshBtn, false);
+}
+
+$qs('#load_scenarios').addEventListener('click', loadScenarios);
+
+// Activate default tab
+document.querySelector('.tab[data-tab="investment"]').click();
+
+// expose helper for external load
+window._loadScenarios = loadScenarios;
+</script>
+</body>
+</html>

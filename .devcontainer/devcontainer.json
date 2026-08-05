@@ -1,0 +1,28 @@
+{
+	"name": "SmartInvest Node.js Development",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {
+			"version": "latest"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot",
+				"GitHub.vscode-pull-request-github",
+				"eamodio.gitlens"
+			],
+			"settings": {
+				"git.enabled": true,
+				"git.autofetch": true,
+				"git.enableSmartCommit": true,
+				"git.confirmSync": false,
+				"git.openRepositoryInParentFolders": "always",
+				"scm.defaultViewMode": "tree"
+			}
+		}
+	},
+	"postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && npm install",
+	"remoteUser": "node"
+}

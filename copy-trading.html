@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy Trading - SmartInvestsi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .navbar { background: rgba(0,0,0,0.3) !important; backdrop-filter: blur(10px); }
+    .card { border: none; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .step-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .step { text-align: center; position: relative; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark navbar-expand-lg mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fas fa-chart-line"></i> SmartInvest</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="enhanced-dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="traders.html">Traders</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#">Copy Trading</a></li>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h2 class="mb-4"><i class="fas fa-copy"></i> Copy Trading Setup</h2>
+            
+            <!-- Step 1: Select Trader -->
+            <div id="step1" class="mb-5">
+              <div class="d-flex align-items-center mb-3">
+                <span class="badge bg-primary" style="font-size: 1.2rem; padding: 10px 15px;">1</span>
+                <h5 class="ms-3 mb-0">Select Trader</h5>
+              </div>
+              
+              <div class="card bg-light mb-3">
+                <div class="card-body">
+                  <h6>Ahmed Hassan</h6>
+                  <p class="text-muted mb-2">YTD Return: <strong class="text-success">+38.5%</strong></p>
+                  <p class="mb-2">Success Rate: 72% | Risk: Low</p>
+                  <p class="mb-0"><small>1,245 followers | Verified</small></p>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="nextStep(2)">Continue to Allocation</button>
+            </div>
+
+            <!-- Step 2: Set Allocation -->
+            <div id="step2" class="mb-5" style="display: none;">
+              <div class="d-flex align-items-center mb-3">
+                <span class="badge bg-primary" style="font-size: 1.2rem; padding: 10px 15px;">2</span>
+                <h5 class="ms-3 mb-0">Set Allocation Amount</h5>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">How much do you want to invest?</label>
+                <div class="input-group mb-2">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="investAmount" placeholder="5000" min="100" step="10">
+                </div>
+                <small class="text-muted">Minimum: $100 | Maximum: Your available balance</small>
+              </div>
+
+              <div class="alert alert-info">
+                <strong>Portfolio Impact:</strong>
+                <p class="mb-0">Your $5,000 investment will mirror the top trader's positions. You'll automatically execute the same trades in the same proportion.</p>
+              </div>
+
+              <div class="btn-group w-100" role="group">
+                <button class="btn btn-outline-secondary" onclick="prevStep(1)">Back</button>
+                <button class="btn btn-primary" onclick="nextStep(3)">Continue to Confirmation</button>
+              </div>
+            </div>
+
+            <!-- Step 3: Review & Confirm -->
+            <div id="step3" class="mb-5" style="display: none;">
+              <div class="d-flex align-items-center mb-3">
+                <span class="badge bg-primary" style="font-size: 1.2rem; padding: 10px 15px;">3</span>
+                <h5 class="ms-3 mb-0">Review & Confirm</h5>
+              </div>
+              
+              <div class="card bg-light mb-3">
+                <div class="card-body">
+                  <div class="row mb-3">
+                    <div class="col-6"><strong>Trader:</strong></div>
+                    <div class="col-6">Ahmed Hassan</div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-6"><strong>Investment:</strong></div>
+                    <div class="col-6 text-success"><strong>$<span id="confirmAmount">5000</span></strong></div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-6"><strong>Start Date:</strong></div>
+                    <div class="col-6" id="confirmDate"></div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-6"><strong>Fee (0.5%):</strong></div>
+                    <div class="col-6 text-danger">$<span id="confirmFee">25.00</span></div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-6"><strong>Total Cost:</strong></div>
+                    <div class="col-6"><strong class="text-primary">$<span id="confirmTotal">5025.00</span></strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="agreeTerms">
+                <label class="form-check-label" for="agreeTerms">
+                  I agree to the Copy Trading Terms of Service
+                </label>
+              </div>
+
+              <div class="btn-group w-100" role="group">
+                <button class="btn btn-outline-secondary" onclick="prevStep(2)">Back</button>
+                <button class="btn btn-success btn-lg" onclick="completeCopyTrade()">
+                  <i class="fas fa-check"></i> Start Copy Trading
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: Benefits & Info -->
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-lightbulb"></i> How It Works</h6>
+            <ol style="font-size: 0.9rem;">
+              <li>Select a top-performing trader</li>
+              <li>Set your investment amount</li>
+              <li>Your account mirrors their trades</li>
+              <li>Earn proportional gains/losses</li>
+              <li>Stop anytime with no penalties</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-shield-alt"></i> Safety</h6>
+            <ul style="font-size: 0.9rem; margin-bottom: 0;">
+              <li>Your funds remain in your account</li>
+              <li>No trader access to withdraw</li>
+              <li>Separate audited accounts</li>
+              <li>Stop-loss protection available</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-info-circle"></i> Fees</h6>
+            <p style="font-size: 0.9rem; margin-bottom: 0;">
+              <strong>Setup:</strong> Free<br>
+              <strong>Monthly:</strong> 0.5% of allocation<br>
+              <strong>Performance:</strong> None<br>
+              <strong>Cancellation:</strong> Anytime, no penalty
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function nextStep(step) {
+      document.querySelectorAll('[id^="step"]').forEach(el => el.style.display = 'none');
+      document.getElementById(`step${step}`).style.display = 'block';
+      
+      if (step === 2) {
+        const amount = 5000;
+        document.getElementById('investAmount').value = amount;
+        updateFees(amount);
+      }
+    }
+    
+    function prevStep(step) {
+      document.querySelectorAll('[id^="step"]').forEach(el => el.style.display = 'none');
+      document.getElementById(`step${step}`).style.display = 'block';
+    }
+    
+    function updateFees(amount) {
+      const fee = amount * 0.005;
+      const total = amount + fee;
+      document.getElementById('confirmAmount').textContent = amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('confirmFee').textContent = fee.toFixed(2);
+      document.getElementById('confirmTotal').textContent = total.toFixed(2);
+    }
+    
+    function completeCopyTrade() {
+      if (!document.getElementById('agreeTerms').checked) {
+        alert('Please agree to the terms and conditions');
+        return;
+      }
+      alert('Copy trading started successfully!');
+      window.location.href = 'enhanced-dashboard.html';
+    }
+    
+    document.getElementById('investAmount')?.addEventListener('change', (e) => {
+      updateFees(parseFloat(e.target.value) || 0);
+    });
+    
+    document.getElementById('confirmDate').textContent = new Date().toLocaleDateString();
+  </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - SmartInvestsi</title>
+    <meta name="description" content="Frequently asked questions about SmartInvestsi investment platform, compliance (POPIA/GDPR/NDPR/Kenya DPA), security, and features.">
+    <meta property="og:title" content="SmartInvestsi FAQ">
+    <meta property="og:description" content="Answers to common questions about investing in Africa.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://smartinvestsi.netlify.app/faq.html">
+    <meta property="og:image" content="https://smartinvestsi.netlify.app/assets/og-faq.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SmartInvestsi FAQ">
+    <meta name="twitter:description" content="Answers to common questions.">
+    <link rel="canonical" href="https://smartinvestsi.netlify.app/faq.html">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%231a365d'/%3E%3Cstop offset='100%25' style='stop-color:%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Cpath d='M30 55 L40 45 L50 60 L70 35' stroke='%23d4af37' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='70' cy='35' r='3' fill='%23d4af37'/%3E%3C/svg%3E">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            color: white;
+            padding: 80px 0 60px;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #f8fafc;
+            color: #1a365d;
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: #2563eb;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            background: white;
+            border: 2px solid #2563eb;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .category-badge:hover, .category-badge.active {
+            background: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#d4af37"/>
+                            <stop offset="100%" style="stop-color:#c4a02f"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M30 55 L40 45 L50 60 L70 35" stroke="url(#logoGrad)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="70" cy="35" r="4" fill="#d4af37"/>
+                </svg>
+                <span>SmartInvestsi</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalog.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pricing.html">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/faq.html">FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-primary btn-sm" href="/dashboard.html">Dashboard</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">Frequently Asked Questions</h1>
+            <p class="lead">Find answers to common questions about our platform</p>
+        </div>
+    </section>
+
+    <!-- FAQ Content -->
+    <section class="container my-5 py-4">
+        <div class="text-center mb-5">
+            <div class="category-badge active" data-category="all">All Questions</div>
+            <div class="category-badge" data-category="general">General</div>
+            <div class="category-badge" data-category="account">Account</div>
+            <div class="category-badge" data-category="payments">Payments</div>
+            <div class="category-badge" data-category="security">Security</div>
+            <div class="category-badge" data-category="compliance">Compliance</div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- General Questions -->
+                <h3 class="fw-bold text-primary mb-4">General Questions</h3>
+                <div class="accordion mb-5" id="generalAccordion">
+                    <div class="accordion-item" data-category="general">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#general1">
+                                What is SmartInvest Africa?
+                            </button>
+                        </h2>
+                        <div id="general1" class="accordion-collapse collapse show" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                SmartInvest Africa is a comprehensive investment platform designed to democratize investment knowledge, tools, and opportunities across Africa. We provide advanced analytics, compliance management, partnership networks, and multi-payment support to help African investors make informed decisions.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="general">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general2">
+                                Which countries do you operate in?
+                            </button>
+                        </h2>
+                        <div id="general2" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                We currently operate in 15+ African countries, including Kenya, South Africa, Nigeria, Ghana, Uganda, Tanzania, Rwanda, and more. Our platform is expanding to additional markets regularly.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="general">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general3">
+                                Is SmartInvest suitable for beginners?
+                            </button>
+                        </h2>
+                        <div id="general3" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                Absolutely! Our platform is designed for investors of all experience levels. We provide educational resources, smart calculators, and user-friendly tools to help beginners start their investment journey with confidence.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Questions -->
+                <h3 class="fw-bold text-primary mb-4">Account & Setup</h3>
+                <div class="accordion mb-5" id="accountAccordion">
+                    <div class="accordion-item" data-category="account">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account1">
+                                How do I create an account?
+                            </button>
+                        </h2>
+                        <div id="account1" class="accordion-collapse collapse" data-bs-parent="#accountAccordion">
+                            <div class="accordion-body">
+                                Click the "Dashboard" or "Get Started" button on our homepage. You'll need to provide your email, create a password, and complete KYC (Know Your Customer) verification with your ID and proof of residence.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="account">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account2">
+                                What documents do I need for KYC verification?
+                            </button>
+                        </h2>
+                        <div id="account2" class="accordion-collapse collapse" data-bs-parent="#accountAccordion">
+                            <div class="accordion-body">
+                                You'll need: (1) A valid government-issued ID (passport, national ID, or driver's license), (2) Proof of residence (utility bill, bank statement dated within last 3 months), and (3) A selfie photo for identity verification.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="account">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#account3">
+                                Can I have multiple portfolios?
+                            </button>
+                        </h2>
+                        <div id="account3" class="accordion-collapse collapse" data-bs-parent="#accountAccordion">
+                            <div class="accordion-body">
+                                Yes! Free accounts can create 1 portfolio, Premium accounts get 5 portfolios, and Enterprise accounts have unlimited portfolios. This allows you to manage different investment strategies separately.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Questions -->
+                <h3 class="fw-bold text-primary mb-4">Payments & Pricing</h3>
+                <div class="accordion mb-5" id="paymentAccordion">
+                    <div class="accordion-item" data-category="payments">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#payment1">
+                                What payment methods do you accept?
+                            </button>
+                        </h2>
+                        <div id="payment1" class="accordion-collapse collapse" data-bs-parent="#paymentAccordion">
+                            <div class="accordion-body">
+                                We support M-Pesa (Kenya), KCB Bank transfers, and are integrating Paystack, Flutterwave, Stripe, and PayPal for pan-African and international payments.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="payments">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#payment2">
+                                Is there a free plan?
+                            </button>
+                        </h2>
+                        <div id="payment2" class="accordion-collapse collapse" data-bs-parent="#paymentAccordion">
+                            <div class="accordion-body">
+                                Yes! Our free plan includes 1 portfolio, basic analytics, 10 transactions per month, and email support. Perfect for getting started with investing.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="payments">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#payment3">
+                                Can I upgrade or downgrade my plan?
+                            </button>
+                        </h2>
+                        <div id="payment3" class="accordion-collapse collapse" data-bs-parent="#paymentAccordion">
+                            <div class="accordion-body">
+                                Absolutely! You can upgrade or downgrade your plan at any time from your dashboard. Upgrades are immediate, and downgrades take effect at the end of your current billing cycle.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Questions -->
+                <h3 class="fw-bold text-primary mb-4">Security & Privacy</h3>
+                <div class="accordion mb-5" id="securityAccordion">
+                    <div class="accordion-item" data-category="security">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security1">
+                                How secure is my data?
+                            </button>
+                        </h2>
+                        <div id="security1" class="accordion-collapse collapse" data-bs-parent="#securityAccordion">
+                            <div class="accordion-body">
+                                We use bank-grade security including TLS 1.3 encryption for data in transit, AES-256 encryption for data at rest, hosted on Supabase serverless infrastructure with PostgreSQL Row Level Security. All systems undergo regular security audits and penetration testing.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="security">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security2">
+                                Do you offer two-factor authentication (2FA)?
+                            </button>
+                        </h2>
+                        <div id="security2" class="accordion-collapse collapse" data-bs-parent="#securityAccordion">
+                            <div class="accordion-body">
+                                Yes! We strongly recommend enabling 2FA on your account for additional security. You can set it up in your account settings using authenticator apps like Google Authenticator or Authy.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="security">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security3">
+                                What happens to my data if I close my account?
+                            </button>
+                        </h2>
+                        <div id="security3" class="accordion-collapse collapse" data-bs-parent="#securityAccordion">
+                            <div class="accordion-body">
+                                When you close your account, we retain your data for the legally required period (typically 7 years for financial records) to comply with regulatory requirements. After this period, your data is securely deleted or anonymized.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Questions -->
+                <h3 class="fw-bold text-primary mb-4">Compliance & Regulations</h3>
+                <div class="accordion mb-5" id="complianceAccordion">
+                    <div class="accordion-item" data-category="compliance">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#compliance1">
+                                Are you regulated?
+                            </button>
+                        </h2>
+                        <div id="compliance1" class="accordion-collapse collapse" data-bs-parent="#complianceAccordion">
+                            <div class="accordion-body">
+                                Yes! We are FSB licensed and comply with POPIA (South Africa), GDPR (EU), Kenya Data Protection Act, NDPR (Nigeria), and other applicable financial regulations across our operating jurisdictions.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="compliance">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#compliance2">
+                                How do you handle AML/KYC compliance?
+                            </button>
+                        </h2>
+                        <div id="compliance2" class="accordion-collapse collapse" data-bs-parent="#complianceAccordion">
+                            <div class="accordion-body">
+                                We implement comprehensive AML/KYC procedures including identity verification, source of funds checks, ongoing transaction monitoring, and reporting suspicious activities to relevant authorities as required by law.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item" data-category="compliance">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#compliance3">
+                                Is my investment protected?
+                            </button>
+                        </h2>
+                        <div id="compliance3" class="accordion-collapse collapse" data-bs-parent="#complianceAccordion">
+                            <div class="accordion-body">
+                                SmartInvest Africa is a technology platform providing access to investment information and tools. Your actual investments are with regulated financial institutions. We recommend reviewing the protections offered by each institution before investing.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Still have questions? -->
+                <div class="card bg-light border-0 p-4 text-center">
+                    <h4 class="fw-bold mb-3">Still have questions?</h4>
+                    <p class="text-muted mb-3">Can't find the answer you're looking for? Our support team is here to help.</p>
+                    <div>
+                        <a href="/contact.html" class="btn btn-primary me-2">Contact Support</a>
+                        <a href="/contact.html" class="btn btn-outline-primary">Help Center</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold mb-3">SmartInvest Africa</h5>
+                    <p class="text-white-50">Democratizing investment knowledge, tools, and opportunities across Africa.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3">Company</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/about.html" class="text-white-50 text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="/contact.html" class="text-white-50 text-decoration-none">Contact</a></li>
+                        <li class="mb-2"><a href="/pricing.html" class="text-white-50 text-decoration-none">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold mb-3">Legal</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/privacy.html" class="text-white-50 text-decoration-none">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="/terms.html" class="text-white-50 text-decoration-none">Terms</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold mb-3">Compliance</h6>
+                    <p class="text-white-50 mb-1">Operating under POPIA (South Africa), GDPR (EU/UK), NDPR (Nigeria), and Kenya Data Protection Act.</p>
+                    <p class="text-white-50 mb-1">Financial conduct aligned with FSB/FSCA guidance; AML/KYC and data protection controls enforced.</p>
+                    <p class="text-white-50 mb-0">For data rights (access, rectify, erase, restrict, portability), contact <a id="privacyEmailLinkFooter" data-config="supportEmail" href="mailto:privacy@smartinvestsi.netlify.app">privacy@smartinvestsi.netlify.app</a>.</p>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="text-center text-white-50">
+                <p class="mb-0">&copy; 2026 SmartInvestsi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/wwwroot/js/theme-toggle.js"></script>
+    <script src="/wwwroot/js/public-config.js"></script>
+    <script>
+        // Category filtering
+        document.querySelectorAll('.category-badge').forEach(badge => {
+            badge.addEventListener('click', function() {
+                document.querySelectorAll('.category-badge').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                document.querySelectorAll('.accordion-item').forEach(item => {
+                    if (category === 'all' || item.dataset.category === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

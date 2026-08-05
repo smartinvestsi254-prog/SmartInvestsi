@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futures Trading - SmartInvest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        :root {
+            --primary: #1a365d; --accent: #d4af37; --success: #38a169; --danger: #e53e3e;
+            --warning: #f6ad55; --bg-dark: #1a1f2e; --bg-card: #2a2f3e; --text-light: #f1f3f6;
+        }
+        body { background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); color: var(--text-light); font-family: 'Segoe UI', sans-serif; }
+        .futures-layout { height: 100vh; display: grid; grid-template: "sidebar chart positions" 1fr / 320px 1fr 380px; gap: 1px; background: var(--bg-dark); }
+        .panel { background: var(--bg-card); padding: 20px; overflow: auto; }
+        .position-card { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+        .leverage-selector { display: grid; grid-template-columns: repeat(5,1fr); gap: 5px; margin: 15px 0; }
+        .leverage-btn { padding: 10px 5px; border: 1px solid #4a505c; background: #3a404c; color: white; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .leverage-btn.active { background: var(--accent); border-color: var(--accent); }
+        .pnl-positive { color: var(--success); } .pnl-negative { color: var(--danger); }
+        .mode-selector .btn { border-radius: 20px; margin: 0 2px; }
+        .order-panel { position: sticky; top: 20px; }
+        .margin-info { background: rgba(246,173,85,0.1); border: 1px solid var(--warning); border-radius: 6px; padding: 10px; margin-bottom: 15px; font-size: 0.9rem; }
+        #tradingview { height: 500px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="futures-layout">
+        <!-- Left: Positions & Recent Trades -->
+        <div class="panel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5><i class="fas fa-list"></i> Positions (2)</h5>
+                <select class="form-select form-select-sm">
+                    <option>All</option><option>Long</option><option>Short</option>
+                </select>
+            </div>
+            
+            <!-- Active Positions -->
+            <div class="position-card">
+                <div class="d-flex justify-content-between">
+                    <span>BTCUSDT Perpetual <i class="fas fa-long-arrow-alt-up text-success"></i></span>
+                    <span>45,200</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted mb-2">
+                    <span>Size: 0.25 BTC</span><span>Leverage: 20x</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="pnl-positive fw-bold">+$1,234.56</span>
+                    <span class="text-success">+2.73%</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-success">Close</button>
+                    <button class="btn btn-sm btn-outline-secondary">Market</button>
+                </div>
+            </div>
+            
+            <div class="position-card">
+                <div class="d-flex justify-content-between">
+                    <span>ETHUSDT Perpetual <i class="fas fa-long-arrow-alt-down text-danger"></i></span>
+                    <span>2,856</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted mb-2">
+                    <span>Size: 1.2 ETH</span><span>Leverage: 10x</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="pnl-negative fw-bold">-$456.78</span>
+                    <span class="text-danger">-1.23%</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-danger">Close</button>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            <h6 class="mb-3">Recent Trades</h6>
+            <div class="position-card small">
+                <div class="d-flex justify-content-between">
+                    <span>Long BTCUSDT @45,100</span><span class="text-success">Filled</span>
+                </div>
+                <small class="text-muted">2m ago</small>
+            </div>
+        </div>
+
+        <!-- Center: Chart -->
+        <div class="panel" style="grid-area: chart; display: flex; flex-direction: column;">
+            <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-dark">
+                <div>
+                    <div class="fs-4 fw-bold text-white mb-1" id="currentPairF">BTCUSDT Perpetual</div>
+                    <div id="priceChangeF" class="text-success fs-6">45,200 <span class="text-muted">+2.34%</span></div>
+                </div>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-light active" onclick="setChartInterval('5')">5m</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setChartInterval('15')">15m</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setChartInterval('60')">1h</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setChartInterval('240')">4h</button>
+                </div>
+            </div>
+            <div id="tradingviewF"></div>
+        </div>
+
+        <!-- Right: Trading Panel -->
+        <div class="panel order-panel">
+            <h5>USDⓈ-M Futures</h5>
+            <div class="mode-selector btn-group w-100 mb-3" role="group">
+                <input type="radio" class="btn-check" name="mode" id="oneWay" checked>
+                <label class="btn btn-outline-light" for="oneWay">One-Way</label>
+                <input type="radio" class="btn-check" name="mode" id="hedge">
+                <label class="btn btn-outline-light" for="hedge">Hedge</label>
+            </div>
+            
+            <div class="leverage-selector">
+                <button class="leverage-btn" onclick="setLeverage(3)">3x</button>
+                <button class="leverage-btn active" onclick="setLeverage(5)">5x</button>
+                <button class="leverage-btn" onclick="setLeverage(10)">10x</button>
+                <button class="leverage-btn" onclick="setLeverage(20)">20x</button>
+                <button class="leverage-btn" onclick="setLeverage(50)">50x</button>
+            </div>
+            <div class="text-center fw-bold mb-2" id="leverageDisplay">5x</div>
+            
+            <div class="margin-info">
+                <div><i class="fas fa-info-circle me-1"></i>Est. Liq. Price: <span id="liqPrice">43,250</span></div>
+                <div>Available Balance: <span class="fw-bold">$12,450</span></div>
+                <div>Margin: <span class="fw-bold">$2,500</span></div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Quantity</label>
+                <input type="number" id="futuresQty" class="form-control" placeholder="0.00">
+            </div>
+            <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg" onclick="placeFuturesOrder('long')">
+                    <i class="fas fa-long-arrow-alt-up"></i> LONG
+                </button>
+                <button class="btn btn-danger btn-lg" onclick="placeFuturesOrder('short')">
+                    <i class="fas fa-long-arrow-alt-down"></i> SHORT
+                </button>
+            </div>
+            
+            <hr class="my-3">
+            <h6>TP/SL</h6>
+            <div class="row g-2 mb-3">
+                <div class="col-6"><input type="number" class="form-control form-control-sm" placeholder="Take Profit"></div>
+                <div class="col-6"><input type="number" class="form-control form-control-sm" placeholder="Stop Loss"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let futuresTvWidget;
+        let currentLeverage = 5;
+
+        function initFuturesChart() {
+            futuresTvWidget = new TradingView.widget({
+                container_id: "tradingviewF",
+                width: "100%",
+                height: "100%",
+                symbol: "BINANCE:BTCUSDT.P",
+                interval: "5",
+                timezone: "Etc/UTC",
+                theme: "dark",
+                style: "1",
+                locale: "en",
+                toolbar_bg: "#f1f3f6",
+                enable_publishing: false,
+                hide_top_toolbar: false,
+                hide_legend: true
+            });
+        }
+
+        function setLeverage(lv) {
+            currentLeverage = lv;
+            document.querySelectorAll('.leverage-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('leverageDisplay').textContent = `${lv}x`;
+            updateLiquidationPrice();
+        }
+
+        function updateLiquidationPrice() {
+            const price = 45200;
+            const liq = price * (1 - (1/currentLeverage * 0.05)); // Mock calc
+            document.getElementById('liqPrice').textContent = liq.toLocaleString();
+        }
+
+        function placeFuturesOrder(direction) {
+            const qty = document.getElementById('futuresQty').value;
+            if (!qty) return alert('Enter quantity');
+            
+            fetch('/.netlify/functions/crypto-trading/futures/order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    symbol: 'BTCUSDT',
+                    side: direction,
+                    quantity: parseFloat(qty),
+                    leverage: currentLeverage
+                })
+            }).then(r => r.json()).then(data => {
+                alert(`${direction.toUpperCase()} position opened! Leverage: ${currentLeverage}x`);
+                loadPositions();
+            });
+        }
+
+        function loadPositions() {
+            // Mock positions refresh
+            console.log('Positions loaded');
+        }
+
+        function setChartInterval(interval) {
+            if (futuresTvWidget) futuresTvWidget.setResolution(interval);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initFuturesChart();
+            updateLiquidationPrice();
+            setInterval(updateLiquidationPrice, 5000);
+        });
+    </script>
+</body>
+</html>
+
