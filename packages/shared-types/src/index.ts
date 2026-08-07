@@ -246,3 +246,9 @@ export interface AuthTokens {
   refreshToken: string;
   expiresIn: number;
 }
+
+// ------------------------------------------------------------
+// API DTOs & Events (barrel)
+// ------------------------------------------------------------
+export * from "./api";
+export * from "./events";

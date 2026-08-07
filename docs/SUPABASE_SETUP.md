@@ -1,7 +1,7 @@
-# Supabase Setup Guide for SmartInvest Africa
+# Supabase Setup Guide for SmartInvestsi
 
 ## Overview
-This guide explains how to set up and configure Supabase for SmartInvest Africa's PostgreSQL database, authentication, storage, and real-time features.
+This guide explains how to set up and configure Supabase for SmartInvestsi's PostgreSQL database, authentication, storage, and real-time features.
 
 ## Why Supabase?
 - **Serverless PostgreSQL**: Auto-scaling with built-in connection pooling
@@ -28,7 +28,7 @@ This guide explains how to set up and configure Supabase for SmartInvest Africa'
 2. **Create New Project**
    - Click "New Project"
    - **Organization**: Select or create organization
-   - **Project Name**: `SmartInvest Africa`
+   - **Project Name**: `SmartInvestsi`
    - **Database Password**: Generate strong password (save securely!)
    - **Region**: Choose closest to your users:
      - **South Africa**: `af-south-1` (Cape Town)
@@ -319,7 +319,7 @@ psql "postgresql://postgres.[PROJECT-REF]:PASSWORD@aws-0-[REGION].pooler.supabas
 - POPIA/GDPR compliance support
 - Priority support
 
-## Cost Estimate for SmartInvest Africa
+## Cost Estimate for SmartInvestsi
 
 **Starting Phase** (Free tier):
 - **Cost**: $0/month

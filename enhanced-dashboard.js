@@ -256,7 +256,7 @@ async function generateReferralCode() {
     const data = await response.json();
     if (data.success) {
       const code = data.referral.referralCode;
-      const text = `Check out SmartInvest Africa! Use my referral code: ${code}`;
+      const text = `Check out SmartInvestsi! Use my referral code: ${code}`;
       alert(text);
       navigator.clipboard.writeText(text);
     } else {

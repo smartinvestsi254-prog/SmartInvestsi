@@ -79,10 +79,10 @@
                 <circle cx="70" cy="35" r="6" fill="#d4af37"/>
             </svg>
             <h1 class="auth-title">Welcome back</h1>
-            <p class="auth-subtitle">Sign in to your SmartInvest account</p>
+            <p class="auth-subtitle">Sign in to your SmartInvestsi account</p>
         </div>
 
-        <div id="alertMessage" class="alert alert-danger small" role="alert"></div>
+        <div id="alertMessage" class="alert alert-danger small" role="alert" style="display: none;"></div>
 
         <div class="mb-4 text-center">
             <div class="btn-group w-100" role="group">
@@ -104,40 +104,40 @@
 
         <div class="divider"><span>Or use credentials</span></div>
 
+        <div id="alertMessage" class="alert alert-danger small" role="alert" style="display: none;"></div>
+
         <form id="loginForm">
-            <div id="emailGroup" class="login-fields active mb-3">
-                <label class="form-label small fw-bold">Email Address</label>
-                <input type="email" class="form-control" id="email" placeholder="name@company.com">
-            </div>
-
-            <div id="phoneGroup" class="login-fields mb-3">
-                <label class="form-label small fw-bold">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" placeholder="+254...">
-            </div>
-
-            <div id="idGroup" class="login-fields mb-3">
-                <label class="form-label small fw-bold">ID Number</label>
-                <input type="text" class="form-control" id="idNumber" placeholder="8-digit ID">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Email, Phone, or ID Number</label>
+                <input type="text" class="form-control" id="identifier" placeholder="Enter email, phone, or ID number" required autocomplete="username">
+                <small class="text-muted">You can sign in with any of these identifiers</small>
             </div>
 
             <div class="mb-3">
-                <label class="form-label small fw-bold">Password</label>
+                <label class="form-label small fw-bold text-dark">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                    <input type="password" class="form-control" id="password" placeholder="••••••••" required autocomplete="current-password">
                     <i class="fas fa-eye password-toggle" id="togglePassword"></i>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="adminFlag">
-                    <label class="form-check-label small" for="adminFlag">Admin</label>
+                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                    <label class="form-check-label small text-dark" for="rememberMe">Remember me</label>
                 </div>
-                <a href="/forgot-password.html" class="small text-decoration-none">Forgot password?</a>
+                <a href="/forgot-password.html" class="small text-decoration-none text-primary fw-bold">Forgot password?</a>
+            </div>
+
+            <!-- hCaptcha -->
+            <div class="mb-3">
+                <div class="h-captcha" id="hcaptcha-widget" data-sitekey=""></div>
+                <input type="hidden" id="hcaptchaToken" name="hcaptchaToken">
             </div>
 
             <button type="submit" id="submitBtn" class="btn btn-primary">
                 <span id="btnText">Sign In</span>
+                <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
             </button>
         </form>
 
@@ -151,13 +151,30 @@
         // 1. INITIALIZE SUPABASE (uses PUBLIC_CONFIG from /public/js/public-config.js)
         const SUPABASE_URL = window.PUBLIC_CONFIG.supabaseUrl;
         const SUPABASE_ANON_KEY = window.PUBLIC_CONFIG.supabaseAnonKey;
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase;
+        
+        // Robust Supabase initialization with error handling
+        try {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                throw new Error('Supabase configuration missing. Please check your environment variables.');
+            }
+            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (err) {
+            console.error('Failed to initialize Supabase:', err);
+            alertMsg.innerHTML = '<strong>Configuration Error:</strong> Unable to connect to authentication service. Please try again later or contact support.';
+            alertMsg.style.display = 'block';
+        }
 
         // 2. UI HANDLERS
         const loginForm = document.getElementById('loginForm');
         const alertMsg = document.getElementById('alertMessage');
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
+        const identifierInput = document.getElementById('identifier');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const hcaptchaToken = document.getElementById('hcaptchaToken');
 
         // Toggle Password Visibility
         togglePassword.addEventListener('click', () => {
@@ -166,74 +183,170 @@
             togglePassword.classList.toggle('fa-eye-slash');
         });
 
-        // Switch Login Methods
-        document.querySelectorAll('input[name="loginMethod"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                document.querySelectorAll('.login-fields').forEach(f => f.classList.remove('active'));
-                if (e.target.id === 'emailMethod') document.getElementById('emailGroup').classList.add('active');
-                if (e.target.id === 'phoneMethod') document.getElementById('phoneGroup').classList.add('active');
-                if (e.target.id === 'idMethod') document.getElementById('idGroup').classList.add('active');
-            });
-        });
+        // Detect identifier type (email, phone, or ID)
+        function detectIdentifierType(value) {
+            // Email detection
+            if (value.includes('@')) return 'email';
+            // Phone detection (international format)
+            if (/^\+?[\d\s-]{10,}$/.test(value)) return 'phone';
+            // ID number detection (8-10 digits)
+            if (/^\d{8,10}$/.test(value)) return 'id';
+            // Default to email if contains @, otherwise ID
+            return value.includes('@') ? 'email' : 'id';
+        }
 
         // 3. AUTHENTICATION LOGIC
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             alertMsg.style.display = 'none';
-            const submitBtn = document.getElementById('submitBtn');
+            
+            // Show loading state
             submitBtn.disabled = true;
-            document.getElementById('btnText').innerText = 'Authenticating...';
+            btnText.textContent = 'Signing in...';
+            btnSpinner.classList.remove('d-none');
 
-            const method = document.querySelector('input[name="loginMethod"]:checked').id;
+            const identifier = identifierInput.value.trim();
             const password = passwordInput.value;
-            const isAdmin = document.getElementById('adminFlag').checked;
+            const hCaptchaResponse = hcaptchaToken.value;
+
+            // Validation
+            if (!identifier || !password) {
+                alertMsg.innerHTML = '<strong>Error:</strong> Please fill in all required fields.';
+                alertMsg.style.display = 'block';
+                resetSubmitButton();
+                return;
+            }
+
+            if (!hCaptchaResponse) {
+                alertMsg.innerHTML = '<strong>Error:</strong> Please complete the CAPTCHA verification.';
+                alertMsg.style.display = 'block';
+                resetSubmitButton();
+                return;
+            }
+
+            // Check network connectivity
+            if (!navigator.onLine) {
+                alertMsg.innerHTML = '<strong>Network Error:</strong> Please check your internet connection and try again.';
+                alertMsg.style.display = 'block';
+                resetSubmitButton();
+                return;
+            }
 
             try {
-                let userEmail = '';
+                const identifierType = detectIdentifierType(identifier);
+                let userEmail = identifier;
 
-                // Handle Email Login
-                if (method === 'emailMethod') {
-                    userEmail = document.getElementById('email').value;
+                // If not email, lookup user by phone or ID
+                if (identifierType !== 'email') {
+                    try {
+                        const { data, error } = await supabase
+                            .from('profiles')
+                            .select('email')
+                            .eq(identifierType === 'phone' ? 'phone' : 'id_number', identifier)
+                            .single();
+
+                        if (error || !data) {
+                            throw new Error('Account not found. Please check your ' + identifierType + ' and try again.');
+                        }
+                        userEmail = data.email;
+                    } catch (lookupErr) {
+                        console.error('Profile lookup error:', lookupErr);
+                        throw new Error('Account not found. Please check your credentials and try again.');
+                    }
+                } else {
+                    // Normalize email
+                    userEmail = identifier.toLowerCase();
                 }
-                // Handle Phone/ID (Requires a "Lookup" table in Supabase)
-                else {
-                    const identifier = method === 'phoneMethod' ?
-                        document.getElementById('phone').value :
-                        document.getElementById('idNumber').value;
 
-                    // Search for the user email associated with this Phone/ID
-                    const { data, error } = await supabase
-                        .from('profiles') // Assumes a 'profiles' table exists
-                        .select('email')
-                        .eq(method === 'phoneMethod' ? 'phone' : 'id_number', identifier)
-                        .single();
-
-                    if (error || !data) throw new Error("User record not found.");
-                    userEmail = data.email;
-                }
-
-                // Supabase Auth call
+                // Supabase Auth call with comprehensive error handling
                 const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                     email: userEmail,
                     password: password,
                 });
 
-                if (authError) throw authError;
+                if (authError) {
+                    console.error('Auth error:', authError);
+                    // User-friendly error messages
+                    if (authError.message.includes('Invalid login credentials')) {
+                        throw new Error('Invalid credentials. Please check your ' + identifierType + ' and password.');
+                    } else if (authError.message.includes('Email not confirmed')) {
+                        throw new Error('Please verify your email address before signing in.');
+                    } else if (authError.message.includes('Network request failed')) {
+                        throw new Error('Network error. Please check your internet connection.');
+                    } else {
+                        throw new Error(authError.message || 'Sign in failed. Please try again.');
+                    }
+                }
 
-                // Redirect based on Admin flag
-                window.location.href = isAdmin ? '/admin.html' : '/dashboard.html';
+                // Successful login
+                if (authData?.user) {
+                    // Optionally store remember me preference
+                    const rememberMe = document.getElementById('rememberMe').checked;
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedIdentifier', identifier);
+                    } else {
+                        localStorage.removeItem('rememberedIdentifier');
+                    }
+                    
+                    // Redirect to dashboard
+                    window.location.href = '/dashboard.html';
+                }
 
             } catch (err) {
-                alertMsg.innerText = err.message;
+                console.error('Login error:', err);
+                alertMsg.innerHTML = '<strong>' + err.message + '</strong>';
                 alertMsg.style.display = 'block';
-                submitBtn.disabled = false;
-                document.getElementById('btnText').innerText = 'Sign In';
+            } finally {
+                resetSubmitButton();
             }
         });
 
+        function resetSubmitButton() {
+            submitBtn.disabled = false;
+            btnText.textContent = 'Sign In';
+            btnSpinner.classList.add('d-none');
+            // Reset hCaptcha
+            if (window.hcaptcha) {
+                window.hcaptcha.reset();
+            }
+            hcaptchaToken.value = '';
+        }
+
+        // hCaptcha callback
+        function onHcaptchaSuccess(token) {
+            hcaptchaToken.value = token;
+        }
+
+        // Initialize hCaptcha
+        (function initHcaptcha() {
+            const widget = document.getElementById('hcaptcha-widget');
+            if (widget && window.PUBLIC_CONFIG?.hcaptchaSitekey) {
+                widget.setAttribute('data-sitekey', window.PUBLIC_CONFIG.hcaptchaSitekey);
+                widget.setAttribute('data-callback', 'onHcaptchaSuccess');
+            }
+        })();
+
         // OAuth
         async function signInWithGoogle() {
-            await supabase.auth.signInWithOAuth({ provider: 'google' });
+            try {
+                if (!supabase) {
+                    throw new Error('Authentication service not initialized');
+                }
+                await supabase.auth.signInWithOAuth({ provider: 'google' });
+            } catch (err) {
+                console.error('Google sign-in error:', err);
+                alertMsg.innerHTML = '<strong>Error:</strong> Unable to initiate Google sign-in. Please try again.';
+                alertMsg.style.display = 'block';
+            }
         }
+
+        // Restore remembered identifier on page load
+        (function restoreRememberedIdentifier() {
+            const remembered = localStorage.getItem('rememberedIdentifier');
+            if (remembered) {
+                identifierInput.value = remembered;
+                document.getElementById('rememberMe').checked = true;
+            }
+        })();
     </script>
 </body>

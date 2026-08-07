@@ -4,10 +4,10 @@
  */
 
 :root {
-    /* Primary corporate colors */
-    --primary-corporate: #1a365d;
-    --primary-light: #2563eb;
-    --primary-dark: #0f2444;
+    /* Primary corporate colors - optimized for WCAG contrast */
+    --primary-corporate: #0f2444;
+    --primary-light: #1e40af;
+    --primary-dark: #0a1a2e;
     --accent-gold: #d4af37;
     --accent-gold-light: #f4d03f;
 
@@ -56,7 +56,16 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
+    color: var(--primary-dark);
+}
+
+/* Ensure subheadings and secondary text have sufficient contrast */
+h2, h3, h4 {
     color: var(--primary-corporate);
+}
+
+.lead, .text-muted, small {
+    color: var(--gray-600) !important;
 }
 
 a {
@@ -116,6 +125,16 @@ a:hover {
 .card-corporate:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-xl);
+}
+
+/* Ensure card text has good contrast */
+.card-corporate .card-body {
+    color: var(--gray-800);
+}
+
+.card-corporate .card-title {
+    color: var(--primary-corporate);
+    font-weight: 700;
 }
 
 /* Navbar */
@@ -216,6 +235,32 @@ body.light-mode {
 
 body.light-mode .hero-corporate {
     background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gray-50: #0f172a;
+        --gray-100: #1e293b;
+        --gray-800: #f1f5f9;
+        --gray-900: #f8fafc;
+    }
+    
+    body {
+        background-color: var(--gray-900);
+        color: var(--gray-100);
+    }
+    
+    .card-corporate {
+        background: var(--gray-800);
+        border-color: var(--gray-700);
+    }
+    
+    .form-control {
+        background-color: var(--gray-700);
+        border-color: var(--gray-600);
+        color: var(--gray-100);
+    }
 }
 
 /* Responsive */

@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
+import { hashPassword, verifyPassword } from "@smartinvest/shared-security";
 
 const JWT_SECRET = env.JWT_SECRET;
 const JWT_REFRESH_SECRET = env.JWT_REFRESH_SECRET;
@@ -17,20 +17,25 @@ export interface AuthRequest extends Request {
   };
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12);
-}
+/**
+ * NOTE: password hashing uses @smartinvest/shared-security (scrypt)
+ * for consistency across both apps. bcrypt was removed.
+ */
+export { hashPassword, verifyPassword };
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
-}
-
-export function signAccessToken(payload: { id: string; email: string; role: string; fullName: string }): string {
+export function signAccessToken(payload: {
+  id: string;
+  email: string;
+  role: string;
+  fullName: string;
+}): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
 }
 
 export function signRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId, jti: crypto.randomUUID() }, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ sub: userId, jti: crypto.randomUUID() }, JWT_REFRESH_SECRET, {
+    expiresIn: "7d",
+  });
 }
 
 export async function createSession(userId: string, req: Request): Promise<string> {
@@ -63,9 +68,14 @@ export async function revokeAllSessions(userId: string): Promise<void> {
   });
 }
 
-export async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string } | null> {
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<{ accessToken: string } | null> {
   try {
-    const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as { sub: string; jti: string };
+    const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as {
+      sub: string;
+      jti: string;
+    };
     const session = await prisma.session.findUnique({ where: { refreshToken } });
     if (!session || session.isRevoked || session.expiresAt < new Date()) {
       return null;
@@ -117,4 +127,4 @@ export function requireRole(...roles: string[]) {
 export function adminRequired(req: AuthRequest, res: Response, next: NextFunction) {
   return requireRole("ADMIN")(req, res, next);
 }
-</content>
+

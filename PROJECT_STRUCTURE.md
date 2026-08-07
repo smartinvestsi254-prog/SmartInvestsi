@@ -1,4 +1,4 @@
-# SmartInvest Africa - Option 2 Project Structure
+# SmartInvestsi - Option 2 Project Structure
 
 ## 📁 Complete File Organization
 

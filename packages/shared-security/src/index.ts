@@ -112,15 +112,8 @@ export function requirePlan(required: SubscriptionPlan) {
 // Webhook signature verification (HMAC-SHA256)
 // ============================================================
 
-export function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
+export function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
+  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
   const a = Buffer.from(expected);
   const b = Buffer.from(signature || "");
   if (a.length !== b.length) return false;
@@ -158,7 +151,7 @@ export interface CsrfOptions {
 export function csrfProtection(options: CsrfOptions = {}) {
   const cookieName = options.cookieName ?? "csrf_token";
   const headerName = options.headerName ?? "x-csrf-token";
-return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const safeMethods = ["GET", "HEAD", "OPTIONS"];
     if (safeMethods.includes(req.method)) {
       // Ensure token is issued
@@ -267,7 +260,7 @@ export class TotpService {
 }
 
 // ============================================================
-// Password hashing (argon2-style via Node crypto scrypt)
+// Password hashing (scrypt — used by BOTH apps)
 // ============================================================
 
 export interface PasswordOptions {
@@ -308,7 +301,7 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 // ============================================================
-// JWT helpers (refresh + access)
+// Token encryption (refresh tokens at rest)
 // ============================================================
 
 export interface TokenPair {
@@ -412,3 +405,30 @@ declare global {
     }
   }
 }
+
+// ============================================================
+// JWT + RBAC modules (barrel)
+// ============================================================
+
+export {
+  signAccessToken,
+  signRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  hashRefreshToken,
+  extractToken,
+  authRequired,
+} from "./jwt";
+export type { JwtConfig, AccessPayload, RefreshPayload } from "./jwt";
+
+export {
+  requireAuth,
+  requireRole,
+  adminRequired,
+  requirePermission,
+  hasRole,
+  hasPermission,
+  ROLE_PERMISSIONS,
+} from "./rbac";
+export type { AuthUser, Role } from "./rbac";
+

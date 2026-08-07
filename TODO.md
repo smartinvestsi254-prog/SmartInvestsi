@@ -1,32 +1,98 @@
-# Task Progress Tracker
+# SmartInvestsi Monorepo Refactor & CI/CD Recovery — Task Tracker
 
-## Objective
-1. Fix Supabase URL typo (`mylsjhueujnuwahzzjhz` -> `mylsjheuejnuwahzzjhz`) and make the variable configurable via Netlify environment variables.
-2. Check that all files are complete and none are truncated.
-3. Move SmartGovern files to the smartgovern repo and remove all associated files from the SmartInvestsi repo, separating them entirely.
-4. Ensure all repo project structures and file placements are correct and in order.
+Status legend: `[x]` done · `[~]` in progress · `[ ]` pending
 
-## Part A — Fix Supabase URL typo & make env-configurable (Netlify)
-- [ ] A1. Fix typo in `public/js/public-config.js` (mylsjhueujnuwahzzjhz -> mylsjheuejnuwahzzjhz)
-- [ ] A2. Fix typo in `.cursor/mcp.json` project_ref
-- [ ] A3. Make config env-driven via Netlify: add build script to generate config from env vars
-- [ ] A4. Update `netlify.toml` build command to inject env vars
-- [ ] A5. Update `.env.example` and docs to reflect env-var-driven config
+## Phase 1 — Repository Audit
+- [x] Inventory apps/, packages/, prisma/, netlify/, src/, tests
+- [x] Identify duplicate implementations (auth hashing, env, security middleware)
+- [ ] Generate `docs/Migration.md` migration report
 
-## Part B — Move SmartGovern backend into smartgovern repo (self-contained apps/smartgovern/)
-- [ ] B1. Create `apps/smartgovern/` structure in the smartgovern repo
-- [ ] B2. Copy backend routes/services/config/lib into smartgovern repo
-- [ ] B3. Copy `prisma/schemas/smartgovern.prisma` + prisma.config.ts into smartgovern repo
-- [ ] B4. Copy the shared packages needed (shared-security, shared-utils) into smartgovern repo
-- [ ] B5. Rewrite relative imports in moved files to be self-contained
-- [ ] B6. Remove `apps/smartgovern/` from SmartInvestsi repo
-- [ ] B7. Remove `prisma/schemas/smartgovern.prisma` from SmartInvestsi repo
-- [ ] B8. Remove governance-only files from SmartInvestsi repo (src/licensing, src/incidents, src/workflows, policy-compliance.ts)
-- [ ] B9. Fix root `prisma/prisma.config.ts` to point only to smartinvestsi.prisma
-- [ ] B10. Update root `netlify.toml` and `package.json` to remove smartgovern references
+## Phase 2 — Finish the Monorepo Foundation
+- [ ] Convert root `package.json` to npm-workspaces root
+- [ ] Add root `tsconfig.base.json` (strict, incremental)
+- [ ] Add per-package `tsconfig.json` (composite) and build scripts
+- [ ] Add per-app `tsconfig.json` with `@smartinvest/*` path mapping
+- [ ] Replace relative `../../packages/*` imports with `@smartinvest/*` package imports
+- [ ] Move governance code out of smartinvestsi and fintech out of smartgovern (verify)
+- [ ] Create `configs/` directory with shared tooling configs
 
-## Part C — Verify completion & structure
-- [ ] C1. Verify no governance references remain in SmartInvestsi repo
-- [ ] C2. Verify smartgovern repo is self-contained and builds
-- [ ] C3. Verify Supabase URL typo is gone everywhere
-- [ ] C4. Confirm all edited files are complete (not truncated)
+## Phase 3 — Remove Duplicate Code
+- [ ] Unify password hashing on `@smartinvest/shared-security` (scrypt), remove bcrypt from smartgovern
+- [ ] Deduplicate auth middleware into shared-security
+- [ ] Deduplicate env loader / response helpers / error utilities into shared-utils
+
+## Phase 4 — Shared Packages
+- [ ] `shared-security`: JWT, hashing, RBAC, permissions, audit, CSRF, helmet, rate-limit, TOTP, sessions
+- [ ] `shared-utils`: pagination, formatting, env loader, email/phone validation, date, logging, responses, errors
+- [ ] `shared-types`: API contracts, DTOs, enums, interfaces, events
+- [ ] `shared-ui`: reusable frontend tokens/components
+
+## Phase 5 — Prisma Cleanup
+- [ ] Remove legacy `prisma/schema.prisma`
+- [ ] Fix/remove broken `prisma/seed.ts`
+- [ ] Add initial migrations for smartinvestsi + smartgovern schemas
+- [ ] Validate both schemas generate
+
+## Phase 6 — package.json Fixes
+- [ ] Fix root package.json scripts
+- [ ] Fix app package.json (deps, scripts, workspace references)
+- [ ] Fix package package.json (exports, main, types)
+- [ ] Remove unused deps, add missing
+
+## Phase 7 — Environment Management
+- [ ] Root `.env.example`
+- [ ] `apps/smartinvestsi/.env.example`
+- [ ] `apps/smartgovern/.env.example`
+- [ ] Zod validation documented
+
+## Phase 8 — Build System
+- [ ] TypeScript strict builds for both apps
+- [ ] No circular deps / path alias issues
+- [ ] Incremental compilation enabled
+
+## Phase 9 — Testing
+- [ ] Jest config for apps + packages
+- [ ] Tests: shared-security, shared-utils
+- [ ] Tests: smartinvestsi auth/payments/trading
+- [ ] Tests: smartgovern workflows/incidents/licensing
+- [ ] Coverage thresholds configured
+
+## Phase 10 — CI/CD Repair
+- [ ] `.github/workflows/ci.yml`
+- [ ] `.github/workflows/deploy.yml`
+- [ ] `.github/workflows/security.yml` (Dependabot, CodeQL, npm audit)
+- [ ] `.github/dependabot.yml`
+- [ ] Workflows: checkout, Node LTS, cache, npm ci, prisma generate, lint, typecheck, test, build
+
+## Phase 11 — Netlify
+- [ ] Repair root `netlify.toml`
+- [ ] Add `apps/smartgovern/netlify.toml`
+- [ ] Serverless functions/redirects/headers verified
+
+## Phase 12 — Documentation
+- [ ] `README.md`
+- [ ] `docs/Architecture.md`
+- [ ] `docs/Contributing.md`
+- [ ] `docs/Deployment.md`
+- [ ] `docs/Environment.md`
+- [ ] `docs/Packages.md`
+- [ ] `docs/API.md`
+- [ ] `docs/Migration.md`
+
+## Phase 13 — Code Quality
+- [ ] ESLint config fixed and lint passes
+- [ ] Prettier configured
+- [ ] Unused imports/deps/variables removed
+
+## Phase 14 — Performance
+- [ ] Prisma include/query review
+- [ ] Indexes verified in schemas
+
+## Phase 15 — Security Review
+- [ ] Helmet, CORS, JWT, RBAC, CSRF, rate-limit, hashing verified
+- [ ] Secrets management documented
+
+## Phase 16 — Final Validation
+- [ ] All builds/tests/lint/typecheck pass (requires Node)
+- [ ] Deliverables documented in `docs/Migration.md`
+

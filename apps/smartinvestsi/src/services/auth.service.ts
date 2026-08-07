@@ -9,7 +9,7 @@ import {
   encryptToken,
   decryptToken,
   deviceFingerprint,
-} from "../../../packages/shared-security/src/index";
+} from "@smartinvest/shared-security";
 import type { Request } from "express";
 
 export interface AuthUser {
@@ -43,6 +43,29 @@ export async function getUserPlan(userId: string): Promise<"BASIC" | "PREMIUM" |
   return name === "PREMIUM" || name === "ENTERPRISE" || name === "BASIC"
     ? (name as "BASIC" | "PREMIUM" | "ENTERPRISE")
     : "BASIC";
+}
+
+export async function findUserByIdentifier(identifier: string) {
+  // Determine identifier type and search accordingly
+  const isEmail = identifier.includes('@');
+  const isPhone = /^\+?[\d\s-]{10,}$/.test(identifier);
+  
+  if (isEmail) {
+    return prisma.user.findUnique({ where: { email: identifier.toLowerCase() } });
+  }
+  
+  if (isPhone) {
+    return prisma.user.findFirst({ 
+      where: { phone: identifier },
+      include: { profile: true }
+    });
+  }
+  
+  // Default to ID number search (8-10 digits)
+  return prisma.user.findFirst({
+    where: { idNumber: identifier },
+    include: { profile: true }
+  });
 }
 
 export async function findUserByEmail(email: string) {
@@ -90,24 +113,29 @@ export async function registerUser(input: {
   return user;
 }
 
-export async function authenticateUser(email: string, password: string) {
-  const user = await findUserByEmail(email);
+export async function authenticateUser(identifier: string, password: string) {
+  // Support multi-identifier authentication (email, phone, ID)
+  const user = await findUserByIdentifier(identifier);
+  
   if (!user) {
     const err = new Error("Invalid credentials") as Error & { statusCode?: number };
     err.statusCode = 401;
     throw err;
   }
+  
   if (!user.isActive) {
     const err = new Error("Account is disabled") as Error & { statusCode?: number };
     err.statusCode = 403;
     throw err;
   }
+  
   const valid = verifyPassword(password, user.passwordHash);
   if (!valid) {
     const err = new Error("Invalid credentials") as Error & { statusCode?: number };
     err.statusCode = 401;
     throw err;
   }
+  
   return user;
 }
 

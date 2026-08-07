@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { createBodyValidator } from "../../../packages/shared-security/src/index";
+import { createBodyValidator } from "@smartinvest/shared-security";
 import {
   registerUser,
   authenticateUser,
@@ -17,6 +17,22 @@ import { sendEmailConfirmation, sendPasswordResetEmail } from "../services/email
 import crypto from "crypto";
 import { prisma } from "../lib/prisma";
 
+// hCaptcha verification helper
+async function verifyHcaptcha(token: string, secretKey: string): Promise<boolean> {
+  try {
+    const response = await fetch('https://api.hcaptcha.com/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${encodeURIComponent(secretKey)}&response=${encodeURIComponent(token)}`,
+    });
+    const result = await response.json() as { success: boolean };
+    return result.success === true;
+  } catch (error) {
+    console.error('hCaptcha verification error:', error);
+    return false;
+  }
+}
+
 const router = Router();
 
 const signupSchema = z.object({
@@ -28,9 +44,10 @@ const signupSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+  identifier: z.string().min(1, "Email, phone, or ID number is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   twoFactorCode: z.string().optional(),
+  hcaptchaToken: z.string().optional(),
 });
 
 const tokenSchema = z.object({
@@ -38,7 +55,7 @@ const tokenSchema = z.object({
 });
 
 // POST /api/auth/signup
-router.post("/signup", createBodyValidator(signupSchema), async (req, res) => {
+router.post("/signup", createBodyValidator(signupSchema), async (req: Request, res: Response) => {
   try {
     const user = await registerUser(req.body);
     const plan = await getUserPlan(user.id);
@@ -73,16 +90,26 @@ router.post("/signup", createBodyValidator(signupSchema), async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post("/login", createBodyValidator(loginSchema), async (req, res) => {
+router.post("/login", createBodyValidator(loginSchema), async (req: Request, res: Response) => {
   try {
-    const user = await authenticateUser(req.body.email, req.body.password);
+    const { identifier, password, twoFactorCode, hcaptchaToken } = req.body;
+    
+    // Validate hCaptcha token (optional but recommended)
+    if (hcaptchaToken && process.env.HCAPTCHA_SECRET_KEY) {
+      const hcaptchaValid = await verifyHcaptcha(hcaptchaToken, process.env.HCAPTCHA_SECRET_KEY);
+      if (!hcaptchaValid) {
+        return res.status(400).json({ success: false, error: "CAPTCHA verification failed. Please try again." });
+      }
+    }
+    
+    const user = await authenticateUser(identifier, password);
 
     // If 2FA enabled, require code
     if (user.twoFactorEnabled) {
-      if (!req.body.twoFactorCode) {
+      if (!twoFactorCode) {
         return res.status(400).json({ success: false, error: "2FA code required", requires2fa: true });
       }
-      const ok = await verify2fa(user.id, req.body.twoFactorCode);
+      const ok = await verify2fa(user.id, twoFactorCode);
       if (!ok) {
         return res.status(401).json({ success: false, error: "Invalid 2FA code" });
       }
@@ -108,7 +135,7 @@ router.post("/login", createBodyValidator(loginSchema), async (req, res) => {
 });
 
 // POST /api/auth/refresh
-router.post("/refresh", createBodyValidator(tokenSchema), async (req, res) => {
+router.post("/refresh", createBodyValidator(tokenSchema), async (req: Request, res: Response) => {
   try {
     const tokens = await rotateRefreshToken(req.body.refreshToken, req);
     res.json({ success: true, ...tokens });
@@ -118,7 +145,7 @@ router.post("/refresh", createBodyValidator(tokenSchema), async (req, res) => {
 });
 
 // POST /api/auth/logout
-router.post("/logout", authRequired, async (req, res) => {
+router.post("/logout", authRequired, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body ?? {};
     if (refreshToken) {
@@ -134,7 +161,7 @@ router.post("/logout", authRequired, async (req, res) => {
 });
 
 // POST /api/auth/logout-all
-router.post("/logout-all", authRequired, async (req, res) => {
+router.post("/logout-all", authRequired, async (req: Request, res: Response) => {
   try {
     await revokeAllSessions((req as any).user.id);
     res.clearCookie("si_access");
@@ -145,7 +172,7 @@ router.post("/logout-all", authRequired, async (req, res) => {
 });
 
 // POST /api/auth/2fa/enable
-router.post("/2fa/enable", authRequired, async (req, res) => {
+router.post("/2fa/enable", authRequired, async (req: Request, res: Response) => {
   try {
     const result = await enable2fa((req as any).user.id);
     res.json({ success: true, ...result });
@@ -155,7 +182,7 @@ router.post("/2fa/enable", authRequired, async (req, res) => {
 });
 
 // POST /api/auth/2fa/verify
-router.post("/2fa/verify", authRequired, async (req, res) => {
+router.post("/2fa/verify", authRequired, async (req: Request, res: Response) => {
   try {
     const { code } = req.body ?? {};
     const ok = await verify2fa((req as any).user.id, code);
@@ -166,7 +193,7 @@ router.post("/2fa/verify", authRequired, async (req, res) => {
 });
 
 // POST /api/auth/forgot-password
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", async (req: Request, res: Response) => {
   try {
     const { email } = req.body ?? {};
     if (!email) return res.status(400).json({ success: false, error: "Email required" });
@@ -187,7 +214,7 @@ router.post("/forgot-password", async (req, res) => {
 });
 
 // POST /api/auth/reset-password
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body ?? {};
     if (!token || !newPassword || newPassword.length < 8) {
@@ -197,7 +224,7 @@ router.post("/reset-password", async (req, res) => {
     if (!user || !user.resetExpires || user.resetExpires < new Date()) {
       return res.status(400).json({ success: false, error: "Invalid or expired token" });
     }
-    const { hashPassword } = await import("../../../packages/shared-security/src/index");
+    const { hashPassword } = await import("@smartinvest/shared-security");
     await prisma.user.update({
       where: { id: user.id },
       data: { passwordHash: hashPassword(newPassword), resetToken: null, resetExpires: null },
