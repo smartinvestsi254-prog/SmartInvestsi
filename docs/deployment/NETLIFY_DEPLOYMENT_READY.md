@@ -1,0 +1,3 @@
+Moved from root: NETLIFY_DEPLOYMENT_READY.md
+
+Original path: /NETLIFY_DEPLOYMENT_READY.md
