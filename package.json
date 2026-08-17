@@ -38,11 +38,7 @@
     "@prisma/client": "^7.5.0",
     "@sentry/node": "^8.28.0",
     "axios": "^1.4.0",
-devin/1781118910-comprehensive-audit-fixes
-    "bcrypt": "^5.1.1",
-    "bcryptjs": "^3.0.3",
     "bcryptjs": "^2.4.3",
-    main
     "ccxt": "^4.5.45",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -51,15 +47,10 @@ devin/1781118910-comprehensive-audit-fixes
     "express-rate-limit": "^7.1.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
-    devin/1781118910-comprehensive-audit-fixes
     "mongodb": "^6.21.0",
-
-    "mongodb": "^6.5.0",
     "mongoose": "^8.0.0",
- main
     "node-cron": "^3.0.2",
     "nodemailer": "^8.0.4",
-    "prisma": "^7.5.0",
     "protobufjs": "^7.6.3",
     "winston": "^3.13.1",
     "zod": "^3.24.2"

@@ -1,12 +1,24 @@
 // SmartInvestsi Public Configuration
-// These values are safe to expose publicly
+// Runtime-safe placeholders. Populate these values via meta tags in your HTML (see README/DEPLOYMENT_GUIDE)
 
-window.PUBLIC_CONFIG = {
-  supabaseUrl: 'https://https://qbmkscozjttfnuigwmxt.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bHNqaHVldWpudXdhaHp6amh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0MDM4NjQsImV4cCI6MjA4NDk3OTg2NH0.KBj5zyxubnWhN-psV0Eb87-lFEXUSeq5vF1gTKoCBWk',
-  supportEmail: 'support@smartinvestsi.netlify.app',
-  supportPhone: '+254 114383762',
-  companyName: 'SmartInvestsi',
-  companyDomain: 'https://smartinvestsi.netlify.app'
-};
+(function () {
+  function getMeta(name) {
+    const m = document.querySelector(`meta[name="${name}"]`);
+    return m ? m.content : '';
+  }
 
+  window.PUBLIC_CONFIG = {
+    supabaseUrl: getMeta('NEXT_PUBLIC_SUPABASE_URL') || '',
+    supabaseAnonKey: getMeta('NEXT_PUBLIC_SUPABASE_ANON_KEY') || '',
+    hcaptchaSitekey: getMeta('NEXT_PUBLIC_HCAPTCHA_SITEKEY') || '',
+    supportEmail: getMeta('NEXT_PUBLIC_SUPPORT_EMAIL') || '',
+    supportPhone: getMeta('NEXT_PUBLIC_SUPPORT_PHONE') || '',
+    appUrl: getMeta('NEXT_PUBLIC_APP_URL') || window.location.origin
+  };
+
+  // Quick sanity check in dev
+  if (window.location.hostname === 'localhost' && !window.PUBLIC_CONFIG.supabaseUrl) {
+    // eslint-disable-next-line no-console
+    console.warn('PUBLIC_CONFIG not fully populated. Add meta tags for NEXT_PUBLIC_* values or configure at build time.');
+  }
+})();
