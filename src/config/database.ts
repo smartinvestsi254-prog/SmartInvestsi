@@ -1,4 +1,7 @@
 import { env } from "./env.server";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 function resolveDatabaseUrl(): string {
   if (env.DATABASE_URL) return env.DATABASE_URL;
@@ -15,10 +18,17 @@ export const DATABASE_URL = resolveDatabaseUrl();
 
 export async function checkDatabase() {
   try {
-    // Placeholder - replace with actual Prisma client check
-    const response = await fetch(`${DATABASE_URL}/health`, { signal: AbortSignal.timeout(5000) });
-    return response.ok;
-  } catch {
+    // lightweight DB ping using Prisma
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
+  } catch (e) {
+    console.error('DB health check failed', e);
     return false;
+  } finally {
+    try {
+      await prisma.$disconnect();
+    } catch (e) {
+      // ignore
+    }
   }
 }
