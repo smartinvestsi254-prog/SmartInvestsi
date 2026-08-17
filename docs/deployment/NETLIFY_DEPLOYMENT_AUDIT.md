@@ -1,3 +1,0 @@
-Moved from root: NETLIFY_DEPLOYMENT_AUDIT.md
-
-Original path: /NETLIFY_DEPLOYMENT_AUDIT.md

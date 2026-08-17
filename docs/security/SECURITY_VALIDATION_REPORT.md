@@ -1,3 +1,0 @@
-Moved from root: SECURITY_VALIDATION_REPORT.md
-
-Original path: /SECURITY_VALIDATION_REPORT.md
