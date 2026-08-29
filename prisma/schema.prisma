@@ -477,7 +477,7 @@ enum TransferStatus {
   FAILED
   CANCELLED
 }
- refactor/smartgovern-separation
+
 model AutoInvestment {
   id                String   @id @default(uuid())
   userEmail         String
