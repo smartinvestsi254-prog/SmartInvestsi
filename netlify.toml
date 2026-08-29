@@ -2,15 +2,6 @@
   command = "npx prisma generate && mkdir -p _site && cp -r *.html wwwroot robots.txt sitemap.xml _redirects _site/ 2>/dev/null; true"
   publish = "_site"
 
-[build.environment]
-  NODE_VERSION = "22"
-  NODE_ENV = "production"
-  NPM_CONFIG_PRODUCTION = "false"
-
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
 # API routes -> Netlify Functions
 [[redirects]]
   from = "/api/*"
