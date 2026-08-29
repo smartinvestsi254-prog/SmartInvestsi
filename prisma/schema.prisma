@@ -1206,14 +1206,13 @@ model Notification {
 // ===========================================
 // ADMIN FEE TRACKING
 // ===========================================
- main
+
 model AdminFeeWallet {
   id        String   @id @default(uuid())
   balance   Float    @default(0)
   currency  String   @default("USD")
   updatedAt DateTime @updatedAt
  refactor/smartgovern-separation
-}
 }
 
 model AdminFeeTransaction {
@@ -1231,4 +1230,3 @@ model AdminFeeTransaction {
   @@index([transactionId])
   @@map("admin_fee_transactions")
 }
- main
