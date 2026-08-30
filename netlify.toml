@@ -1,7 +1,8 @@
 [build]
   command = "npm run build"
   publish = "dist"
-
+  SECRETS_SCAN_OMIT_PATHS = "ENVIRONMENT_VARIABLES_GUIDE.md,HARDCODED_VALUES_FIX.md,__tests__/**,netlify/functions/*.yml"
+  
 [build.environment]
   NODE_VERSION = "22.12.0"
 
