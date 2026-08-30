@@ -1209,18 +1209,18 @@ enum NotificationPriority {
 }
 
 model Notification {
-  id             String                    @id @default(cuid())
-  userId         String
-  type           NotificationType          @default(INFO)
-  priority       NotificationPriority      @default(NORMAL)
-  tite           String
-  message        String
-  isRead         Boolean                    @default(false)
-  readAt         DateTime?
-  actionUrl      String?               
-  metadata       Json?                      
-  createdAt      DateTime                    @default(now))
-  updatedAt      DateTime                    @updatedAt
+  id         String               @id @default(cuid())
+  userId     String
+  type       NotificationType     @default(INFO)
+  priority   NotificationPriority @default(NORMAL)
+  title      String
+  message    String
+  isRead     Boolean               @default(false)
+  readAt     DateTime?
+  actionUrl  String?               
+  metadata   Json?                      
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
 
   user User @relation(fields: [userId], references: [id])
 
