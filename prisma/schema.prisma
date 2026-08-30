@@ -1186,3 +1186,45 @@ model AdminFeeTransaction {
   @@index([transactionId])
   @@map("admin_fee_transactions")
 }
+
+// ================================================
+// NOTIFICATIONS
+// ================================================
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT
+  ALERT
+  SYSTEM
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Notification {
+  id             String                    @id @default(cuid())
+  userId         String
+  type           NotificationType          @default(INFO)
+  priority       NotificationPriority      @default(NORMAL)
+  tite           String
+  message        String
+  isRead         Boolean                    @default(false)
+  readAt         DateTime?
+  actionUrl      String?               
+  metadata       Json?                      
+  createdAt      DateTime                    @default(now))
+  updatedAt      DateTime                    @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@index([userId])
+  @@map("notifications")
+}
