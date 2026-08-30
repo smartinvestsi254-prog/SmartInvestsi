@@ -2,6 +2,9 @@
   command = "npx prisma generate && mkdir -p _site && cp -r *.html wwwroot robots.txt sitemap.xml _redirects _site/ 2>/dev/null; true"
   publish = "_site"
 
+[[plugin]]
+  package= "@netlify/plugin-nextjs"  
+
 # API routes -> Netlify Functions
 [[redirects]]
   from = "/api/*"
