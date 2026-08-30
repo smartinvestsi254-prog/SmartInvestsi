@@ -1212,7 +1212,6 @@ model AdminFeeWallet {
   balance   Float    @default(0)
   currency  String   @default("USD")
   updatedAt DateTime @updatedAt
- refactor/smartgovern-separation
 }
 
 model AdminFeeTransaction {
