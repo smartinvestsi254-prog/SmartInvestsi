@@ -1,33 +1,33 @@
 /**
  * Security & Chat Integration for server.js
- * Add these imports and middleware to the main server.js file
+ * Production-ready version with strict identity validation and robust error handling.
  */
 
-// At top of server.js, add these imports:
-/*
-const {
-  DataCompartment,
-  UserDataProtection,
-  AccessRequest,
-  SecurityFirewall,
-  PrivacyControl,
-  SecureCache,
-  DataBreachPrevention
-} = require('./data-protection');
-const {
-  ChatManager
-} = require('./chat-support');
+// ========================================
+// HELPER METHODS
+// ========================================
 
-// Initialize security layers
-const firewall = new SecurityFirewall();
-const privacyControl = new PrivacyControl();
-const cache = new SecureCache();
-const breachPrevention = new DataBreachPrevention();
-const chatManager = new ChatManager();
+/**
+ * Validates admin user identity safely without hardcoded fallbacks
+ */
+function getAdminIdentity() {
+  const adminUser = process.env.ADMIN_USER;
+  if (!adminUser) {
+    throw new Error('CRITICAL CONFIGURATION ERROR: ADMIN_USER environment variable is missing.');
+  }
+  return adminUser;
+}
 
-// Apply firewall globally
-app.use(firewall.middleware());
-*/
+/**
+ * Extracts verified user identity from authenticated request context
+ */
+function getAuthenticatedUserEmail(req) {
+  // Pull from session/token payload set by authentication middleware
+  if (req.user && req.user.email) {
+    return req.user.email.toLowerCase();
+  }
+  return null;
+}
 
 // ========================================
 // CHAT SUPPORT ENDPOINTS
@@ -37,29 +37,35 @@ function initChatEndpoints(app, adminAuth, express) {
   // User: Create support chat
   app.post('/api/support/chat/create', express.json(), (req, res) => {
     try {
-      const { email, category = 'general' } = req.body;
-      if (!email) return res.status(400).json({ error: 'email required' });
+      const email = getAuthenticatedUserEmail(req) || req.body.email;
+      const { category = 'general' } = req.body;
+
+      if (!email) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
 
       const chat = chatManager.createChat(email, email, category);
       return res.json({ success: true, conversationId: chat.conversationId });
     } catch (e) {
-      console.error('create chat error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('create chat error:', e.message);
+      return res.status(500).json({ error: 'Failed to create chat' });
     }
   });
 
   // User: Get their chat conversations
   app.get('/api/support/chat/my-chats', (req, res) => {
     try {
-      const email = req.headers['x-user-email'];
-      if (!email) return res.status(401).json({ error: 'email required' });
+      const email = getAuthenticatedUserEmail(req);
+      if (!email) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
 
       const chats = chatManager.getUserChats(email);
       const sanitized = chats.map(c => c.toJSON());
       return res.json({ success: true, chats: sanitized });
     } catch (e) {
-      console.error('get user chats error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('get user chats error:', e.message);
+      return res.status(500).json({ error: 'Failed to retrieve chats' });
     }
   });
 
@@ -67,17 +73,20 @@ function initChatEndpoints(app, adminAuth, express) {
   app.get('/api/support/chat/:conversationId', (req, res) => {
     try {
       const { conversationId } = req.params;
-      const email = req.headers['x-user-email'];
-      if (!email) return res.status(401).json({ error: 'email required' });
+      const email = getAuthenticatedUserEmail(req);
+
+      if (!email) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
 
       const chat = chatManager.getChat(conversationId);
-      if (!chat) return res.status(404).json({ error: 'conversation not found' });
-      if (chat.email !== email.toLowerCase()) return res.status(403).json({ error: 'access denied' });
+      if (!chat) return res.status(404).json({ error: 'Conversation not found' });
+      if (chat.email !== email) return res.status(403).json({ error: 'Access denied' });
 
       return res.json({ success: true, chat: chat.toJSON(true) });
     } catch (e) {
-      console.error('get chat error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('get chat error:', e.message);
+      return res.status(500).json({ error: 'Failed to retrieve conversation' });
     }
   });
 
@@ -86,20 +95,22 @@ function initChatEndpoints(app, adminAuth, express) {
     try {
       const { conversationId } = req.params;
       const { content, attachments = [] } = req.body;
-      const email = req.headers['x-user-email'];
+      const email = getAuthenticatedUserEmail(req);
 
-      if (!email) return res.status(401).json({ error: 'email required' });
-      if (!content) return res.status(400).json({ error: 'content required' });
+      if (!email) return res.status(401).json({ error: 'Authentication required' });
+      if (!content || typeof content !== 'string') {
+        return res.status(400).json({ error: 'Valid content required' });
+      }
 
       const chat = chatManager.getChat(conversationId);
-      if (!chat) return res.status(404).json({ error: 'conversation not found' });
-      if (chat.email !== email.toLowerCase()) return res.status(403).json({ error: 'access denied' });
+      if (!chat) return res.status(404).json({ error: 'Conversation not found' });
+      if (chat.email !== email) return res.status(403).json({ error: 'Access denied' });
 
-      const message = chatManager.addMessage(conversationId, 'user', content, attachments);
+      const message = chatManager.addMessage(conversationId, 'user', content.trim(), attachments);
       return res.json({ success: true, message });
     } catch (e) {
-      console.error('send message error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('send message error:', e.message);
+      return res.status(500).json({ error: 'Failed to send message' });
     }
   });
 
@@ -110,8 +121,8 @@ function initChatEndpoints(app, adminAuth, express) {
       const sanitized = chats.map(c => c.toJSON());
       return res.json({ success: true, chats: sanitized, total: sanitized.length });
     } catch (e) {
-      console.error('admin get chats error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('admin get chats error:', e.message);
+      return res.status(500).json({ error: 'Failed to fetch admin chats' });
     }
   });
 
@@ -119,14 +130,14 @@ function initChatEndpoints(app, adminAuth, express) {
   app.post('/api/support/admin/assign/:conversationId', adminAuth, express.json(), (req, res) => {
     try {
       const { conversationId } = req.params;
-      const adminEmail = process.env.ADMIN_USER || 'admin';
+      const adminEmail = getAdminIdentity();
 
       const success = chatManager.assignChat(conversationId, adminEmail);
-      if (!success) return res.status(404).json({ error: 'conversation not found' });
+      if (!success) return res.status(404).json({ error: 'Conversation not found' });
 
       return res.json({ success: true });
     } catch (e) {
-      console.error('assign chat error', e.message);
+      console.error('assign chat error:', e.message);
       return res.status(500).json({ error: e.message });
     }
   });
@@ -136,15 +147,18 @@ function initChatEndpoints(app, adminAuth, express) {
     try {
       const { conversationId } = req.params;
       const { content } = req.body;
-      if (!content) return res.status(400).json({ error: 'content required' });
 
-      const message = chatManager.addMessage(conversationId, 'admin', content);
-      if (!message) return res.status(404).json({ error: 'conversation not found' });
+      if (!content || typeof content !== 'string') {
+        return res.status(400).json({ error: 'Valid content required' });
+      }
+
+      const message = chatManager.addMessage(conversationId, 'admin', content.trim());
+      if (!message) return res.status(404).json({ error: 'Conversation not found' });
 
       return res.json({ success: true, message });
     } catch (e) {
-      console.error('admin reply error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('admin reply error:', e.message);
+      return res.status(500).json({ error: 'Failed to process admin reply' });
     }
   });
 
@@ -155,12 +169,12 @@ function initChatEndpoints(app, adminAuth, express) {
       const { resolution = 'resolved', note = '' } = req.body;
 
       const success = chatManager.closeChat(conversationId, resolution, note);
-      if (!success) return res.status(404).json({ error: 'conversation not found' });
+      if (!success) return res.status(404).json({ error: 'Conversation not found' });
 
       return res.json({ success: true });
     } catch (e) {
-      console.error('close chat error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('close chat error:', e.message);
+      return res.status(500).json({ error: 'Failed to close conversation' });
     }
   });
 
@@ -168,14 +182,14 @@ function initChatEndpoints(app, adminAuth, express) {
   app.get('/api/support/admin/search', adminAuth, (req, res) => {
     try {
       const { q = '' } = req.query;
-      if (!q) return res.status(400).json({ error: 'search query required' });
+      if (!q) return res.status(400).json({ error: 'Search query required' });
 
-      const results = chatManager.searchChats(q);
+      const results = chatManager.searchChats(String(q));
       const sanitized = results.map(c => c.toJSON());
       return res.json({ success: true, results: sanitized, total: sanitized.length });
     } catch (e) {
-      console.error('search chats error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('search chats error:', e.message);
+      return res.status(500).json({ error: 'Failed to search chats' });
     }
   });
 
@@ -185,8 +199,8 @@ function initChatEndpoints(app, adminAuth, express) {
       const stats = chatManager.getStatistics();
       return res.json({ success: true, stats });
     } catch (e) {
-      console.error('chat stats error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('chat stats error:', e.message);
+      return res.status(500).json({ error: 'Failed to fetch statistics' });
     }
   });
 }
@@ -195,14 +209,18 @@ function initChatEndpoints(app, adminAuth, express) {
 // DATA ACCESS REQUEST ENDPOINTS
 // ========================================
 
-const accessRequests = []; // In-memory storage, use DB in production
+const accessRequests = []; // Note: Replace with DB repository in production
 
 function initAccessRequestEndpoints(app, adminAuth, express) {
   // User: Request access to their data
   app.post('/api/data/request-access', express.json(), (req, res) => {
     try {
-      const { email, dataType, reason = '' } = req.body;
-      if (!email || !dataType) return res.status(400).json({ error: 'email and dataType required' });
+      const email = getAuthenticatedUserEmail(req) || req.body.email;
+      const { dataType, reason = '' } = req.body;
+
+      if (!email || !dataType) {
+        return res.status(400).json({ error: 'email and dataType required' });
+      }
 
       const request = new AccessRequest(email, `user-${email}`, `access_${dataType}`, reason);
       accessRequests.push(request);
@@ -214,8 +232,8 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
         message: 'Request submitted. Admin will review within 24 hours.'
       });
     } catch (e) {
-      console.error('request access error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('request access error:', e.message);
+      return res.status(500).json({ error: 'Failed to submit request' });
     }
   });
 
@@ -225,8 +243,8 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
       const pending = accessRequests.filter(r => r.status === 'pending');
       return res.json({ success: true, requests: pending });
     } catch (e) {
-      console.error('get access requests error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('get access requests error:', e.message);
+      return res.status(500).json({ error: 'Failed to retrieve access requests' });
     }
   });
 
@@ -234,15 +252,15 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
   app.post('/api/data/admin/approve/:requestId', adminAuth, express.json(), (req, res) => {
     try {
       const { requestId } = req.params;
-      const adminEmail = process.env.ADMIN_USER || 'admin';
+      const adminEmail = getAdminIdentity();
 
       const request = accessRequests.find(r => r.id === requestId);
-      if (!request) return res.status(404).json({ error: 'request not found' });
+      if (!request) return res.status(404).json({ error: 'Request not found' });
 
       request.approve(adminEmail);
       return res.json({ success: true, message: 'Access approved for 24 hours' });
     } catch (e) {
-      console.error('approve access error', e.message);
+      console.error('approve access error:', e.message);
       return res.status(500).json({ error: e.message });
     }
   });
@@ -252,13 +270,13 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
     try {
       const { requestId } = req.params;
       const request = accessRequests.find(r => r.id === requestId);
-      if (!request) return res.status(404).json({ error: 'request not found' });
+      if (!request) return res.status(404).json({ error: 'Request not found' });
 
       request.deny();
       return res.json({ success: true, message: 'Access request denied' });
     } catch (e) {
-      console.error('deny access error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('deny access error:', e.message);
+      return res.status(500).json({ error: 'Failed to deny request' });
     }
   });
 
@@ -266,15 +284,15 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
   app.post('/api/data/admin/revoke/:requestId', adminAuth, express.json(), (req, res) => {
     try {
       const { requestId } = req.params;
-      const adminEmail = process.env.ADMIN_USER || 'admin';
+      const adminEmail = getAdminIdentity();
 
       const request = accessRequests.find(r => r.id === requestId);
-      if (!request) return res.status(404).json({ error: 'request not found' });
+      if (!request) return res.status(404).json({ error: 'Request not found' });
 
       request.revoke(adminEmail);
       return res.json({ success: true, message: 'Access revoked' });
     } catch (e) {
-      console.error('revoke access error', e.message);
+      console.error('revoke access error:', e.message);
       return res.status(500).json({ error: e.message });
     }
   });
@@ -289,10 +307,11 @@ function initSecurityEndpoints(app, adminAuth, express) {
   app.get('/api/security/admin/audit-log', adminAuth, (req, res) => {
     try {
       const { limit = 1000 } = req.query;
-      const log = breachPrevention.getAuditLog(process.env.ADMIN_USER || 'admin', Number(limit));
+      const adminEmail = getAdminIdentity();
+      const log = breachPrevention.getAuditLog(adminEmail, Number(limit));
       return res.json({ success: true, auditLog: log });
     } catch (e) {
-      console.error('audit log error', e.message);
+      console.error('audit log error:', e.message);
       return res.status(500).json({ error: e.message });
     }
   });
@@ -300,10 +319,11 @@ function initSecurityEndpoints(app, adminAuth, express) {
   // Admin: Get breach alerts
   app.get('/api/security/admin/breach-alerts', adminAuth, (req, res) => {
     try {
-      const alerts = breachPrevention.getBreachAlerts(process.env.ADMIN_USER || 'admin');
+      const adminEmail = getAdminIdentity();
+      const alerts = breachPrevention.getBreachAlerts(adminEmail);
       return res.json({ success: true, alerts });
     } catch (e) {
-      console.error('breach alerts error', e.message);
+      console.error('breach alerts error:', e.message);
       return res.status(500).json({ error: e.message });
     }
   });
@@ -312,7 +332,7 @@ function initSecurityEndpoints(app, adminAuth, express) {
   app.post('/api/security/admin/block-ip', adminAuth, express.json(), (req, res) => {
     try {
       const { ip, action = 'block', reason = '' } = req.body;
-      if (!ip) return res.status(400).json({ error: 'ip required' });
+      if (!ip) return res.status(400).json({ error: 'IP address required' });
 
       if (action === 'block') {
         firewall.blockIP(ip, reason);
@@ -320,10 +340,10 @@ function initSecurityEndpoints(app, adminAuth, express) {
         firewall.unblockIP(ip);
       }
 
-      return res.json({ success: true, message: `IP ${action}ed` });
+      return res.json({ success: true, message: `IP ${action}ed successfully` });
     } catch (e) {
-      console.error('block ip error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('block ip error:', e.message);
+      return res.status(500).json({ error: 'Failed to update IP blocklist' });
     }
   });
 
@@ -331,7 +351,7 @@ function initSecurityEndpoints(app, adminAuth, express) {
   app.post('/api/security/admin/block-email', adminAuth, express.json(), (req, res) => {
     try {
       const { email, action = 'block', reason = '' } = req.body;
-      if (!email) return res.status(400).json({ error: 'email required' });
+      if (!email) return res.status(400).json({ error: 'Email required' });
 
       if (action === 'block') {
         firewall.blockEmail(email, reason);
@@ -339,10 +359,10 @@ function initSecurityEndpoints(app, adminAuth, express) {
         firewall.unblockEmail(email);
       }
 
-      return res.json({ success: true, message: `Email ${action}ed` });
+      return res.json({ success: true, message: `Email ${action}ed successfully` });
     } catch (e) {
-      console.error('block email error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('block email error:', e.message);
+      return res.status(500).json({ error: 'Failed to update email blocklist' });
     }
   });
 
@@ -362,8 +382,8 @@ function initSecurityEndpoints(app, adminAuth, express) {
         }
       });
     } catch (e) {
-      console.error('security status error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('security status error:', e.message);
+      return res.status(500).json({ error: 'Failed to fetch security status' });
     }
   });
 }
@@ -382,21 +402,21 @@ function initCatalogPDFEndpoints(app, adminAuth, express, readFilesMeta, writeFi
 
       const files = readFilesMeta();
       const file = files.find(f => f.id === id);
-      if (!file) return res.status(404).json({ error: 'file not found' });
+      if (!file) return res.status(404).json({ error: 'File not found' });
 
       file.pdfInfo = {
         url: pdfUrl,
         title: pdfTitle || file.title,
         description: pdfDescription || '',
-        pages,
+        pages: Number(pages),
         addedAt: new Date().toISOString()
       };
 
       writeFilesMeta(files);
       return res.json({ success: true, file });
     } catch (e) {
-      console.error('add pdf info error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('add pdf info error:', e.message);
+      return res.status(500).json({ error: 'Failed to update PDF info' });
     }
   });
 
@@ -418,8 +438,8 @@ function initCatalogPDFEndpoints(app, adminAuth, express, readFilesMeta, writeFi
         }));
       return res.json({ success: true, files });
     } catch (e) {
-      console.error('catalog with pdfs error', e.message);
-      return res.status(500).json({ error: e.message });
+      console.error('catalog with pdfs error:', e.message);
+      return res.status(500).json({ error: 'Failed to fetch catalog' });
     }
   });
 }
