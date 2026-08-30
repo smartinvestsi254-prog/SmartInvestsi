@@ -1,6 +1,12 @@
 [build]
   command = "npx prisma generate && mkdir -p _site && cp -r *.html wwwroot robots.txt sitemap.xml _redirects _site/ 2>/dev/null; true"
-  publish = "_site"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.12.0"
+
+[functions]
+  directory = "dist/netlify/functions"
 
 [[plugin]]
   package= "@netlify/plugin-nextjs"  
