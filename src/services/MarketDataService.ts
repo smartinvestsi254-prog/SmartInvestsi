@@ -1,128 +1,294 @@
-// src/services/MarketDataService.ts
-import { PrismaClient } from '@prisma/client';
-import { checkFeatureAccess } from '../lib/tier-access-control';
+import axios, { AxiosInstance } from 'axios';
+import WebSocket from 'ws';
+import { EventEmitter } from 'events';
 
-const prisma = new PrismaClient();
+// Configuration interface
+export interface MarketDataConfig {
+  apiKey?: string;
+  baseUrl?: string;
+  wsUrl?: string;
+  cacheTtlMs?: number;
+  rateLimitMaxRequests?: number;
+  rateLimitWindowMs?: number;
+}
 
-export class MarketDataService {
-  
-  async getQuote(symbol: string, userEmail: string) {
-    const access = await checkFeatureAccess(userEmail, 'market.realtime');
+// Data models
+export interface Quote {
+  symbol: string;
+  price: number;
+  bid: number;
+  ask: number;
+  volume: number;
+  timestamp: number;
+}
+
+export interface HistoricalBar {
+  symbol: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  timestamp: number;
+}
+
+interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
+
+export class MarketDataService extends EventEmitter {
+  private readonly apiKey: string;
+  private readonly baseUrl: string;
+  private readonly wsUrl: string;
+  private readonly httpClient: AxiosInstance;
+  private readonly cacheTtlMs: number;
+
+  private ws: WebSocket | null = null;
+  private wsReconnectTimer: NodeJS.Timeout | null = null;
+  private isExplicitlyClosed = false;
+  private activeSubscriptions: Set<string> = new Set();
+
+  private cache: Map<string, CacheEntry<any>> = new Map();
+  private requestTimestamps: number[] = [];
+  private readonly rateLimitMax: number;
+  private readonly rateLimitWindow: number;
+
+  constructor(config: MarketDataConfig = {}) {
+    super();
+
+    // Load credentials strictly from environment variables or passed config
+    this.apiKey = config.apiKey || process.env.MARKET_DATA_API_KEY || '';
+    this.baseUrl = config.baseUrl || process.env.MARKET_DATA_BASE_URL || 'https://api.marketdata.com/v1';
+    this.wsUrl = config.wsUrl || process.env.MARKET_DATA_WS_URL || 'wss://ws.marketdata.com/v1';
     
-    const quote = await prisma.marketData.findFirst({
-      where: { symbol: symbol.toUpperCase() },
-      orderBy: { timestamp: 'desc' }
-    });
+    this.cacheTtlMs = config.cacheTtlMs ?? 5000; // 5 seconds default
+    this.rateLimitMax = config.rateLimitMaxRequests ?? 100;
+    this.rateLimitWindow = config.rateLimitWindowMs ?? 60000; // 100 requests / min default
 
-    if (!quote) {
-      return this.fetchExternalQuote(symbol);
+    if (!this.apiKey) {
+      throw new Error(
+        'CRITICAL ERROR: MARKET_DATA_API_KEY is missing. Configure it in process.env or pass it to constructor options.'
+      );
     }
 
-    // Free users get 15-minute delayed data
-    if (!access.allowed) {
-      const delay = 15 * 60 * 1000;
-      const delayedTime = new Date(Date.now() - delay);
-      
-      if (quote.timestamp > delayedTime) {
-        return {
-          ...quote,
-          isDelayed: true,
-          delayMinutes: 15,
-          message: 'Delayed data. Upgrade to Premium for real-time quotes.'
-        };
-      }
-    }
-
-    return { ...quote, isDelayed: false };
-  }
-
-  async getHistoricalData(
-    symbol: string,
-    userEmail: string,
-    params: {
-      from?: Date;
-      to?: Date;
-      interval?: string;
-    }
-  ) {
-    const access = await checkFeatureAccess(userEmail, 'market.historical');
-    if (!access.allowed) {
-      throw new Error(access.reason);
-    }
-
-    const data = await prisma.marketData.findMany({
-      where: {
-        symbol: symbol.toUpperCase(),
-        timestamp: {
-          gte: params.from || new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-          lte: params.to || new Date()
-        }
+    // Axios client configuration
+    this.httpClient = axios.create({
+      baseURL: this.baseUrl,
+      timeout: 10000,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+        'X-API-Key': this.apiKey,
       },
-      orderBy: { timestamp: 'asc' },
-      take: 1000
-    });
-
-    return data;
-  }
-
-  async updateMarketData(symbol: string, data: any) {
-    return await prisma.marketData.create({
-      data: {
-        symbol: symbol.toUpperCase(),
-        exchange: data.exchange,
-        price: data.price,
-        open: data.open,
-        high: data.high,
-        low: data.low,
-        close: data.close,
-        volume: data.volume,
-        change: data.change,
-        changePercent: data.changePercent,
-        marketCap: data.marketCap,
-        peRatio: data.peRatio,
-        dividendYield: data.dividendYield,
-        week52High: data.week52High,
-        week52Low: data.week52Low,
-        timestamp: new Date()
-      }
     });
   }
 
-  private async fetchExternalQuote(symbol: string) {
+  // ==========================================
+  // PUBLIC REST API METHODS
+  // ==========================================
+
+  /**
+   * Fetches real-time quote for a specific ticker symbol.
+   */
+  public async getQuote(symbol: string): Promise<Quote> {
+    const cleanSymbol = this.sanitizeSymbol(symbol);
+    const cacheKey = `quote:${cleanSymbol}`;
+
+    const cached = this.getFromCache<Quote>(cacheKey);
+    if (cached) return cached;
+
+    await this.enforceRateLimit();
+
     try {
-      return {
-        symbol,
-        price: 0,
-        message: 'External API integration needed'
-      };
-    } catch (error) {
-      throw new Error(`Failed to fetch quote for ${symbol}`);
+      const response = await this.httpClient.get<Quote>(`/quotes/${cleanSymbol}`);
+      const quote = response.data;
+      
+      this.setCache(cacheKey, quote);
+      return quote;
+    } catch (error: any) {
+      this.handleApiError(`Failed to fetch quote for ${cleanSymbol}`, error);
+      throw error;
     }
   }
 
-  async getWatchlist(userEmail: string) {
-    const portfolios = await prisma.portfolio.findMany({
-      where: { userEmail },
-      include: {
-        holdings: {
-          select: { symbol: true }
+  /**
+   * Fetches historical bar/candle data for a given range.
+   */
+  public async getHistoricalData(
+    symbol: string,
+    timeframe: '1m' | '5m' | '1h' | '1d',
+    startDate: Date,
+    endDate: Date
+  ): Promise<HistoricalBar[]> {
+    const cleanSymbol = this.sanitizeSymbol(symbol);
+    const cacheKey = `history:${cleanSymbol}:${timeframe}:${startDate.getTime()}-${endDate.getTime()}`;
+
+    const cached = this.getFromCache<HistoricalBar[]>(cacheKey);
+    if (cached) return cached;
+
+    await this.enforceRateLimit();
+
+    try {
+      const response = await this.httpClient.get<HistoricalBar[]>(`/historical/${cleanSymbol}`, {
+        params: {
+          timeframe,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+        },
+      });
+
+      const bars = response.data;
+      this.setCache(cacheKey, bars, 60000); // Cache historical data longer (1 min)
+      return bars;
+    } catch (error: any) {
+      this.handleApiError(`Failed to fetch historical data for ${cleanSymbol}`, error);
+      throw error;
+    }
+  }
+
+  // ==========================================
+  // WEBSOCKET REAL-TIME STREAMING
+  // ==========================================
+
+  /**
+   * Connects to the real-time WebSocket market stream.
+   */
+  public connectStream(): void {
+    this.isExplicitlyClosed = false;
+    
+    // Authenticate WS via query parameter or authorization protocol header
+    const authWsUrl = `${this.wsUrl}?apiKey=${encodeURIComponent(this.apiKey)}`;
+    this.ws = new WebSocket(authWsUrl);
+
+    this.ws.on('open', () => {
+      this.emit('connected');
+      this.resubscribeAll();
+    });
+
+    this.ws.on('message', (rawMessage: WebSocket.RawData) => {
+      try {
+        const message = JSON.parse(rawMessage.toString());
+        if (message.type === 'trade' || message.type === 'quote') {
+          this.emit('marketData', message);
         }
+      } catch (err) {
+        this.emit('error', new Error('Failed to parse WebSocket message stream'));
       }
     });
 
-    const alerts = await prisma.priceAlert.findMany({
-      where: { userEmail, isActive: true },
-      select: { symbol: true }
+    this.ws.on('error', (err) => {
+      this.emit('error', err);
     });
 
-    const symbols = new Set<string>();
-    portfolios.forEach(p => p.holdings.forEach(h => symbols.add(h.symbol)));
-    alerts.forEach(a => symbols.add(a.symbol));
+    this.ws.on('close', (code, reason) => {
+      this.emit('disconnected', { code, reason: reason.toString() });
+      if (!this.isExplicitlyClosed) {
+        this.scheduleReconnect();
+      }
+    });
+  }
 
-    const quotes = await Promise.all(
-      Array.from(symbols).map(symbol => this.getQuote(symbol, userEmail))
-    );
+  /**
+   * Subscribes to real-time quotes for a symbol.
+   */
+  public subscribeSymbol(symbol: string): void {
+    const cleanSymbol = this.sanitizeSymbol(symbol);
+    this.activeSubscriptions.add(cleanSymbol);
 
-    return quotes;
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ action: 'subscribe', symbol: cleanSymbol }));
+    }
+  }
+
+  /**
+   * Unsubscribes from real-time updates for a symbol.
+   */
+  public unsubscribeSymbol(symbol: string): void {
+    const cleanSymbol = this.sanitizeSymbol(symbol);
+    this.activeSubscriptions.delete(cleanSymbol);
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ action: 'unsubscribe', symbol: cleanSymbol }));
+    }
+  }
+
+  /**
+   * Gracefully shuts down WebSocket connections and clears timers.
+   */
+  public close(): void {
+    this.isExplicitlyClosed = true;
+    if (this.wsReconnectTimer) {
+      clearTimeout(this.wsReconnectTimer);
+    }
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+    this.cache.clear();
+  }
+
+  // ==========================================
+  // PRIVATE SECURITY & UTILITY METHODS
+  // ==========================================
+
+  private sanitizeSymbol(symbol: string): string {
+    if (!symbol || typeof symbol !== 'string') {
+      throw new Error('Invalid symbol parameter provided.');
+    }
+    return symbol.trim().toUpperCase().replace(/[^A-Z0-9.\-_]/g, '');
+  }
+
+  private getFromCache<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data as T;
+  }
+
+  private setCache<T>(key: string, data: T, customTtlMs?: number): void {
+    const expiresAt = Date.now() + (customTtlMs ?? this.cacheTtlMs);
+    this.cache.set(key, { data, expiresAt });
+  }
+
+  private async enforceRateLimit(): Promise<void> {
+    const now = Date.now();
+    this.requestTimestamps = this.requestTimestamps.filter(t => now - t < this.rateLimitWindow);
+
+    if (this.requestTimestamps.length >= this.rateLimitMax) {
+      const oldestTimestamp = this.requestTimestamps[0];
+      const waitTime = this.rateLimitWindow - (now - oldestTimestamp);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+
+    this.requestTimestamps.push(Date.now());
+  }
+
+  private scheduleReconnect(): void {
+    if (this.wsReconnectTimer) clearTimeout(this.wsReconnectTimer);
+    this.wsReconnectTimer = setTimeout(() => {
+      this.connectStream();
+    }, 5000); // Reconnect backoff after 5 seconds
+  }
+
+  private resubscribeAll(): void {
+    for (const symbol of this.activeSubscriptions) {
+      this.subscribeSymbol(symbol);
+    }
+  }
+
+  private handleApiError(contextMessage: string, error: any): void {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      console.error(`[MarketDataService] ${contextMessage} | Status: ${status}`, data || error.message);
+    } else {
+      console.error(`[MarketDataService] ${contextMessage}`, error);
+    }
   }
 }
