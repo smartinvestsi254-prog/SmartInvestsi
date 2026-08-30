@@ -8,7 +8,7 @@ import axios from 'axios';
 interface PayPalConfig {
   clientId: string;
   clientSecret: string;
-  mode: 'sandbox' | 'live';
+  mode: 'sandbox' | 'production';
   env: 'sandbox' | 'production';
   returnUrl: string;
   cancelUrl: string;
@@ -64,7 +64,7 @@ export class PayPalService {
    * Get the API base URL based on environment
    */
   private getBaseUrl(): string {
-    const isProduction = this.config.mode === 'live' || this.config.env === 'production';
+    const isProduction = this.config.mode === 'production' || this.config.env === 'production';
     return isProduction ? this.LIVE_BASE_URL : this.SANDBOX_BASE_URL;
   }
 
@@ -369,10 +369,10 @@ export function initializePayPalService(): PayPalService {
   const config: PayPalConfig = {
     clientId: process.env.PAYPAL_CLIENT_ID || '',
     clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
-    mode: (process.env.PAYPAL_MODE as 'sandbox' | 'live') || 'sandbox',
-    env: (process.env.PAYPAL_ENV as 'sandbox' | 'production') || 'sandbox',
-    returnUrl: process.env.PAYPAL_RETURN_URL || 'https://yourdomain.com/paypal/return',
-    cancelUrl: process.env.PAYPAL_CANCEL_URL || 'https://yourdomain.com/paypal/cancel',
+    mode: process.env.PAYPAL_MODE === 'production' ? 'production' : 'sandbox',
+    env: process.env.PAYPAL_ENV === 'production' ? 'production' : 'sandbox',
+    returnUrl: process.env.PAYPAL_RETURN_URL || '',
+    cancelUrl: process.env.PAYPAL_CANCEL_URL || '',
     receiverEmail: process.env.PAYPAL_RECEIVER_EMAIL || '',
   };
 
