@@ -1,9 +1,3 @@
- devin/1781118910-comprehensive-audit-fixes
-/**
- * Express authentication middleware for SmartInvestsi
- * Verifies JWT tokens from cookies or Authorization header
- */
-
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
