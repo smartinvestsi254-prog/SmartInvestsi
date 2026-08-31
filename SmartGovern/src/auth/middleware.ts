@@ -1,4 +1,3 @@
-// SmartGovern - src/auth/middleware.ts  
 import { Request, Response, NextFunction } from 'express';  
 
 const PROTECTED_ROUTES = ['/admin', '/api/admin', '/api/diplomacy', '/api/incidents', '/api/workflows', '/api/licensing'];  
