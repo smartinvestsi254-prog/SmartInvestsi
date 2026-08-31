@@ -515,7 +515,6 @@ app.post('/api/auth/signup', async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         email: normalizedEmail,
- refactor/smartgovern-separation
         passwordHash: passwordHash,
         role: userRole,
         passwordHash,
