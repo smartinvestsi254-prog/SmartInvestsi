@@ -1,32 +1,27 @@
-/**
- * Unified Admin Service
- * Consolidates admin operations, user management, and system monitoring
- * smartinvestsi254@gmail.com - Primary Admin Account
- */
-
-import { connectToDatabase } from './mongodb';
+import { supabase } from './supabase'; // Replace with your initialized Supabase client
 import paymentConfig from '../config/payment-services.config';
 
-interface AdminUser {
+export interface AdminUser {
   email: string;
   role: 'super_admin' | 'admin' | 'moderator';
-  accountId: string;
+  account_id: string;
   permissions: string[];
-  createdAt: Date;
-  lastLogin?: Date;
+  created_at: string;
+  last_login?: string | null;
   active: boolean;
 }
 
-interface AdminAuditLog {
-  adminEmail: string;
+export interface AdminAuditLog {
+  id?: string;
+  admin_email: string;
   action: string;
   details: Record<string, any>;
-  ipAddress?: string;
-  userAgent?: string;
-  timestamp: Date;
+  ip_address?: string;
+  user_agent?: string;
+  timestamp: string;
 }
 
-interface SystemMetrics {
+export interface SystemMetrics {
   totalUsers: number;
   totalPayments: number;
   totalRevenue: number;
@@ -40,31 +35,43 @@ interface SystemMetrics {
  */
 export async function initializeAdminAccount(): Promise<AdminUser> {
   try {
-    const { db } = await connectToDatabase();
     const adminEmail = paymentConfig.admin.email;
 
     // Check if admin exists
-    let adminUser = await db.collection('admins').findOne({ email: adminEmail });
+    const { data: existingAdmin, error: selectError } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('email', adminEmail)
+      .maybeSingle();
 
-    if (!adminUser) {
+    if (selectError) throw selectError;
+
+    if (!existingAdmin) {
       // Create new admin account
-      adminUser = {
+      const newAdmin = {
         email: adminEmail,
         role: 'super_admin',
-        accountId: paymentConfig.admin.accountId,
+        account_id: paymentConfig.admin.accountId,
         permissions: paymentConfig.admin.permissions,
-        createdAt: new Date(),
-        lastLogin: null,
+        created_at: new Date().toISOString(),
+        last_login: null,
         active: true,
       };
 
-      await db.collection('admins').insertOne(adminUser);
+      const { data: insertedAdmin, error: insertError } = await supabase
+        .from('admins')
+        .insert(newAdmin)
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
       console.log(`✓ Admin account initialized: ${adminEmail}`);
-    } else {
-      console.log(`✓ Admin account already exists: ${adminEmail}`);
+      return insertedAdmin as AdminUser;
     }
 
-    return adminUser as AdminUser;
+    console.log(`✓ Admin account already exists: ${adminEmail}`);
+    return existingAdmin as AdminUser;
   } catch (error) {
     console.error('✗ Failed to initialize admin account:', error);
     throw error;
@@ -104,14 +111,12 @@ export async function verifyAdminCredentials(email: string, password: string): P
  */
 export async function updateAdminLastLogin(email: string): Promise<void> {
   try {
-    const { db } = await connectToDatabase();
+    const { error } = await supabase
+      .from('admins')
+      .update({ last_login: new Date().toISOString() })
+      .eq('email', email);
 
-    await db.collection('admins').updateOne(
-      { email },
-      {
-        $set: { lastLogin: new Date() },
-      }
-    );
+    if (error) throw error;
 
     console.log(`✓ Admin last login updated: ${email}`);
   } catch (error) {
@@ -130,18 +135,21 @@ export async function logAdminAction(
   userAgent?: string
 ): Promise<void> {
   try {
-    const { db } = await connectToDatabase();
-
-    const auditLog: AdminAuditLog = {
-      adminEmail,
+    const auditLog = {
+      admin_email: adminEmail,
       action,
       details,
-      ipAddress,
-      userAgent,
-      timestamp: new Date(),
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      timestamp: new Date().toISOString(),
     };
 
-    await db.collection('adminAuditLogs').insertOne(auditLog);
+    const { error } = await supabase
+      .from('admin_audit_logs')
+      .insert(auditLog);
+
+    if (error) throw error;
+
     console.log(`✓ Admin action logged: ${action}`);
   } catch (error) {
     console.error('✗ Failed to log admin action:', error);
@@ -153,45 +161,42 @@ export async function logAdminAction(
  */
 export async function getSystemMetrics(): Promise<SystemMetrics> {
   try {
-    const { db } = await connectToDatabase();
+    // Get total user count
+    const { count: totalUsers, error: userError } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true });
 
-    // Get user count
-    const totalUsers = await db.collection('users').countDocuments();
+    if (userError) throw userError;
 
     // Get payment statistics
-    const paymentStats = await db
-      .collection('payments')
-      .aggregate([
-        {
-          $group: {
-            _id: null,
-            total: { $sum: 1 },
-            revenue: { $sum: '$amount' },
-          },
-        },
-      ])
-      .toArray();
+    const { data: payments, error: paymentError } = await supabase
+      .from('payments')
+      .select('amount, provider, status');
 
-    const totalPayments = paymentStats[0]?.total || 0;
-    const totalRevenue = paymentStats[0]?.revenue || 0;
+    if (paymentError) throw paymentError;
 
-    // Get active payment methods from completed transactions
-    const activeMethods = await db
-      .collection('payments')
-      .aggregate([
-        { $match: { status: 'completed' } },
-        { $group: { _id: '$provider' } },
-      ])
-      .toArray();
+    const totalPayments = payments ? payments.length : 0;
+    const totalRevenue = payments
+      ? payments.reduce((sum, p) => sum + (p.amount || 0), 0)
+      : 0;
 
-    const activePaymentMethods = activeMethods.map((m) => m._id).filter(Boolean) as string[];
+    // Extract unique active payment providers (from completed payments)
+    const activePaymentMethods = Array.from(
+      new Set(
+        payments
+          ?.filter((p) => p.status === 'completed' && p.provider)
+          .map((p) => p.provider as string) || []
+      )
+    );
 
     // Determine system health
     const systemHealth =
-      totalUsers > 0 && totalPayments > 0 && activePaymentMethods.length > 0 ? 'healthy' : 'warning';
+      (totalUsers || 0) > 0 && totalPayments > 0 && activePaymentMethods.length > 0
+        ? 'healthy'
+        : 'warning';
 
     return {
-      totalUsers,
+      totalUsers: totalUsers || 0,
       totalPayments,
       totalRevenue,
       activePaymentMethods,
@@ -222,24 +227,29 @@ export async function getEmailPaymentStatus(email: string): Promise<{
   totalTransactions: number;
 }> {
   try {
-    const { db } = await connectToDatabase();
-
-    // Check payment methods for this email
-    const methods = await paymentConfig.getEnabledPaymentServices ? 
-      paymentConfig.getEnabledPaymentServices() : 
-      Object.keys(paymentConfig.payment);
+    const configObj = paymentConfig as unknown as Record<string, any>;
+    const methods: string[] = typeof configObj.getEnabledPaymentServices === 'function'
+      ? configObj.getEnabledPaymentServices()
+      : Object.keys(paymentConfig.payment);
 
     const methodStatus: Record<string, boolean> = {};
-    
+
     for (const method of methods) {
       methodStatus[method] = paymentConfig.payment[method as keyof typeof paymentConfig.payment]?.enabled || false;
     }
 
-    // Get user's payment statistics
-    const userPayments = await db.collection('payments').find({ email }).toArray();
+    // Get user's payments
+    const { data: userPayments, error } = await supabase
+      .from('payments')
+      .select('created_at')
+      .eq('email', email)
+      .order('created_at', { ascending: false });
 
-    const lastPayment = userPayments.length > 0 
-      ? new Date(Math.max(...userPayments.map(p => new Date(p.createdAt).getTime())))
+    if (error) throw error;
+
+    const totalTransactions = userPayments ? userPayments.length : 0;
+    const lastPayment = totalTransactions > 0
+      ? new Date(userPayments[0].created_at)
       : undefined;
 
     return {
@@ -247,7 +257,7 @@ export async function getEmailPaymentStatus(email: string): Promise<{
       verified: true,
       methods: methodStatus,
       lastPayment,
-      totalTransactions: userPayments.length,
+      totalTransactions,
     };
   } catch (error) {
     console.error('✗ Failed to get email payment status:', error);
@@ -272,7 +282,6 @@ export async function isGooglePlayEnabledForEmail(email: string): Promise<boolea
       return false;
     }
 
-    // Check if email matches a configured Google account
     const isConfiguredEmail = email === googlePayConfig.email;
 
     if (isConfiguredEmail) {
@@ -300,7 +309,6 @@ export async function isPayPalEnabledForEmail(email: string): Promise<boolean> {
       return false;
     }
 
-    // Check if email matches the receiver email
     const isConfiguredEmail = email === paypalConfig.receiverEmail;
 
     if (isConfiguredEmail) {
@@ -326,10 +334,14 @@ export async function getAdminDashboardData(): Promise<{
   userStatus: Record<string, any>;
 }> {
   try {
-    const { db } = await connectToDatabase();
-    
     // Get admin info
-    const admin = (await db.collection('admins').findOne({ email: paymentConfig.admin.email })) as AdminUser | null;
+    const { data: adminDoc } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('email', paymentConfig.admin.email)
+      .maybeSingle();
+
+    const admin = adminDoc ? (adminDoc as AdminUser) : null;
 
     // Get metrics
     const metrics = await getSystemMetrics();
@@ -337,11 +349,16 @@ export async function getAdminDashboardData(): Promise<{
     // Get user email status
     const userStatus = await getEmailPaymentStatus('delijah5415@gmail.com');
 
+    const configObj = paymentConfig as unknown as Record<string, any>;
+    const enabledMethods = typeof configObj.getEnabledPaymentServices === 'function'
+      ? configObj.getEnabledPaymentServices()
+      : [];
+
     return {
       admin,
       metrics,
       paymentConfig: {
-        enabledMethods: paymentConfig.getEnabledPaymentServices?.() || [],
+        enabledMethods,
         googlePayEnabled: paymentConfig.payment.googlePay.enabled,
         paypalEnabled: paymentConfig.payment.paypal.enabled,
       },
@@ -361,36 +378,33 @@ export async function getAdminAuditLogs(
   filter?: { email?: string; action?: string; dateFrom?: Date; dateTo?: Date }
 ): Promise<AdminAuditLog[]> {
   try {
-    const { db } = await connectToDatabase();
-
-    let query: Record<string, any> = {};
+    let query = supabase
+      .from('admin_audit_logs')
+      .select('*');
 
     if (filter?.email) {
-      query.adminEmail = filter.email;
+      query = query.eq('admin_email', filter.email);
     }
 
     if (filter?.action) {
-      query.action = filter.action;
+      query = query.eq('action', filter.action);
     }
 
-    if (filter?.dateFrom || filter?.dateTo) {
-      query.timestamp = {};
-      if (filter.dateFrom) {
-        query.timestamp.$gte = filter.dateFrom;
-      }
-      if (filter.dateTo) {
-        query.timestamp.$lte = filter.dateTo;
-      }
+    if (filter?.dateFrom) {
+      query = query.gte('timestamp', filter.dateFrom.toISOString());
     }
 
-    const logs = await db
-      .collection('adminAuditLogs')
-      .find(query)
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .toArray();
+    if (filter?.dateTo) {
+      query = query.lte('timestamp', filter.dateTo.toISOString());
+    }
 
-    return logs as AdminAuditLog[];
+    const { data: logs, error } = await query
+      .order('timestamp', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (logs || []) as AdminAuditLog[];
   } catch (error) {
     console.error('✗ Failed to retrieve audit logs:', error);
     throw error;
