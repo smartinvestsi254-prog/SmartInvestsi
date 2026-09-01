@@ -1,3 +1,0 @@
-Moved from root: ENVIRONMENT_VARIABLES_GUIDE.md
-
-Original path: /ENVIRONMENT_VARIABLES_GUIDE.md

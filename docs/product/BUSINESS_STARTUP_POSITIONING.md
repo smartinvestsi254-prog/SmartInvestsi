@@ -1,3 +1,0 @@
-Moved from root: BUSINESS_STARTUP_POSITIONING.md
-
-Original path: /BUSINESS_STARTUP_POSITIONING.md
