@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartInvestSI - Live Market Dashboard</title>
+    <link rel="stylesheet" href="crypto-dashboard.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <h1 class="header-title">
+            <span class="title-icon">💎</span>SmartInvestSI
+          </h1>
+          <p class="header-subtitle">Live Cryptocurrency Market Dashboard</p>
+        </div>
+        <div class="header-status">
+          <span class="status-indicator" id="statusIndicator"></span>
+          <span class="status-text" id="statusText">Connecting...</span>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Crypto Cards Container -->
+        <div class="crypto-grid" id="cryptoGrid">
+          <!-- Cards will be dynamically inserted here -->
+          <div class="loading-placeholder">
+            <div class="spinner"></div>
+            <p>Loading market data...</p>
+          </div>
+        </div>
+
+        <!-- Last Updated Info -->
+        <div class="info-bar">
+          <p>
+            Last updated:
+            <span id="lastUpdated" class="timestamp">--:-- --</span>
+          </p>
+          <p>Updates every 30 seconds</p>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>
+          &copy; 2024 SmartInvestSI. Data provided by
+          <a href="https://www.coingecko.com" target="_blank" rel="noopener"
+            >CoinGecko API</a
+          >
+        </p>
+        <p class="footer-disclaimer">
+          Cryptocurrency prices are for informational purposes only. Not
+          financial advice.
+        </p>
+      </footer>
+    </div>
+
+    <script src="crypto-dashboard.js"></script>
+  </body>
+</html>
