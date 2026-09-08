@@ -1,5 +1,5 @@
 [build]
-  command = "echo 'Build complete'"
+  command = "npm run build"
   functions = "netlify/functions"
   publish = "."
 
@@ -11,10 +11,3 @@
   from = "/.netlify/functions/:name"
   to = "/.netlify/functions/:name"
   status = 200
-
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type"
