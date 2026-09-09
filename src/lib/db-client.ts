@@ -1,17 +1,26 @@
-import { PrismaClient } from '@prisma/client';
+/**
+ * Database Client Factory
+ * Routes to appropriate database based on configuration
+ */
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+import prisma from './supabase.js';
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development'
-      ? ['query', 'warn', 'error']
-      : ['warn', 'error'],
-  });
+type DatabaseConfig = {
+  db?: {
+    url?: string;
+  };
+};
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+const config: DatabaseConfig = {
+  db: {
+    url: process.env.DATABASE_URL,
+  },
+};
 
-export default prisma;
+// Export primary database client
+export const getPrismaClient = () => prisma;
+
+export default {
+  prisma,
+  config,
+};

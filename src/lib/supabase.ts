@@ -1,10 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+/**
+ * Supabase Client Configuration
+ * Initializes connection to Supabase PostgreSQL database
+ */
 
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_KEY || '';
+import { PrismaClient } from '@prisma/client';
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn('Supabase credentials not configured');
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === 'production') {
+  prisma = new PrismaClient();
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient({
+      log: ['query', 'info', 'warn'],
+    });
+  }
+  prisma = global.prisma;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export default prisma;

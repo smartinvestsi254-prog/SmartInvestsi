@@ -1,27 +1,17 @@
-import mongoose from 'mongoose';
+/**
+ * MongoDB Client Configuration
+ * Provides fallback database support
+ */
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/smartinvest';
+// Placeholder for MongoDB connections
+// Currently using Prisma + PostgreSQL/Supabase as primary
 
-let isConnected = false;
+export const getMongoDbClient = async () => {
+  // Return a mock/placeholder
+  return {
+    connected: false,
+    db: null,
+  };
+};
 
-export async function connectMongoDB() {
-  if (isConnected) {
-    return mongoose.connection;
-  }
-
-  try {
-    await mongoose.connect(MONGODB_URI);
-    isConnected = true;
-    console.log('✓ MongoDB connected');
-    return mongoose.connection;
-  } catch (error) {
-    console.error('✗ MongoDB connection failed:', error);
-    throw error;
-  }
-}
-
-export function getMongoDBConnection() {
-  return mongoose.connection;
-}
-
-export default mongoose;
+export default getMongoDbClient;
