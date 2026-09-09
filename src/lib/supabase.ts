@@ -1,8 +1,3 @@
-/**
- * Supabase Client Configuration
- * Initializes connection to Supabase PostgreSQL database
- */
-
 import { PrismaClient } from '@prisma/client';
 
 let prisma: PrismaClient;
