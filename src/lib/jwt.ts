@@ -1,34 +1,20 @@
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.server";
+import jwt from 'jsonwebtoken';
 
-const CURRENT = env.JWT_SECRET_CURRENT || env.JWT_SECRET;
-const PREVIOUS = env.JWT_SECRET_PREVIOUS;
+const JWT_SECRET = process.env.JWT_SECRET_CURRENT || 'dev-secret';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET_CURRENT || 'dev-refresh-secret';
 
-export function signToken(payload: object, expiresIn = "15m") {
-  return jwt.sign(payload, CURRENT, { expiresIn });
+export function signToken(payload: object, expiresIn = '24h') {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn });
 }
 
-export function verifyToken(token: string): any {
-  try {
-    return jwt.verify(token, CURRENT);
-  } catch {
-    if (PREVIOUS) {
-      return jwt.verify(token, PREVIOUS);
-    }
-    throw new Error("Invalid token");
-  }
+export function signRefreshToken(payload: object) {
+  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 }
 
-const REFRESH_CURRENT = env.JWT_REFRESH_SECRET_CURRENT || env.JWT_REFRESH_SECRET;
-const REFRESH_PREVIOUS = env.JWT_REFRESH_SECRET_PREVIOUS;
+export function verifyToken(token: string) {
+  return jwt.verify(token, JWT_SECRET);
+}
 
-export function verifyRefreshToken(token: string): any {
-  try {
-    return jwt.verify(token, REFRESH_CURRENT);
-  } catch {
-    if (REFRESH_PREVIOUS) {
-      return jwt.verify(token, REFRESH_PREVIOUS);
-    }
-    throw new Error("Invalid refresh token");
-  }
+export function verifyRefreshToken(token: string) {
+  return jwt.verify(token, JWT_REFRESH_SECRET);
 }
