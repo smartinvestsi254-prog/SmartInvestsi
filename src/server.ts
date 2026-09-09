@@ -1,8 +1,3 @@
-/**
- * Main Express Server
- * Serves SmartInvest API and static assets
- */
-
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
