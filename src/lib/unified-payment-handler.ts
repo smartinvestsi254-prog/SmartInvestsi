@@ -1,12 +1,6 @@
-/**
- * Unified Payment Service Handler
- * Consolidates all payment providers (PayPal, Google Pay, Stripe, M-Pesa, KCB)
- * Dynamic routing and fallback mechanism
- */
-
-import { connectToDatabase } from './mongodb';
-import { PayPalService } from './paypal-service';
-import { GooglePayService } from './google-pay-service';
+import connectToDatabase from './mongodb';
+import PayPalService from './paypal-service';
+import GooglePayService from './google-pay-service';
 import paymentConfig from '../config/payment-services.config';
 
 interface PaymentRequest {
