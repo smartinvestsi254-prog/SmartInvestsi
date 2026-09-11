@@ -1,4 +1,4 @@
-import PrismaClient from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import checkFeatureAccess, SubscriptionTier from '../lib/tier-access-control';
 import dbClient from '../lib/db-client';
 
