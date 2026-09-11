@@ -1,5 +1,5 @@
-import { dbClient } from './db-client'
-import type { PrismaClient } from '@prisma/client'
+import dbClient from './db-client'
+import type PrismaClient from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof dbClient.getClient> | undefined
