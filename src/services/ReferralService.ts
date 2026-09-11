@@ -1,4 +1,5 @@
-import PrismaClien} from '@prisma/client';
+import logger from "../lib/logger";
+import PrismaClient from '@prisma/client';
 import dbClient from '../lib/db-client';
 import personalizationService from './PersonalizationService';
 
