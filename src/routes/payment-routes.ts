@@ -1,10 +1,14 @@
-import { Router, Request, Response } from 'express';
-import { Router as ExpressRouter } from 'express';
-import getPayPalService, initializePayPalService from '../lib/paypal-service';
-import getGooglePayService, getGoogleWalletService, initializeGooglePayService, initializeGoogleWalletService from '../lib/google-pay-service';
+import express, { Router, Request, Response } from 'express';
+import { getPayPalService, initializePayPalService } from '../lib/paypal-service';
+import { 
+  getGooglePayService, 
+  getGoogleWalletService, 
+  initializeGooglePayService, 
+  initializeGoogleWalletService 
+} from '../lib/google-pay-service';
 import connectToDatabase from '../lib/mongodb';
 
-const router: Router = express.Router();
+const router: Router = Router();
 
 // Middleware to ensure payment services are initialized
 router.use(async (req: Request, res: Response, next) => {
@@ -83,9 +87,9 @@ router.post('/paypal/capture-order', async (req: Request, res: Response) => {
           metadata: result.data,
         });
       } catch (dbError) {
-          const { warn } = require('../utils/logger');
-          warn('Failed to store payment in MongoDB:', dbError);
-        }
+        const { warn } = require('../utils/logger');
+        warn('Failed to store payment in MongoDB:', dbError);
+      }
     }
 
     res.json(result);
@@ -299,26 +303,26 @@ router.post('/google-wallet/loyalty', async (req: Request, res: Response) => {
  */
 router.get('/status', async (req: Request, res: Response) => {
   try {
-    const status = {
+    const status: any = {
       timestamp: new Date().toISOString(),
       services: {
         paypal: {
           configured: !!process.env.PAYPAL_CLIENT_ID,
           environment: process.env.PAYPAL_ENV || 'sandbox',
-          available: true
+          available: true,
         },
         googlePay: {
           configured: !!process.env.GOOGLE_MERCHANT_ID,
           environment: process.env.NODE_ENV || 'development',
-          available: true
+          available: true,
         },
         mpesa: {
           configured: !!process.env.MPESA_CONSUMER_KEY,
-          available: true
+          available: true,
         },
         bank: {
           configured: !!process.env.KCB_ACCOUNT_NUMBER,
-          available: true
+          available: true,
         },
         paystack: { available: false },
         flutterwave: { available: false },
@@ -326,6 +330,8 @@ router.get('/status', async (req: Request, res: Response) => {
         crypto: { available: false },
         mongodb: {
           configured: !!process.env.MONGODB_URI,
+          status: 'unknown',
+          error: null,
         },
       },
     };
@@ -358,12 +364,14 @@ router.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     services: {
       paypal: process.env.PAYPAL_ENV ? 'configured' : 'not configured',
-      googlePay: process.env.GOOGLE_MERCHANT_ID ? 'configured' : 'not configured',      mpesa: process.env.MPESA_CONSUMER_KEY ? 'configured' : 'not configured',
+      googlePay: process.env.GOOGLE_MERCHANT_ID ? 'configured' : 'not configured',
+      mpesa: process.env.MPESA_CONSUMER_KEY ? 'configured' : 'not configured',
       bank: process.env.KCB_ACCOUNT_NUMBER ? 'configured' : 'not configured',
       paystack: 'disabled',
       flutterwave: 'disabled',
       stripe: 'disabled',
-      crypto: 'disabled'    },
+      crypto: 'disabled',
+    },
   });
 });
 
