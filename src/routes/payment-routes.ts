@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import type { Router as ExpressRouter } from 'express';
+import { Router as ExpressRouter } from 'express';
 import getPayPalService, initializePayPalService from '../lib/paypal-service';
 import getGooglePayService, getGoogleWalletService, initializeGooglePayService, initializeGoogleWalletService from '../lib/google-pay-service';
 import connectToDatabase from '../lib/mongodb';
