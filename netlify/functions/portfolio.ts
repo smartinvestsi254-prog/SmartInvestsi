@@ -5,17 +5,7 @@
 
 import logger from './logger';
 
-interface Portfolio {
-  id: string;
-  userId: string;
-  name: string;
-  holdings: Holding[];
-  totalValue: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Holding {
+export interface Holding {
   symbol: string;
   quantity: number;
   averagePrice: number;
@@ -23,6 +13,16 @@ interface Holding {
   value: number;
   gainLoss: number;
   gainLossPercent: number;
+}
+
+export interface Portfolio {
+  id: string;
+  userId: string;
+  name: string;
+  holdings: Holding[];
+  totalValue: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Mock portfolio database
@@ -118,37 +118,9 @@ function updatePortfolioHoldings(portfolioId: string, userId: string, holdings: 
 }
 
 /**
- * Calculate portfolio analytics
- */
-function calculatePortfolioAnalytics(portfolio: Portfolio) {
-  const totalInvested = portfolio.holdings.reduce((sum, h) => sum + (h.averagePrice * h.quantity), 0);
-  const totalGainLoss = portfolio.totalValue - totalInvested;
-  const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
-
-  const topPerformers = portfolio.holdings
-    .sort((a, b) => b.gainLossPercent - a.gainLossPercent)
-    .slice(0, 3);
-
-  const worstPerformers = portfolio.holdings
-    .sort((a, b) => a.gainLossPercent - b.gainLossPercent)
-    .slice(0, 3);
-
-  return {
-    totalInvested,
-    totalValue: portfolio.totalValue,
-    totalGainLoss,
-    totalGainLossPercent,
-    topPerformers,
-    worstPerformers,
-    diversification: calculateDiversification(portfolio.holdings)
-  };
-}
-
-/**
  * Calculate portfolio diversification
  */
 function calculateDiversification(holdings: Holding[]): { [sector: string]: number } {
-  // Mock sector allocation - in production, this would use real market data
   const sectorMap: { [symbol: string]: string } = {
     'AAPL': 'Technology',
     'GOOGL': 'Technology',
@@ -166,21 +138,50 @@ function calculateDiversification(holdings: Holding[]): { [sector: string]: numb
     sectors[sector] = (sectors[sector] || 0) + holding.value;
   });
 
-  // Convert to percentages
   const totalValue = Object.values(sectors).reduce((sum, value) => sum + value, 0);
-  Object.keys(sectors).forEach(sector => {
-    sectors[sector] = (sectors[sector] / totalValue) * 100;
-  });
+  if (totalValue > 0) {
+    Object.keys(sectors).forEach(sector => {
+      sectors[sector] = (sectors[sector] / totalValue) * 100;
+    });
+  }
 
   return sectors;
 }
 
-// Export for testing
+/**
+ * Calculate portfolio analytics
+ */
+function calculatePortfolioAnalytics(portfolio: Portfolio) {
+  const totalInvested = portfolio.holdings.reduce((sum, h) => sum + (h.averagePrice * h.quantity), 0);
+  const totalGainLoss = portfolio.totalValue - totalInvested;
+  const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
+
+  const topPerformers = [...portfolio.holdings]
+    .sort((a, b) => b.gainLossPercent - a.gainLossPercent)
+    .slice(0, 3);
+
+  const worstPerformers = [...portfolio.holdings]
+    .sort((a, b) => a.gainLossPercent - b.gainLossPercent)
+    .slice(0, 3);
+
+  return {
+    totalInvested,
+    totalValue: portfolio.totalValue,
+    totalGainLoss,
+    totalGainLossPercent,
+    topPerformers,
+    worstPerformers,
+    diversification: calculateDiversification(portfolio.holdings)
+  };
+}
+
+// Export runtime functions and variables
 export {
   getUserPortfolios,
   getPortfolio,
   createPortfolio,
   updatePortfolioHoldings,
   calculatePortfolioAnalytics,
+  calculateDiversification,
   MOCK_PORTFOLIOS
 };
