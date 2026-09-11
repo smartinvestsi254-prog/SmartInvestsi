@@ -1,12 +1,7 @@
-/**
- * Payment Routes Integration
- * Unified payment processing for PayPal, Google Pay, M-Pesa, and other payment methods
- */
-
-import express, { Request, Response, Router } from 'express';
-import { getPayPalService, initializePayPalService } from '../lib/paypal-service';
-import { getGooglePayService, getGoogleWalletService, initializeGooglePayService, initializeGoogleWalletService } from '../lib/google-pay-service';
-import { connectToDatabase } from '../lib/mongodb';
+import express, Request, Response, Router from 'express';
+import getPayPalService, initializePayPalService from '../lib/paypal-service';
+import getGooglePayService, getGoogleWalletService, initializeGooglePayService, initializeGoogleWalletService from '../lib/google-pay-service';
+import connectToDatabase from '../lib/mongodb';
 
 const router: Router = express.Router();
 
