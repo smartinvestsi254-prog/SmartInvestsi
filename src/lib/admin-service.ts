@@ -1,4 +1,4 @@
-import { supabase } from './supabase'; // Replace with your initialized Supabase client
+import supabase from './supabase';
 import paymentConfig from '../config/payment-services.config';
 
 export interface AdminUser {
