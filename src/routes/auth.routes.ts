@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { authLimiter, generalAuthLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -49,7 +50,7 @@ function setAuthCookie(res: Response, token: string) {
  * POST /api/auth/signup
  * Register a new user
  */
-router.post('/signup', async (req: Request, res: Response) => {
+router.post('/signup', authLimiter, async (req: Request, res: Response) => {
   try {
     const {
       email,
@@ -136,7 +137,7 @@ router.post('/signup', async (req: Request, res: Response) => {
  * POST /api/auth/login (or /signin)
  * Authenticate existing user
  */
-router.post(['/login', '/signin'], async (req: Request, res: Response) => {
+router.post(['/login', '/signin'], authLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -187,7 +188,7 @@ router.post(['/login', '/signin'], async (req: Request, res: Response) => {
  * GET /api/auth/me
  * Check current user session (used by auth.js)
  */
-router.get('/me', async (req: Request, res: Response) => {
+router.get('/me', generalAuthLimiter, async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.auth_token;
     if (!token) {
@@ -214,7 +215,7 @@ router.get('/me', async (req: Request, res: Response) => {
  * POST /api/auth/logout
  * Clear session cookie
  */
-router.post('/logout', (_req: Request, res: Response) => {
+router.post('/logout', generalAuthLimiter, (_req: Request, res: Response) => {
   res.clearCookie('auth_token', { path: '/' });
   return res.json({ message: 'Logged out successfully' });
 });
