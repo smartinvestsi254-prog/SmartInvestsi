@@ -251,45 +251,65 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/js/auth.js"></script>
-    <script>
-        // redirect if already authenticated
-        (async () => {
-            const user = await getCurrentUser();
-            if (user) {
-                window.location.href = user.isAdmin ? '/admin.html' : '/dashboard.html';
-            }
-        })();
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/public/js/auth.js"></script>
+<script>
+    // OAuth Handler
+    function signUpWith(provider) {
+        window.location.href = `/api/auth/${provider}`;
+    }
 
-        // Email/Password Sign Up using backend
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                fullName: document.getElementById('fullName').value,
-                phone: document.getElementById('phone').value,
-                country: document.getElementById('country').value,
-                bankName: document.getElementById('bankName').value,
-                accountNumber: document.getElementById('accountNumber').value,
-                acceptTerms: document.getElementById('terms').checked,
-            };
-            try {
-                const res = await fetch('/api/auth/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                const result = await res.json();
-                if (!res.ok) throw new Error(result.error || 'Signup failed');
-                // server already set cookie; redirect
-                alert('Registration successful!');
-                window.location.href = '/dashboard.html';
-            } catch (err) {
-                alert('Sign up failed: ' + err.message);
+    // Redirect if already authenticated
+    (async () => {
+        try {
+            if (typeof getCurrentUser === 'function') {
+                const user = await getCurrentUser();
+                if (user) {
+                    window.location.href = user.isAdmin ? '/admin.html' : '/dashboard.html';
+                }
             }
-        });
-    </script>
-</body>
-</html>
+        } catch (err) {
+            console.error('Auth check error:', err);
+        }
+    })();
+
+    // Email/Password Sign Up Form Submission
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 1. Get hCaptcha token
+        const captchaToken = typeof hcaptcha !== 'undefined' ? hcaptcha.getResponse() : null;
+
+        // 2. Prepare payload
+        const payload = {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            fullName: document.getElementById('fullName').value,
+            phone: document.getElementById('phone').value,
+            country: document.getElementById('country').value,
+            bankName: document.getElementById('bankName').value,
+            accountNumber: document.getElementById('accountNumber').value,
+            acceptTerms: document.getElementById('terms').checked,
+            captchaToken: captchaToken
+        };
+
+        try {
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || 'Signup failed');
+
+            alert('Registration successful!');
+            window.location.href = '/dashboard.html';
+        } catch (err) {
+            alert('Sign up failed: ' + err.message);
+            // Reset captcha if validation fails
+            if (typeof hcaptcha !== 'undefined') hcaptcha.reset();
+        }
+    });
+</script>
