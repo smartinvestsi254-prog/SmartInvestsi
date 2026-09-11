@@ -1,9 +1,15 @@
 # SmartInvest Redirects Configuration
 # NOTE: Primary redirects are in netlify.toml. This file handles additional redirects.
 
-# HTTPS Redirects - Force all traffic to HTTPS
-http://smartinvestsi.netlify.app/* https://smartinvestsi.netlify.app/:splat 301!
-http://www.smartinvestsi.netlify.app/* https://smartinvestsi.netlify.app/:splat 301!
+# Specific page redirects (Must come first)
+/ads    /advertiser-dashboard.html    200
 
-# Legacy URL redirects
-/ads /advertiser-dashboard.html 200
+# Admin API routes
+/api/*  /.netlify/functions/:splat   200
+
+# HTTPS Redirects - Force all traffic to HTTPS
+http://smartinvestsi.netlify.app/*      https://smartinvestsi.netlify.app/:splat 301!
+http://www.smartinvestsi.netlify.app/*  https://smartinvestsi.netlify.app/:splat 301!
+
+# SPA Routing Catch-All (Must come LAST)
+/*      /index.html                   200
