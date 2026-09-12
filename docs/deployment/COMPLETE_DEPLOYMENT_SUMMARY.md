@@ -1,3 +1,0 @@
-Moved from root: COMPLETE_DEPLOYMENT_SUMMARY.md
-
-Original path: /COMPLETE_DEPLOYMENT_SUMMARY.md

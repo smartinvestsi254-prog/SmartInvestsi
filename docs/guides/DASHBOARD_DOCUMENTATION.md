@@ -1,3 +1,0 @@
-Moved from root: DASHBOARD_DOCUMENTATION.md
-
-Original path: /DASHBOARD_DOCUMENTATION.md

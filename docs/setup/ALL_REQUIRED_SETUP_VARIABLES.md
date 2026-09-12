@@ -1,3 +1,0 @@
-Moved from root: ALL_REQUIRED_SETUP_VARIABLES.md
-
-Original path: /ALL_REQUIRED_SETUP_VARIABLES.md
