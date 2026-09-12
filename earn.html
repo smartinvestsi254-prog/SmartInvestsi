@@ -4,204 +4,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earn - SmartInvest</title>
+    <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a365d; --accent: #d4af37; --success: #38a169; --purple: #8b5cf6; --bg-light: #f8fafc; }
-        body { background: var(--bg-light); }
-        .earn-card { border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.2); }
-        .apy-badge { background: linear-gradient(135deg, var(--purple), #7c3aed); color: white; padding: 8px 16px; border-radius: 25px; font-weight: 700; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-        .stake-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .flexible-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-        .locked-card { background: linear-gradient(135deg, var(--accent) 0%, #c4a02f 100%); color: var(--primary); }
-        .calculator-panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #d4af37;
+            --accent-hover: #b89628;
+            --success: #10b981;
+            --purple: #8b5cf6;
+            --bg-light: #f8fafc;
+            --card-border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #334155;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e1b4b 100%);
+            border-radius: 20px;
+            padding: 40px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+        }
+
+        .earn-card {
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .earn-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
+        }
+
+        .badge-apy {
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--purple);
+            font-weight: 700;
+            border-radius: 30px;
+            padding: 6px 14px;
+        }
+
+        .badge-apy-high {
+            background: rgba(212, 175, 55, 0.15);
+            color: #b45309;
+            font-weight: 700;
+            border-radius: 30px;
+            padding: 6px 14px;
+        }
+
+        .badge-apy-green {
+            background: rgba(16, 185, 129, 0.12);
+            color: #047857;
+            font-weight: 700;
+            border-radius: 30px;
+            padding: 6px 14px;
+        }
+
+        .stat-box {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .token-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .calculator-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .btn-custom-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-custom-primary:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold mb-3" style="color: var(--primary);">Earn</h1>
-            <p class="lead mb-4">Put your crypto to work. Earn attractive rewards with our flexible and locked products.</p>
-            <div class="apy-badge fs-5 mb-3 d-inline-block">Total APY Available: up to <strong>18.5%</strong></div>
-            <p class="text-muted">Daily payouts • No lockup fees • Flexible redemption</p>
+    <div class="container py-4 py-md-5">
+        <!-- Hero Header -->
+        <div class="hero-banner text-center mb-5">
+            <span class="badge bg-white text-dark px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                <i class="fas fa-chart-line text-success me-1"></i> SmartInvest Yield Engine
+            </span>
+            <h1 class="display-5 fw-extrabold mb-3">Maximize Returns on Digital Assets</h1>
+            <p class="lead mb-4 text-white-50 mx-auto" style="max-width: 650px;">
+                Earn daily payouts with institutional-grade security, complete liquidity flexibility, and automated yield optimization.
+            </p>
+            <div class="d-flex justify-content-center gap-3 align-items-center flex-wrap">
+                <div class="badge-apy fs-6"><i class="fas fa-bolt me-1"></i> Highest APY: <strong>18.5%</strong></div>
+                <span class="text-white-50">•</span>
+                <span class="text-white-50"><i class="fas fa-shield-alt text-success me-1"></i> Daily Payouts</span>
+                <span class="text-white-50">•</span>
+                <span class="text-white-50"><i class="fas fa-lock-open me-1"></i> Zero Withdrawal Fees</span>
+            </div>
         </div>
 
         <!-- Product Grid -->
-        <div class="product-grid mb-5">
+        <div class="row g-4 mb-5">
             <!-- Flexible Savings -->
-            <div class="card earn-card flexible-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <h3 class="mb-1">Flexible Savings</h3>
-                            <p class="mb-0 opacity-90">Earn interest instantly. Withdraw anytime.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="card earn-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-apy-green fs-6">Flexible</span>
+                            <span class="fs-4 fw-bold text-success">8.5% <small class="fs-6 text-muted">APR</small></span>
                         </div>
-                        <div class="text-end">
-                            <div class="fs-1 fw-bold mb-1">8.5%</div>
-                            <div class="text-success fs-6">APR</div>
+                        <h3 class="h4 font-bold mb-2">Flexible Savings</h3>
+                        <p class="text-muted small mb-4">Deposit and withdraw anytime. Ideal for maintaining liquidity while accruing daily interest.</p>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <div class="stat-box">
+                                    <small class="text-muted d-block">Current Balance</small>
+                                    <strong class="fs-6 text-dark">$12,450.32</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-box">
+                                    <small class="text-muted d-block">Daily Earnings</small>
+                                    <strong class="fs-6 text-success">+$2.89</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col text-center">
-                            <div class="fs-3 fw-bold mb-1">$12,450.32</div>
-                            <small>Total Flexible Balance</small>
+
+                    <div>
+                        <button class="btn btn-custom-primary btn-lg w-100 fw-bold py-3 mb-3" onclick="openSubscribeModal('Flexible Savings', '8.5%')">
+                            Deposit Assets
+                        </button>
+                        <div class="text-center">
+                            <small class="text-muted">Supported: 
+                                <span class="fw-semibold text-dark">BTC, ETH, USDT, USDC</span>
+                            </small>
                         </div>
-                        <div class="col text-center">
-                            <div class="fs-3 fw-bold mb-1">+34.56</div>
-                            <small>Daily Rewards</small>
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-light btn-lg fw-bold py-3" onclick="subscribeFlexible()">Subscribe Now</button>
-                    </div>
-                    <div class="mt-3 text-center">
-                        <small>Available: BTC, ETH, USDT, BNB <i class="fas fa-plus-circle ms-1"></i></small>
                     </div>
                 </div>
             </div>
 
             <!-- Staking -->
-            <div class="card earn-card stake-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <h3 class="mb-1">Staking</h3>
-                            <p class="mb-0 opacity-90">Lock assets to earn staking rewards. Support network security.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="card earn-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-apy fs-6">PoS Staking</span>
+                            <span class="fs-4 fw-bold text-purple">12.0% <small class="fs-6 text-muted">APY</small></span>
                         </div>
-                        <div class="text-end">
-                            <div class="fs-1 fw-bold mb-1">12.0%</div>
-                            <div class="text-warning fs-6">APY</div>
+                        <h3 class="h4 font-bold mb-2">Proof-of-Stake</h3>
+                        <p class="text-muted small mb-4">Delegate assets to validated network nodes to earn native protocol rewards directly.</p>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <div class="stat-box">
+                                    <small class="text-muted d-block">Staked Assets</small>
+                                    <strong class="fs-6 text-dark">0.245 BTC</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-box">
+                                    <small class="text-muted d-block">Accrued Rewards</small>
+                                    <strong class="fs-6 text-purple">$2,850.00</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col text-center">
-                            <div class="fs-3 fw-bold mb-1">0.245</div>
-                            <small>Staked BTC</small>
+
+                    <div>
+                        <div class="d-grid gap-2 mb-3">
+                            <button class="btn btn-primary btn-lg fw-bold py-2" onclick="openSubscribeModal('On-Chain Staking', '12.0%')">Stake</button>
+                            <button class="btn btn-outline-secondary fw-semibold" onclick="openUnstakeModal()">Unstake Assets</button>
                         </div>
-                        <div class="col text-center">
-                            <div class="fs-3 fw-bold mb-1">$2,850</div>
-                            <small>Pending Rewards</small>
+                        <div class="text-center">
+                            <small class="text-muted">Validator Health: <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> 99.9%</span></small>
                         </div>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-light btn-lg fw-bold py-3" onclick="stakeAssets()">Stake</button>
-                        <button class="btn btn-outline-light btn-lg fw-bold py-3" onclick="unstakeAssets()">Unstake</button>
                     </div>
                 </div>
             </div>
 
             <!-- Locked Savings -->
-            <div class="card earn-card locked-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <h3 class="mb-1">Locked Savings</h3>
-                            <p class="mb-0 opacity-90">Higher rates for longer lockups. 30-180 days.</p>
+            <div class="col-lg-4 col-md-12">
+                <div class="card earn-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-apy-high fs-6">High Yield</span>
+                            <span class="fs-4 fw-bold text-warning">Up to 18.5%</span>
                         </div>
-                        <div class="text-end">
-                            <div class="fs-1 fw-bold mb-1">18.5%</div>
-                            <div class="fs-6">Max APY (180d)</div>
+                        <h3 class="h4 font-bold mb-2">Locked Vaults</h3>
+                        <p class="text-muted small mb-3">Lock digital assets for fixed term lengths to secure boosted yield rates.</p>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">SELECT TERM DURATION</label>
+                            <select class="form-select border-2" id="lockPeriod" onchange="updateLockedAPY()">
+                                <option value="12.5">30 Days — 12.5% APY</option>
+                                <option value="15.2">90 Days — 15.2% APY</option>
+                                <option value="18.5" selected>180 Days — 18.5% APY</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col">
-                            <div class="form-floating">
-                                <select class="form-select" id="lockPeriod">
-                                    <option value="30">30 days (12.5% APY)</option>
-                                    <option value="90">90 days (15.2% APY)</option>
-                                    <option value="180" selected>180 days (18.5% APY)</option>
-                                </select>
-                                <label>Lock Period</label>
+
+                    <div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center small mb-1">
+                                <span class="text-muted">Vault Capacity</span>
+                                <span class="fw-bold">65% Filled</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: 65%;"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary btn-lg fw-bold py-3" onclick="subscribeLocked()">Subscribe</button>
-                    </div>
-                    <div class="mt-3 text-center">
-                        <div class="progress mb-2" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 65%;"></div>
-                        </div>
-                        <small>65% capacity available</small>
+                        <button class="btn btn-warning btn-lg w-100 fw-bold py-3 text-dark" onclick="subscribeLockedVault()">
+                            Subscribe Vault
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- My Earn Products -->
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>My Earn Products</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <div class="text-center p-4 border rounded">
-                                    <div class="fs-4 fw-bold text-success mb-2">0.125 BTC</div>
-                                    <div class="text-muted mb-2">Staking (14d left)</div>
-                                    <div class="text-success fw-bold">$150.25 Rewards</div>
-                                    <div class="mt-3">
-                                        <button class="btn btn-sm btn-outline-success me-2">Claim</button>
-                                        <button class="btn btn-sm btn-outline-secondary">Unstake</button>
+        <!-- My Portfolio Overview -->
+        <div class="card earn-card mb-5">
+            <div class="card-header bg-white py-3 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-wallet text-primary me-2"></i>Active Earnings</h5>
+                    <span class="badge bg-light text-dark border">Total Value: $14,900.32</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Product / Asset</th>
+                                <th>Balance</th>
+                                <th>APY / Rate</th>
+                                <th>Earned To Date</th>
+                                <th>Status / Term</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="token-icon bg-warning text-dark me-3"><i class="fab fa-bitcoin"></i></div>
+                                        <div>
+                                            <div class="fw-bold">BTC Staking</div>
+                                            <small class="text-muted">Proof-of-Stake</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center p-4 border rounded">
-                                    <div class="fs-4 fw-bold text-success mb-2">$2,450</div>
-                                    <div class="text-muted mb-2">Flexible USDT</div>
-                                    <div class="text-success fw-bold">+$5.67 Today</div>
-                                    <div class="mt-3">
-                                        <button class="btn btn-sm btn-outline-success">Redeem</button>
+                                </td>
+                                <td class="fw-semibold">0.125 BTC</td>
+                                <td><span class="badge bg-purple-subtle text-purple fw-bold">12.0% APY</span></td>
+                                <td class="text-success fw-bold">+$150.25</td>
+                                <td><span class="badge bg-info-subtle text-info-emphasis">14 Days Left</span></td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-success me-1" onclick="claimRewards()">Claim</button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="openUnstakeModal()">Unstake</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="token-icon bg-success text-white me-3"><i class="fas fa-dollar-sign"></i></div>
+                                        <div>
+                                            <div class="fw-bold">USDT Flexible</div>
+                                            <small class="text-muted">Flexible Vault</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center p-4 border rounded bg-light">
-                                    <i class="fas fa-plus-circle fs-1 text-muted mb-3"></i>
-                                    <h6 class="text-muted">No Locked Positions</h6>
-                                    <button class="btn btn-outline-primary mt-2">Subscribe Locked</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </td>
+                                <td class="fw-semibold">$2,450.00 USDT</td>
+                                <td><span class="badge bg-success-subtle text-success fw-bold">8.5% APR</span></td>
+                                <td class="text-success fw-bold">+$5.67 Today</td>
+                                <td><span class="badge bg-success-subtle text-success">Flexible</span></td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="redeemFlexible()">Redeem</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- APY Calculator -->
-        <div class="row mt-5">
-            <div class="col-lg-8">
-                <div class="calculator-panel">
-                    <h4 class="mb-4"><i class="fas fa-calculator me-2"></i>Earn Calculator</h4>
-                    <div class="row g-4">
-                        <div class="col-md-3">
-                            <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" id="calcAmount" value="1000" oninput="calculateRewards()">
+        <div class="calculator-panel">
+            <div class="row align-items-center">
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <h3 class="fw-bold mb-2"><i class="fas fa-calculator text-primary me-2"></i>Yield Calculator</h3>
+                    <p class="text-muted">Estimate earnings based on flexible or locked term configurations.</p>
+                    <div class="p-3 bg-light rounded-3 mt-4">
+                        <small class="text-muted d-block mb-1">Estimated Net Output</small>
+                        <div class="fs-2 fw-bold text-success" id="calcRewards">$42.50</div>
+                        <small class="text-muted d-block mt-1">Total Principal + Rewards: <span id="calcTotal" class="fw-bold text-dark">$1,042.50</span></small>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Deposit Amount ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="calcAmount" value="1000" min="1" oninput="calculateRewards()">
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Product</label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Product Type</label>
                             <select class="form-select" id="calcProduct" onchange="calculateRewards()">
-                                <option value="8.5">Flexible (8.5% APR)</option>
-                                <option value="12.0">Staking (12.0% APY)</option>
-                                <option value="18.5">Locked 180d (18.5% APY)</option>
+                                <option value="8.5">Flexible Savings (8.5% APR)</option>
+                                <option value="12.0" selected>Staking Rewards (12.0% APY)</option>
+                                <option value="18.5">Locked Vault (18.5% APY)</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Period</label>
-                            <select class="form-select" id="calcPeriod" onchange="calculateRewards()">
-                                <option value="30">30 days</option>
-                                <option value="90">90 days</option>
-                                <option value="180">180 days</option>
-                                <option value="365">1 Year</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Est. Rewards</label>
-                            <div class="fs-3 fw-bold text-success" id="calcRewards">$0.00</div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Investment Horizon</label>
+                            <div class="btn-group w-100" role="group" id="periodGroup">
+                                <input type="radio" class="btn-check" name="btnperiod" id="p30" value="30" onchange="calculateRewards()">
+                                <label class="btn btn-outline-secondary" for="p30">30 Days</label>
+
+                                <input type="radio" class="btn-check" name="btnperiod" id="p90" value="90" onchange="calculateRewards()">
+                                <label class="btn btn-outline-secondary" for="p90">90 Days</label>
+
+                                <input type="radio" class="btn-check" name="btnperiod" id="p180" value="180" checked onchange="calculateRewards()">
+                                <label class="btn btn-outline-secondary" for="p180">180 Days</label>
+
+                                <input type="radio" class="btn-check" name="btnperiod" id="p365" value="365" onchange="calculateRewards()">
+                                <label class="btn btn-outline-secondary" for="p365">1 Year</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,23 +380,105 @@
         </div>
     </div>
 
+    <!-- Deposit/Subscribe Modal -->
+    <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-header-title fw-bold mb-0" id="modalTitle">Subscribe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="actionForm" onsubmit="event.preventDefault(); processTransaction();">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Asset Selection</label>
+                            <select class="form-select">
+                                <option>USDT (Tether)</option>
+                                <option>BTC (Bitcoin)</option>
+                                <option>ETH (Ethereum)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Amount</label>
+                            <input type="number" class="form-control" placeholder="Enter amount" required min="1">
+                        </div>
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Estimated Rate</span>
+                                <span class="fw-bold text-success" id="modalRate">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted">Payout Frequency</span>
+                                <span class="fw-semibold">Daily at 00:00 UTC</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Confirm Deposit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Modal Instance Initialization
+        let actionModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
+            calculateRewards();
+        });
+
+        // Yield Calculator Logic
         function calculateRewards() {
             const amount = parseFloat(document.getElementById('calcAmount').value) || 0;
             const apy = parseFloat(document.getElementById('calcProduct').value);
-            const days = parseInt(document.getElementById('calcPeriod').value);
-            const rewards = (amount * apy / 100 * days / 365).toFixed(2);
-            document.getElementById('calcRewards').textContent = `$${rewards}`;
+            
+            const selectedPeriodEl = document.querySelector('input[name="btnperiod"]:checked');
+            const days = selectedPeriodEl ? parseInt(selectedPeriodEl.value) : 180;
+
+            const rewards = (amount * (apy / 100) * (days / 365));
+            const total = amount + rewards;
+
+            document.getElementById('calcRewards').textContent = `$${rewards.toFixed(2)}`;
+            document.getElementById('calcTotal').textContent = `$${total.toFixed(2)}`;
         }
 
-        function subscribeFlexible() { alert('Subscribed to Flexible Savings! 🚀'); }
-        function stakeAssets() { alert('Assets staked successfully!'); }
-        function subscribeLocked() { alert('Locked subscription confirmed!'); }
-        function unstakeAssets() { alert('Unstake request sent.'); }
+        // Trigger Actions
+        function openSubscribeModal(productName, rate) {
+            document.getElementById('modalTitle').textContent = `Deposit into ${productName}`;
+            document.getElementById('modalRate').textContent = rate;
+            actionModal.show();
+        }
 
-        document.addEventListener('DOMContentLoaded', calculateRewards);
+        function subscribeLockedVault() {
+            const periodSelect = document.getElementById('lockPeriod');
+            const selectedOption = periodSelect.options[periodSelect.selectedIndex].text;
+            document.getElementById('modalTitle').textContent = `Subscribe ${selectedOption}`;
+            document.getElementById('modalRate').textContent = `${periodSelect.value}% APY`;
+            actionModal.show();
+        }
+
+        function openUnstakeModal() {
+            alert('Unstake request initiated. Pending unbonding period (if applicable).');
+        }
+
+        function redeemFlexible() {
+            alert('Flexible funds successfully redeemed to your Spot Wallet.');
+        }
+
+        function claimRewards() {
+            alert('Accrued staking rewards claimed to your wallet!');
+        }
+
+        function processTransaction() {
+            actionModal.hide();
+            alert('Transaction successfully executed!');
+        }
+
+        function updateLockedAPY() {
+            // Placeholder hook for dynamic updates when changing lock period
+        }
     </script>
 </body>
 </html>
-
