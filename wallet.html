@@ -1,271 +1,647 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet - SmartInvest</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>ApexTrade | Professional Spot Trading Terminal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tradeDark: '#0B0E11',
+                        tradePanel: '#1E2329',
+                        tradeBorder: '#2B313A',
+                        buyGreen: '#0ECB81',
+                        buyGreenHover: '#03A66D',
+                        sellRed: '#F6465D',
+                        sellRedHover: '#CF304A',
+                        textMuted: '#848E9C'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Trading Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #1a365d; --accent: #d4af37; --success: #38a169; --bg-light: #f8fafc; }
-        body { background: var(--bg-light); font-family: 'Segoe UI', sans-serif; }
-        .wallet-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.3s; }
-        .wallet-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-        .balance-primary { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-        .wallet-type-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .spot-badge { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-        .futures-badge { background: linear-gradient(135deg, var(--accent), #c4a02f); color: var(--primary); }
-        .earn-badge { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
-        .transfer-panel { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); }
-        .qr-code { width: 180px; height: 180px; border: 2px solid #e5e7eb; border-radius: 12px; margin: 0 auto; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #1E2329; }
+        ::-webkit-scrollbar-thumb { background: #363C4E; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #474D57; }
+        .orderbook-bg-bid { background: linear-gradient(to left, rgba(14, 203, 129, 0.15), transparent); }
+        .orderbook-bg-ask { background: linear-gradient(to left, rgba(246, 70, 93, 0.15), transparent); }
+        .tab-active { color: #0ECB81; border-bottom: 2px solid #0ECB81; font-weight: 600; }
     </style>
 </head>
-<body>
-    <div class="container py-5">
-        <div class="row mb-5">
-            <div class="col">
-                <h1 class="fw-bold mb-2" style="color: var(--primary);">Wallet</h1>
-                <p class="text-muted mb-0">Total Balance <strong id="totalBalance">$12,345.67</strong></p>
+<body class="bg-tradeDark text-gray-200 font-sans antialiased overflow-hidden h-screen flex flex-col select-none">
+
+    <!-- Top Navigation Header -->
+    <header class="h-14 bg-tradePanel border-b border-tradeBorder flex items-center justify-between px-4 shrink-0">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-chart-line text-buyGreen text-xl"></i>
+                <span class="font-bold text-lg tracking-wider text-white">APEX<span class="text-buyGreen">TRADE</span></span>
             </div>
-            <div class="col-auto">
-                <select class="form-select" onchange="switchNetwork()">
-                    <option>BNB Smart Chain</option>
-                    <option>Ethereum</option>
-                    <option>Arbitrum</option>
-                </select>
+            <nav class="hidden md:flex space-x-4 text-sm font-medium text-gray-400">
+                <a href="#" class="text-white hover:text-buyGreen transition">Spot</a>
+                <a href="#" class="hover:text-white transition">Futures</a>
+                <a href="#" class="hover:text-white transition">Margin</a>
+                <a href="#" class="hover:text-white transition">Markets</a>
+            </nav>
+        </div>
+
+        <!-- Ticker Info Bar -->
+        <div class="hidden xl:flex items-center space-x-6 text-xs">
+            <div class="flex items-center space-x-2">
+                <span class="text-white font-bold text-sm">BTC/USDT</span>
+                <span class="bg-tradeBorder text-gray-300 px-1.5 py-0.5 rounded text-[10px]">Spot</span>
+            </div>
+            <div>
+                <div class="text-buyGreen font-semibold text-sm" id="tickerPrice">$64,250.00</div>
+                <div class="text-textMuted">≈ $64,250.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Change</div>
+                <div class="text-buyGreen font-medium">+3.42%</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h High</div>
+                <div class="text-gray-200 font-medium">65,100.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Low</div>
+                <div class="text-gray-200 font-medium">62,800.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Volume(BTC)</div>
+                <div class="text-gray-200 font-medium">18,420.52</div>
             </div>
         </div>
 
-        <div class="row g-4 mb-5">
-            <!-- Spot Wallet -->
-            <div class="col-lg-4">
-                <div class="card wallet-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <h5 class="mb-1">Spot Wallet</h5>
-                                <span class="wallet-type-badge spot-badge">SPOT</span>
-                            </div>
-                            <div class="text-end">
-                                <div class="balance-primary">$8,250.00</div>
-                                <small class="text-success">+2.1% 24h</small>
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col"><button class="btn btn-outline-success w-100 py-2" onclick="showDeposit('spot')"><i class="fas fa-plus me-1"></i>Deposit</button></div>
-                            <div class="col"><button class="btn btn-outline-danger w-100 py-2" onclick="showWithdraw('spot')"><i class="fas fa-minus me-1"></i>Withdraw</button></div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col"><button class="btn btn-outline-primary w-100 py-2" onclick="transferAssets('spot')"><i class="fas fa-exchange-alt me-1"></i>Transfer</button></div>
-                            <div class="col"><button class="btn btn-outline-secondary w-100 py-2" onclick="viewHistory('spot')"><i class="fas fa-history me-1"></i>History</button></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Futures Wallet -->
-            <div class="col-lg-4">
-                <div class="card wallet-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <h5 class="mb-1">Futures Wallet</h5>
-                                <span class="wallet-type-badge futures-badge">FUTURES</span>
-                            </div>
-                            <div class="text-end">
-                                <div class="balance-primary">$3,120.00</div>
-                                <small class="text-warning">0% 24h</small>
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col"><button class="btn btn-outline-success w-100 py-2" onclick="showDeposit('futures')"><i class="fas fa-plus me-1"></i>Deposit</button></div>
-                            <div class="col"><button class="btn btn-outline-danger w-100 py-2" onclick="showWithdraw('futures')"><i class="fas fa-minus me-1"></i>Withdraw</button></div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col"><button class="btn btn-outline-primary w-100 py-2" onclick="transferAssets('futures')"><i class="fas fa-exchange-alt me-1"></i>Transfer</button></div>
-                            <div class="col"><button class="btn btn-outline-secondary w-100 py-2" onclick="viewHistory('futures')"><i class="fas fa-history me-1"></i>History</button></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Earn Wallet -->
-            <div class="col-lg-4">
-                <div class="card wallet-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <h5 class="mb-1">Earn Wallet</h5>
-                                <span class="wallet-type-badge earn-badge">EARN</span>
-                            </div>
-                            <div class="text-end">
-                                <div class="balance-primary">$975.67</div>
-                                <small class="text-success">+0.8% Rewards</small>
-                            </div>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col"><button class="btn btn-outline-success w-100 py-2" onclick="showDeposit('earn')"><i class="fas fa-plus me-1"></i>Deposit</button></div>
-                            <div class="col"><button class="btn btn-outline-danger w-100 py-2" onclick="showWithdraw('earn')"><i class="fas fa-minus me-1"></i>Withdraw</button></div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col"><button class="btn btn-outline-primary w-100 py-2" onclick="transferAssets('earn')"><i class="fas fa-exchange-alt me-1"></i>Transfer</button></div>
-                            <div class="col"><button class="btn btn-outline-secondary w-100 py-2" onclick="viewRewards('earn')"><i class="fas fa-trophy me-1"></i>Rewards</button></div>
-                        </div>
-                    </div>
-                </div>
+        <!-- User Controls -->
+        <div class="flex items-center space-x-3 text-sm">
+            <button onclick="toggleWalletModal()" class="bg-buyGreen hover:bg-buyGreenHover text-white px-3 py-1.5 rounded text-xs transition font-semibold flex items-center space-x-1.5">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Wallet</span>
+            </button>
+            <button class="bg-tradeBorder hover:bg-gray-700 text-white px-3 py-1.5 rounded text-xs transition">Deposit</button>
+            <i class="fa-regular fa-bell text-gray-400 hover:text-white cursor-pointer px-1"></i>
+            <i class="fa-solid fa-gear text-gray-400 hover:text-white cursor-pointer px-1"></i>
+            <div class="w-8 h-8 rounded-full bg-buyGreen/20 text-buyGreen flex items-center justify-center font-bold text-xs border border-buyGreen/40">
+                AP
             </div>
         </div>
+    </header>
 
-        <!-- Asset Overview -->
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="card wallet-card">
-                    <div class="card-header d-flex justify-content-between">
-                        <h5><i class="fas fa-coins me-2"></i>Assets</h5>
-                        <button class="btn btn-sm btn-outline-primary">Hide Small Balances</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr><th>Asset</th><th>Available</th><th>Locked</th><th>Total</th><th class="text-end">Action</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td><i class="fab fa-bitcoin me-2 text-warning"></i>BTC</td><td>0.125</td><td>0.025</td><td>0.150</td><td class="text-end"><button class="btn btn-sm btn-outline-primary">Trade</button></td></tr>
-                                    <tr><td><i class="fab fa-ethereum me-2 text-info"></i>ETH</td><td>2.45</td><td>0.00</td><td>2.45</td><td class="text-end"><button class="btn btn-sm btn-outline-primary">Trade</button></td></tr>
-                                    <tr><td><i class="fas fa-dollar-sign me-2"></i>USDT</td><td>8,250.00</td><td>500.00</td><td>8,750.00</td><td class="text-end"><button class="btn btn-sm btn-outline-primary">Trade</button></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <!-- Main Workspace Layout Grid -->
+    <div class="flex-1 grid grid-cols-12 gap-1 p-1 bg-tradeDark overflow-hidden">
+
+        <!-- Column 1: Order Book & Trades -->
+        <div class="col-span-12 lg:col-span-3 xl:col-span-2 bg-tradePanel rounded flex flex-col overflow-hidden border border-tradeBorder">
+            <div class="flex items-center justify-between border-b border-tradeBorder px-3 py-2 text-xs font-semibold text-textMuted">
+                <span>Order Book</span>
+                <div class="flex space-x-2 text-gray-400">
+                    <i class="fa-solid fa-bars text-buyGreen cursor-pointer" title="Default View"></i>
+                    <i class="fa-solid fa-bars text-sellRed cursor-pointer" title="Asks Only"></i>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Transfer Modal -->
-    <div class="modal fade" id="transferModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content transfer-panel">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="transferTitle">Transfer Assets</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label>From</label>
-                            <select class="form-select" id="fromWallet">
-                                <option>Spot Wallet</option><option>Futures Wallet</option><option>Earn Wallet</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label>To</label>
-                            <select class="form-select" id="toWallet">
-                                <option>Futures Wallet</option><option>Spot Wallet</option><option>Earn Wallet</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label>Asset</label>
-                            <select class="form-select" id="transferAsset">
-                                <option>USDT</option><option>BTC</option><option>ETH</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label>Amount</label>
-                            <input type="number" class="form-control" id="transferAmount" placeholder="0.00">
-                            <small class="text-muted">Available: <span id="availableAmount">8,250 USDT</span></small>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmTransfer()">Confirm Transfer</button>
-                </div>
+            <!-- Order Book Headers -->
+            <div class="grid grid-cols-3 px-3 py-1 text-[11px] text-textMuted border-b border-tradeBorder">
+                <span>Price (USDT)</span>
+                <span class="text-right">Size (BTC)</span>
+                <span class="text-right">Total</span>
             </div>
-        </div>
-    </div>
 
-    <!-- Deposit Modal -->
-    <div class="modal fade" id="depositModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content transfer-panel">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="depositTitle">Deposit</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <!-- Asks (Sells) -->
+            <div class="flex-1 overflow-y-auto flex flex-col-reverse text-[11px]" id="asksContainer"></div>
+
+            <!-- Spread / Mid Price Indicator -->
+            <div class="py-2 px-3 my-1 bg-tradeDark/60 border-y border-tradeBorder flex items-center justify-between shrink-0">
+                <div class="text-buyGreen font-bold text-sm flex items-center space-x-1" id="bookSpreadPrice">
+                    <span>64,250.00</span>
+                    <i class="fa-solid fa-arrow-up text-xs"></i>
                 </div>
-                <div class="modal-body text-center">
-                    <div class="qr-code mb-3" id="qrCode"><!-- QR Placeholder --></div>
-                    <div class="mb-3">
-                        <strong id="walletAddress">0x742d35Cc...</strong><button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyAddress()">Copy</button>
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Send only <strong id="depositAsset">USDT</strong> to this address.<br>
-                        Minimum: 10 USDT • Network: BNB Smart Chain
-                    </div>
-                </div>
+                <span class="text-textMuted text-[10px]">Spread 0.01</span>
             </div>
+
+            <!-- Bids (Buys) -->
+            <div class="flex-1 overflow-y-auto text-[11px]" id="bidsContainer"></div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    <script>
-        const walletData = {
-            spot: { balance: 8250, assets: {USDT:8250, BTC:0.125} },
-            futures: { balance: 3120, assets: {USDT:3120} },
-            earn: { balance: 975.67, assets: {USDT:975.67} }
-        };
-
-        function updateTotalBalance() {
-            const total = Object.values(walletData).reduce((sum, w) => sum + w.balance, 0);
-            document.getElementById('totalBalance').textContent = `$${total.toLocaleString()}`;
-        }
-
-        function transferAssets(fromWallet) {
-            document.getElementById('transferTitle').textContent = `Transfer from ${fromWallet}`;
-            document.getElementById('fromWallet').value = fromWallet;
-            new bootstrap.Modal(document.getElementById('transferModal')).show();
-        }
-
-        function confirmTransfer() {
-            const amount = parseFloat(document.getElementById('transferAmount').value);
-            if (!amount || amount <= 0) return alert('Enter valid amount');
+        <!-- Column 2: Chart Area & Open Orders -->
+        <div class="col-span-12 lg:col-span-6 xl:col-span-7 flex flex-col gap-1 overflow-hidden">
             
-            // Mock transfer
-            alert('Transfer successful! 🚀');
-            bootstrap.Modal.getInstance(document.getElementById('transferModal')).hide();
-            document.getElementById('transferAmount').value = '';
+            <!-- Trading Chart Container -->
+            <div class="flex-1 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden min-h-[300px]">
+                <!-- Chart Controls Bar -->
+                <div class="flex items-center justify-between border-b border-tradeBorder px-3 py-2 text-xs shrink-0">
+                    <div class="flex items-center space-x-3 text-textMuted">
+                        <span class="hover:text-white cursor-pointer font-semibold text-white">Time</span>
+                        <span class="hover:text-white cursor-pointer">1m</span>
+                        <span class="hover:text-white cursor-pointer text-buyGreen font-bold">15m</span>
+                        <span class="hover:text-white cursor-pointer">1h</span>
+                        <span class="hover:text-white cursor-pointer">4h</span>
+                        <span class="hover:text-white cursor-pointer">1D</span>
+                        <span class="border-l border-tradeBorder h-3"></span>
+                        <span class="hover:text-white cursor-pointer"><i class="fa-solid fa-chart-candle"></i></span>
+                        <span class="hover:text-white cursor-pointer"><i class="fa-solid fa-sliders"></i></span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-textMuted text-[11px]">
+                        <span class="cursor-pointer hover:text-white"><i class="fa-solid fa-expand"></i></span>
+                    </div>
+                </div>
+
+                <!-- Canvas Visualiser -->
+                <div class="flex-1 relative w-full h-full bg-tradeDark/40">
+                    <canvas id="tradingChart" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Positions / Open Orders Panel -->
+            <div class="h-48 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden shrink-0">
+                <div class="flex items-center border-b border-tradeBorder px-3 text-xs text-textMuted shrink-0">
+                    <button id="tabOpenOrders" onclick="switchBottomTab('openOrders')" class="py-2.5 px-3 tab-active">Open Orders (2)</button>
+                    <button id="tabOrderHistory" onclick="switchBottomTab('orderHistory')" class="py-2.5 px-3 hover:text-white">Order History</button>
+                    <button id="tabTradeHistory" onclick="switchBottomTab('tradeHistory')" class="py-2.5 px-3 hover:text-white">Trade History</button>
+                    <button id="tabAssets" onclick="switchBottomTab('assets')" class="py-2.5 px-3 hover:text-white">Assets</button>
+                </div>
+                
+                <div class="flex-1 overflow-x-auto p-1">
+                    <table class="w-full text-left text-[11px] text-gray-300">
+                        <thead class="bg-tradeDark/50 text-textMuted border-b border-tradeBorder sticky top-0">
+                            <tr>
+                                <th class="p-2">Time</th>
+                                <th class="p-2">Pair</th>
+                                <th class="p-2">Type</th>
+                                <th class="p-2">Side</th>
+                                <th class="p-2">Price</th>
+                                <th class="p-2">Amount</th>
+                                <th class="p-2">Filled</th>
+                                <th class="p-2 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bottomPanelBody" class="divide-y divide-tradeBorder/50">
+                            <!-- Populated dynamically via Script -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3: Trade Placement Panel & Recent Trades -->
+        <div class="col-span-12 lg:col-span-3 xl:col-span-3 flex flex-col gap-1 overflow-hidden">
+            
+            <!-- Execution Order Form -->
+            <div class="bg-tradePanel rounded border border-tradeBorder p-3 flex flex-col shrink-0">
+                <!-- Order Mode Selection -->
+                <div class="flex bg-tradeDark rounded p-1 mb-3 text-xs font-semibold">
+                    <button id="tabLimit" onclick="setOrderType('limit')" class="flex-1 py-1.5 rounded text-center bg-tradePanel text-white shadow">Limit</button>
+                    <button id="tabMarket" onclick="setOrderType('market')" class="flex-1 py-1.5 rounded text-center text-textMuted hover:text-white">Market</button>
+                    <button id="tabStop" onclick="setOrderType('stop')" class="flex-1 py-1.5 rounded text-center text-textMuted hover:text-white">Stop-Limit</button>
+                </div>
+
+                <!-- Buy/Sell Toggle Buttons -->
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button id="sideBuyBtn" onclick="setSide('buy')" class="py-2 bg-buyGreen text-white font-bold rounded text-xs shadow-lg transition">BUY BTC</button>
+                    <button id="sideSellBtn" onclick="setSide('sell')" class="py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white">SELL BTC</button>
+                </div>
+
+                <!-- Dynamic Form Controls -->
+                <div class="space-y-3 text-xs">
+                    <div class="flex justify-between text-[11px] text-textMuted">
+                        <span>Avail: <strong class="text-white" id="availBalanceReadout">12,450.00 USDT</strong></span>
+                        <i class="fa-solid fa-wallet text-buyGreen cursor-pointer" onclick="toggleWalletModal()" title="View Portfolio Overview"></i>
+                    </div>
+
+                    <!-- Price Input Field -->
+                    <div id="priceInputWrapper" class="relative flex items-center">
+                        <span class="absolute left-3 text-textMuted">Price</span>
+                        <input type="number" id="orderPrice" value="64250.00" class="w-full bg-tradeDark border border-tradeBorder focus:border-buyGreen rounded py-2 pl-14 pr-12 text-right text-white font-medium outline-none">
+                        <span class="absolute right-3 text-textMuted text-[10px]">USDT</span>
+                    </div>
+
+                    <!-- Amount Input Field -->
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-textMuted">Amount</span>
+                        <input type="number" id="orderAmount" placeholder="0.00" oninput="calculateTotal()" class="w-full bg-tradeDark border border-tradeBorder focus:border-buyGreen rounded py-2 pl-16 pr-12 text-right text-white font-medium outline-none">
+                        <span class="absolute right-3 text-textMuted text-[10px]">BTC</span>
+                    </div>
+
+                    <!-- Proportion Slider / Preset % Chips -->
+                    <div class="grid grid-cols-4 gap-1 py-1">
+                        <button onclick="setPercentage(0.25)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">25%</button>
+                        <button onclick="setPercentage(0.50)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">50%</button>
+                        <button onclick="setPercentage(0.75)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">75%</button>
+                        <button onclick="setPercentage(1.00)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">100%</button>
+                    </div>
+
+                    <!-- Order Total Readout -->
+                    <div class="flex justify-between items-center py-2 border-t border-tradeBorder text-textMuted">
+                        <span>Order Total</span>
+                        <span class="text-white font-bold text-sm" id="orderTotal">0.00 USDT</span>
+                    </div>
+
+                    <!-- Action Submit Button -->
+                    <button id="submitOrderBtn" onclick="executeTrade()" class="w-full py-3 bg-buyGreen hover:bg-buyGreenHover text-white font-bold rounded text-sm transition shadow-lg">
+                        Buy BTC
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Market Trades -->
+            <div class="flex-1 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden min-h-[150px]">
+                <div class="border-b border-tradeBorder px-3 py-2 text-xs font-semibold text-textMuted shrink-0">
+                    Market Trades
+                </div>
+                <div class="grid grid-cols-3 px-3 py-1 text-[11px] text-textMuted border-b border-tradeBorder shrink-0">
+                    <span>Price (USDT)</span>
+                    <span class="text-right">Size (BTC)</span>
+                    <span class="text-right">Time</span>
+                </div>
+                <div class="flex-1 overflow-y-auto text-[11px]" id="marketTradesContainer"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Wallet Summary Overlay Modal -->
+    <div id="walletModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-tradePanel border border-tradeBorder rounded-lg w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center px-5 py-4 border-b border-tradeBorder bg-tradeDark/40">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-wallet text-buyGreen text-lg"></i>
+                    <h3 class="text-base font-bold text-white">Spot Wallet Overview</h3>
+                </div>
+                <button onclick="toggleWalletModal()" class="text-textMuted hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-5">
+                <!-- Balances Breakdown -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-tradeDark p-3.5 rounded border border-tradeBorder">
+                        <span class="text-textMuted text-xs block mb-1">Estimated Balance</span>
+                        <span class="text-xl font-bold text-white">$44,575.00</span>
+                        <span class="text-[10px] text-buyGreen block mt-0.5">≈ 0.6937 BTC</span>
+                    </div>
+                    <div class="bg-tradeDark p-3.5 rounded border border-tradeBorder">
+                        <span class="text-textMuted text-xs block mb-1">Available USDT</span>
+                        <span class="text-xl font-bold text-white">$12,450.00</span>
+                        <span class="text-[10px] text-textMuted block mt-0.5">Ready for trading</span>
+                    </div>
+                    <div class="bg-tradeDark p-3.5 rounded border border-tradeBorder">
+                        <span class="text-textMuted text-xs block mb-1">In Orders</span>
+                        <span class="text-xl font-bold text-white">$48,275.00</span>
+                        <span class="text-[10px] text-textMuted block mt-0.5">Locked assets</span>
+                    </div>
+                </div>
+
+                <!-- Asset Distribution Table -->
+                <div class="border border-tradeBorder rounded overflow-hidden">
+                    <div class="px-3 py-2 bg-tradeDark/60 text-xs font-semibold border-b border-tradeBorder text-textMuted">
+                        Asset Allocation
+                    </div>
+                    <table class="w-full text-left text-xs text-gray-300">
+                        <thead class="bg-tradeDark/30 text-[11px] text-textMuted border-b border-tradeBorder">
+                            <tr>
+                                <th class="p-2.5">Asset</th>
+                                <th class="p-2.5">Total Balance</th>
+                                <th class="p-2.5">Available</th>
+                                <th class="p-2.5">In Order</th>
+                                <th class="p-2.5 text-right">Value (USDT)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-tradeBorder/50 text-[11px]">
+                            <tr>
+                                <td class="p-2.5 font-bold flex items-center space-x-2">
+                                    <i class="fa-brands fa-bitcoin text-amber-500 text-sm"></i>
+                                    <span>BTC</span>
+                                </td>
+                                <td class="p-2.5">0.5000</td>
+                                <td class="p-2.5">0.2500</td>
+                                <td class="p-2.5">0.2500</td>
+                                <td class="p-2.5 text-right">$32,125.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold flex items-center space-x-2">
+                                    <i class="fa-solid fa-dollar-sign text-buyGreen text-sm"></i>
+                                    <span>USDT</span>
+                                </td>
+                                <td class="p-2.5">44,350.00</td>
+                                <td class="p-2.5">12,450.00</td>
+                                <td class="p-2.5">31,900.00</td>
+                                <td class="p-2.5 text-right">$44,350.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-tradeDark/40 border-t border-tradeBorder flex justify-between items-center text-xs">
+                <span class="text-textMuted">Account Level: <strong class="text-white">VIP 1</strong></span>
+                <button onclick="toggleWalletModal()" class="px-4 py-1.5 bg-tradeBorder hover:bg-gray-700 text-white rounded transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Engine Simulation Script -->
+    <script>
+        let currentPrice = 64250.00;
+        let selectedSide = 'buy';
+        let orderType = 'limit';
+        let currentBottomTab = 'openOrders';
+
+        const openOrdersData = [
+            { id: 1, time: '2026-09-12 11:20:14', pair: 'BTC/USDT', type: 'Limit', side: 'BUY', price: '63,800.00', amount: '0.5000 BTC', filled: '0.00%' },
+            { id: 2, time: '2026-09-12 10:45:02', pair: 'BTC/USDT', type: 'Limit', side: 'SELL', price: '65,500.00', amount: '0.2500 BTC', filled: '0.00%' }
+        ];
+
+        const assetsData = [
+            { asset: 'USDT', total: '44,350.00', avail: '12,450.00', locked: '31,900.00' },
+            { asset: 'BTC', total: '0.5000', avail: '0.2500', locked: '0.2500' }
+        ];
+
+        function toggleWalletModal() {
+            const modal = document.getElementById('walletModal');
+            modal.classList.toggle('hidden');
         }
 
-        function showDeposit(walletType) {
-            document.getElementById('depositTitle').textContent = `Deposit to ${walletType} Wallet`;
-            document.getElementById('depositAsset').textContent = 'USDT';
-            document.getElementById('walletAddress').textContent = '0x742d35Cc6634C0532925a3b8D...';
-            QRCode.toCanvas(document.getElementById('qrCode'), '0x742d35Cc6634C0532925a3b8D...', {width: 180});
-            new bootstrap.Modal(document.getElementById('depositModal')).show();
+        function switchBottomTab(tab) {
+            currentBottomTab = tab;
+            ['openOrders', 'orderHistory', 'tradeHistory', 'assets'].forEach(t => {
+                const tabBtn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tab) {
+                    tabBtn.className = 'py-2.5 px-3 tab-active';
+                } else {
+                    tabBtn.className = 'py-2.5 px-3 hover:text-white text-textMuted';
+                }
+            });
+            renderBottomPanel();
         }
 
-        function showWithdraw(walletType) {
-            // Similar to deposit but withdraw form
-            alert(`${walletType} Withdraw - Send to your external wallet (mock)`);
+        function renderBottomPanel() {
+            const tbody = document.getElementById('bottomPanelBody');
+            tbody.innerHTML = '';
+
+            if (currentBottomTab === 'openOrders') {
+                openOrdersData.forEach(order => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-tradeDark/30';
+                    tr.innerHTML = `
+                        <td class="p-2 text-textMuted">${order.time}</td>
+                        <td class="p-2 font-bold">${order.pair}</td>
+                        <td class="p-2">${order.type}</td>
+                        <td class="p-2 ${order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'} font-semibold">${order.side}</td>
+                        <td class="p-2">${order.price}</td>
+                        <td class="p-2">${order.amount}</td>
+                        <td class="p-2 text-textMuted">${order.filled}</td>
+                        <td class="p-2 text-right"><button onclick="cancelOrder(${order.id})" class="text-sellRed hover:underline">Cancel</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else if (currentBottomTab === 'assets') {
+                assetsData.forEach(asset => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-tradeDark/30';
+                    tr.innerHTML = `
+                        <td class="p-2 font-bold" colspan="2">${asset.asset}</td>
+                        <td class="p-2" colspan="2">Total: ${asset.total}</td>
+                        <td class="p-2" colspan="2">Avail: ${asset.avail}</td>
+                        <td class="p-2 text-right" colspan="2">In Order: ${asset.locked}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-textMuted">No ${currentBottomTab} recorded yet.</td></tr>`;
+            }
         }
 
-        function copyAddress() {
-            navigator.clipboard.writeText('0x742d35Cc6634C0532925a3b8D...');
-            alert('Address copied!');
+        function cancelOrder(id) {
+            const index = openOrdersData.findIndex(o => o.id === id);
+            if (index !== -1) {
+                openOrdersData.splice(index, 1);
+                renderBottomPanel();
+            }
         }
 
-        function switchNetwork() {
-            alert('Network switched!');
+        function generateOrderBook() {
+            const asksContainer = document.getElementById('asksContainer');
+            const bidsContainer = document.getElementById('bidsContainer');
+            
+            asksContainer.innerHTML = '';
+            bidsContainer.innerHTML = '';
+
+            let cumulativeAsk = 0;
+            for (let i = 1; i <= 10; i++) {
+                const price = (currentPrice + (i * 2.5)).toFixed(2);
+                const size = (Math.random() * 0.8 + 0.05).toFixed(4);
+                cumulativeAsk += parseFloat(size);
+                
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-3 px-3 py-0.5 hover:bg-tradeDark/50 cursor-pointer relative orderbook-bg-ask';
+                row.style.backgroundSize = `${Math.min(cumulativeAsk * 15, 100)}% 100%`;
+                row.innerHTML = `
+                    <span class="text-sellRed font-medium">${price}</span>
+                    <span class="text-right text-gray-300">${size}</span>
+                    <span class="text-right text-textMuted">${cumulativeAsk.toFixed(2)}</span>
+                `;
+                asksContainer.appendChild(row);
+            }
+
+            let cumulativeBid = 0;
+            for (let i = 1; i <= 10; i++) {
+                const price = (currentPrice - (i * 2.5)).toFixed(2);
+                const size = (Math.random() * 0.8 + 0.05).toFixed(4);
+                cumulativeBid += parseFloat(size);
+                
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-3 px-3 py-0.5 hover:bg-tradeDark/50 cursor-pointer relative orderbook-bg-bid';
+                row.style.backgroundSize = `${Math.min(cumulativeBid * 15, 100)}% 100%`;
+                row.innerHTML = `
+                    <span class="text-buyGreen font-medium">${price}</span>
+                    <span class="text-right text-gray-300">${size}</span>
+                    <span class="text-right text-textMuted">${cumulativeBid.toFixed(2)}</span>
+                `;
+                bidsContainer.appendChild(row);
+            }
         }
 
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            updateTotalBalance();
-        });
+        function pushMarketTrade() {
+            const container = document.getElementById('marketTradesContainer');
+            const isBuy = Math.random() > 0.48;
+            const delta = (Math.random() * 2 - 1).toFixed(2);
+            currentPrice = parseFloat((currentPrice + parseFloat(delta)).toFixed(2));
+            
+            const size = (Math.random() * 0.4 + 0.01).toFixed(4);
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-3 px-3 py-0.5 border-b border-tradeBorder/20';
+            row.innerHTML = `
+                <span class="${isBuy ? 'text-buyGreen' : 'text-sellRed'} font-medium">${currentPrice.toFixed(2)}</span>
+                <span class="text-right text-gray-300">${size}</span>
+                <span class="text-right text-textMuted">${time}</span>
+            `;
+            
+            container.insertBefore(row, container.firstChild);
+            if (container.children.length > 20) container.removeChild(container.lastChild);
+
+            document.getElementById('tickerPrice').innerText = `$${currentPrice.toFixed(2)}`;
+            document.getElementById('bookSpreadPrice').firstElementChild.innerText = currentPrice.toFixed(2);
+        }
+
+        function setSide(side) {
+            selectedSide = side;
+            const buyBtn = document.getElementById('sideBuyBtn');
+            const sellBtn = document.getElementById('sideSellBtn');
+            const submitBtn = document.getElementById('submitOrderBtn');
+
+            if (side === 'buy') {
+                buyBtn.className = 'py-2 bg-buyGreen text-white font-bold rounded text-xs shadow-lg transition';
+                sellBtn.className = 'py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white';
+                submitBtn.className = 'w-full py-3 bg-buyGreen hover:bg-buyGreenHover text-white font-bold rounded text-sm transition shadow-lg';
+                submitBtn.innerText = 'Buy BTC';
+            } else {
+                sellBtn.className = 'py-2 bg-sellRed text-white font-bold rounded text-xs shadow-lg transition';
+                buyBtn.className = 'py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white';
+                submitBtn.className = 'w-full py-3 bg-sellRed hover:bg-sellRedHover text-white font-bold rounded text-sm transition shadow-lg';
+                submitBtn.innerText = 'Sell BTC';
+            }
+        }
+
+        function setOrderType(type) {
+            orderType = type;
+            ['limit', 'market', 'stop'].forEach(t => {
+                const tab = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === type) {
+                    tab.className = 'flex-1 py-1.5 rounded text-center bg-tradePanel text-white shadow font-bold';
+                } else {
+                    tab.className = 'flex-1 py-1.5 rounded text-center text-textMuted hover:text-white';
+                }
+            });
+
+            const priceWrapper = document.getElementById('priceInputWrapper');
+            if (type === 'market') {
+                priceWrapper.style.opacity = '0.4';
+                document.getElementById('orderPrice').disabled = true;
+                document.getElementById('orderPrice').value = 'Market Price';
+            } else {
+                priceWrapper.style.opacity = '1.0';
+                document.getElementById('orderPrice').disabled = false;
+                document.getElementById('orderPrice').value = currentPrice.toFixed(2);
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const amount = parseFloat(document.getElementById('orderAmount').value) || 0;
+            const price = orderType === 'market' ? currentPrice : (parseFloat(document.getElementById('orderPrice').value) || 0);
+            const total = (amount * price).toFixed(2);
+            document.getElementById('orderTotal').innerText = `${total} USDT`;
+        }
+
+        function setPercentage(pct) {
+            const availBalance = 12450.00;
+            const price = orderType === 'market' ? currentPrice : (parseFloat(document.getElementById('orderPrice').value) || currentPrice);
+            const targetUSDT = availBalance * pct;
+            const btcAmount = (targetUSDT / price).toFixed(4);
+            
+            document.getElementById('orderAmount').value = btcAmount;
+            calculateTotal();
+        }
+
+        function executeTrade() {
+            const amount = document.getElementById('orderAmount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            const newOrder = {
+                id: Date.now(),
+                time: new Date().toISOString().replace('T', ' ').substring(0, 19),
+                pair: 'BTC/USDT',
+                type: orderType.charAt(0).toUpperCase() + orderType.slice(1),
+                side: selectedSide.toUpperCase(),
+                price: orderType === 'market' ? currentPrice.toFixed(2) : document.getElementById('orderPrice').value,
+                amount: `${amount} BTC`,
+                filled: '0.00%'
+            };
+
+            openOrdersData.unshift(newOrder);
+            renderBottomPanel();
+
+            alert(`${selectedSide.toUpperCase()} Order Submitted: ${amount} BTC`);
+            document.getElementById('orderAmount').value = '';
+            calculateTotal();
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('tradingChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.strokeStyle = '#2B313A';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < width; i += 60) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke();
+            }
+
+            const candleWidth = 8;
+            const gap = 6;
+            const count = Math.floor(width / (candleWidth + gap));
+            let simPrice = currentPrice - 100;
+
+            for (let i = 0; i < count; i++) {
+                const x = i * (candleWidth + gap) + 20;
+                const open = simPrice + (Math.random() * 30 - 15);
+                const close = open + (Math.random() * 40 - 20);
+                const high = Math.max(open, close) + Math.random() * 15;
+                const low = Math.min(open, close) - Math.random() * 15;
+                simPrice = close;
+
+                const isGreen = close >= open;
+                const color = isGreen ? '#0ECB81' : '#F6465D';
+
+                const mapY = (val) => height - ((val - (currentPrice - 200)) / 400) * height;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, mapY(high));
+                ctx.lineTo(x + candleWidth / 2, mapY(low));
+                ctx.stroke();
+
+                ctx.fillStyle = color;
+                ctx.fillRect(x, mapY(Math.max(open, close)), candleWidth, Math.max(2, Math.abs(mapY(open) - mapY(close))));
+            }
+        }
+
+        window.onload = () => {
+            renderBottomPanel();
+            generateOrderBook();
+            setInterval(pushMarketTrade, 800);
+            setInterval(generateOrderBook, 2500);
+            drawChart();
+            window.addEventListener('resize', drawChart);
+        };
     </script>
 </body>
 </html>
-
