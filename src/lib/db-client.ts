@@ -1,26 +1,28 @@
-/**
- * Database Client Factory
- * Routes to appropriate database based on configuration
- */
-
 import prisma from './supabase.js';
 
-type DatabaseConfig = {
-  db?: {
+export interface DatabaseConfig {
+  db: {
     url?: string;
   };
-};
+}
 
-const config: DatabaseConfig = {
+/**
+ * Returns the current runtime database configuration.
+ * Evaluated dynamically to prevent stale process.env reads.
+ */
+export const getDatabaseConfig = (): DatabaseConfig => ({
   db: {
     url: process.env.DATABASE_URL,
   },
-};
+});
 
-// Export primary database client
+/**
+ * Returns the primary Prisma database client instance.
+ */
 export const getPrismaClient = () => prisma;
 
 export default {
   prisma,
-  config,
+  getDatabaseConfig,
+  getPrismaClient,
 };
