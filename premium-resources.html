@@ -23,7 +23,6 @@
         }
         
         * { font-family: 'Inter', sans-serif; }
-        
         body { background: #f8fafc; }
         
         /* Hero Section */
@@ -97,10 +96,7 @@
             margin-bottom: -2px;
         }
         
-        .tab-button:hover {
-            color: var(--accent-teal);
-        }
-        
+        .tab-button:hover { color: var(--accent-teal); }
         .tab-button.active {
             color: var(--accent-gold);
             border-bottom-color: var(--accent-gold);
@@ -182,6 +178,7 @@
             margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
         }
         
         .meta-item {
@@ -223,7 +220,7 @@
             white-space: nowrap;
         }
         
-        .btn-download:hover {
+        .btn-download:hover:not(:disabled) {
             background: var(--accent-light-gold);
             transform: scale(1.05);
         }
@@ -240,7 +237,7 @@
             white-space: nowrap;
         }
         
-        .btn-preview:hover {
+        .btn-preview:hover:not(:disabled) {
             background: var(--accent-teal);
             color: white;
         }
@@ -303,9 +300,7 @@
             font-size: 1.8rem;
         }
         
-        .timeline-content {
-            padding-top: 5rem;
-        }
+        .timeline-content { padding-top: 5rem; }
         
         .timeline-period {
             font-size: 0.9rem;
@@ -326,6 +321,7 @@
             color: #64748b;
             font-size: 0.95rem;
             line-height: 1.5;
+            margin-bottom: 0.5rem;
         }
         
         /* Status Indicator */
@@ -336,23 +332,11 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            margin-left: 0.5rem;
         }
         
-        .status-available {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status-unlocked {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .status-coming {
-            background: #fed7aa;
-            color: #9a3412;
-        }
+        .status-available { background: #d1fae5; color: #065f46; }
+        .status-unlocked { background: #fef3c7; color: #92400e; }
+        .status-coming { background: #fed7aa; color: #9a3412; }
         
         /* CTA Section */
         .cta-section {
@@ -387,11 +371,13 @@
             cursor: pointer;
             transition: all 0.3s;
             display: inline-block;
+            text-decoration: none;
         }
         
         .btn-upgrade:hover {
             background: var(--accent-light-gold);
             transform: scale(1.05);
+            color: var(--primary-corporate);
         }
         
         /* Modal */
@@ -409,9 +395,7 @@
             padding: 2rem;
         }
         
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         
         .modal-content {
             background: white;
@@ -435,33 +419,14 @@
             color: #999;
         }
         
-        .modal-close:hover {
-            color: #333;
-        }
+        .modal-close:hover { color: #333; }
         
         @media (max-width: 768px) {
-            .resources-hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .resources-tabs {
-                flex-direction: column;
-                border-bottom: none;
-            }
-            
-            .tab-button {
-                border-bottom: 3px solid #e2e8f0;
-                margin-bottom: 0;
-                width: 100%;
-            }
-            
-            .tab-button.active {
-                border-bottom-color: var(--accent-gold);
-            }
-            
-            .timeline-items {
-                grid-template-columns: 1fr;
-            }
+            .resources-hero h1 { font-size: 1.8rem; }
+            .resources-tabs { flex-direction: column; border-bottom: none; }
+            .tab-button { border-bottom: 3px solid #e2e8f0; margin-bottom: 0; width: 100%; }
+            .tab-button.active { border-bottom-color: var(--accent-gold); }
+            .timeline-items { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -577,7 +542,7 @@
                         <div class="resource-title">Investment Strategy & Portfolio Building</div>
                         <div class="resource-meta">
                             <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
-                            <div class="meta-item"><i class="fas fa-calendar"></i> 45 pages</div>
+                            <div class="meta-item"><i class="fas fa-book"></i> 45 pages</div>
                             <div class="meta-item"><i class="fas fa-download"></i> 3.8 MB</div>
                         </div>
                         <p class="resource-description">Deep dive into investment strategies, risk assessment, asset allocation, and diversification principles tailored for African markets.</p>
@@ -709,7 +674,7 @@
                         </div>
                         <p class="resource-description">Start your investment journey with fundamental concepts, terminology, and first steps.</p>
                         <div class="resource-footer">
-                            <button class="btn-download">
+                            <button class="btn-download" onclick="downloadResource('beginner')">
                                 <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
                             </button>
                         </div>
@@ -728,7 +693,7 @@
                         </div>
                         <p class="resource-description">Complete guide to bonds, yields, credit ratings, and how to build bond portfolios.</p>
                         <div class="resource-footer">
-                            <button class="btn-download">
+                            <button class="btn-download" onclick="downloadResource('bonds')">
                                 <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
                             </button>
                         </div>
@@ -736,7 +701,7 @@
                 </div>
                 <div class="resource-card">
                     <div class="resource-header">
-                        <div class="resource-badge">WEEK 2+</div>
+                        <div class="resource-badge" style="background: #fef3c7; color: #92400e;">WEEK 2+</div>
                         <div class="resource-icon">🚀</div>
                     </div>
                     <div class="resource-content">
@@ -765,33 +730,14 @@
                         <div class="resource-icon">📊</div>
                     </div>
                     <div class="resource-content">
-                        <div class="resource-title">Kenya Stock Exchange 2024 Analysis</div>
+                        <div class="resource-title">Kenya Stock Exchange 2026 Analysis</div>
                         <div class="resource-meta">
                             <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
-                            <div class="meta-item"><i class="fas fa-chart-line"></i> 2024 Data</div>
+                            <div class="meta-item"><i class="fas fa-chart-line"></i> 2026 Data</div>
                         </div>
-                        <p class="resource-description">Comprehensive analysis of NSE performance, top performers, and investment opportunities.</p>
+                        <p class="resource-description">Comprehensive analysis of NSE performance, top performers, and emerging market opportunities.</p>
                         <div class="resource-footer">
-                            <button class="btn-download">
-                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="resource-card">
-                    <div class="resource-header">
-                        <div class="resource-badge">AVAILABLE NOW</div>
-                        <div class="resource-icon">🌍</div>
-                    </div>
-                    <div class="resource-content">
-                        <div class="resource-title">African Markets Overview</div>
-                        <div class="resource-meta">
-                            <div class="meta-item"><i class="fas fa-file-pdf"></i> PDF</div>
-                            <div class="meta-item"><i class="fas fa-globe"></i> 10 Countries</div>
-                        </div>
-                        <p class="resource-description">Cross-border investment opportunities across major African stock exchanges.</p>
-                        <div class="resource-footer">
-                            <button class="btn-download">
+                            <button class="btn-download" onclick="downloadResource('nse')">
                                 <i class="fas fa-download" style="margin-right: 0.5rem;"></i> Download
                             </button>
                         </div>
@@ -805,92 +751,110 @@
             <div class="resources-grid">
                 <div class="resource-card">
                     <div class="resource-header">
-                        <div class="resource-badge">AVAILABLE NOW</div>
+                        <div class="resource-badge">RECORDING</div>
                         <div class="resource-icon">🎥</div>
                     </div>
                     <div class="resource-content">
-                        <div class="resource-title">Getting Started Live Webinar</div>
+                        <div class="resource-title">Q1 Investment Outlook Webinar</div>
                         <div class="resource-meta">
-                            <div class="meta-item"><i class="fas fa-video"></i> Recorded</div>
-                            <div class="meta-item"><i class="fas fa-clock"></i> 60 minutes</div>
+                            <div class="meta-item"><i class="fas fa-video"></i> 1h 15m</div>
                         </div>
-                        <p class="resource-description">Live Q&A session introducing SmartInvest platform and answering common questions.</p>
+                        <p class="resource-description">Watch our panel of chief financial analysts unpack macroeconomic trends and sector allocations.</p>
                         <div class="resource-footer">
-                            <button class="btn-download">
-                                <i class="fas fa-play" style="margin-right: 0.5rem;"></i> Watch
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="resource-card">
-                    <div class="resource-header">
-                        <div class="resource-badge">WEEK 3+</div>
-                        <div class="resource-icon">🎓</div>
-                    </div>
-                    <div class="resource-content">
-                        <div class="resource-title">Expert Market Analysis Webinar</div>
-                        <div class="resource-meta">
-                            <div class="meta-item"><i class="fas fa-video"></i> Recorded</div>
-                            <div class="meta-item"><i class="fas fa-clock"></i> 90 minutes</div>
-                        </div>
-                        <p class="resource-description">In-depth market analysis with professional traders and financial experts.</p>
-                        <div class="resource-footer">
-                            <button class="btn-download" disabled style="opacity: 0.5;">
-                                <i class="fas fa-lock" style="margin-right: 0.5rem;"></i> Locked
+                            <button class="btn-download" onclick="previewResource('webinar-q1')">
+                                <i class="fas fa-play" style="margin-right: 0.5rem;"></i> Watch Now
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- CTA Section -->
-    <div class="container" style="margin-bottom: 3rem;">
+        <!-- Call to Action -->
         <div class="cta-section">
-            <h2>Not Yet a Premium Member?</h2>
-            <p>Unlock full access to all guides, analysis, and exclusive insights</p>
-            <button class="btn-upgrade" onclick="window.location.href='/pricing.html'">
-                <i class="fas fa-crown" style="margin-right: 0.5rem;"></i> Upgrade to Premium
-            </button>
+            <h2>Need Personalized Financial Advisory?</h2>
+            <p>Upgrade to Premium Platinum to get 1-on-1 consultations with our certified investment advisors.</p>
+            <a href="#" class="btn-upgrade">Upgrade Subscription</a>
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 id="modalTitle" style="color: var(--primary-corporate); margin-bottom: 1rem;">Resource Preview</h3>
+            <div id="modalBody" style="color: #64748b; line-height: 1.6;">
+                <p>Loading preview...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script>
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            const selectedTab = document.getElementById(`tab-${tabName}`);
-            if (selectedTab) {
-                selectedTab.style.display = 'block';
+        function switchTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.style.display = 'none');
+
+            // Deactivate all tab buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab content
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) {
+                activeTab.style.display = 'block';
             }
-            
-            // Add active class to clicked button
-            event.target.closest('.tab-button').classList.add('active');
+
+            // Set clicked button active
+            event.currentTarget.classList.add('active');
         }
-        
-        function previewResource(resourceId) {
-            alert(`Preview for ${resourceId}: Opening in new window...`);
-        }
-        
-        function downloadResource(resourceId) {
-            const resources = {
-                'welcome': 'SmartInvest_Welcome_Brochure.pdf',
-                'strategy': 'SmartInvest_Investment_Strategy.pdf'
+
+        function previewResource(resourceKey) {
+            const modal = document.getElementById('previewModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            const previews = {
+                'welcome': {
+                    title: 'Preview: Getting Started with SmartInvest',
+                    content: 'This guide covers onboarding steps, how to set up two-factor authentication, navigating your dashboard, and making your first portfolio deposit.'
+                },
+                'strategy': {
+                    title: 'Preview: Investment Strategy & Portfolio Building',
+                    content: 'An excerpt on Asset Allocation: "Diversifying across bonds, equities, and real estate in African markets allows investors to balance yield potential against local currency exposure..."'
+                },
+                'webinar-q1': {
+                    title: 'Watch: Q1 Investment Outlook',
+                    content: 'Video stream placeholder. Here members can access full recordings, slide decks, and Q&A transcripts from the session.'
+                }
             };
-            const filename = resources[resourceId] || 'resource.pdf';
-            alert(`Download started: ${filename}`);
+
+            const data = previews[resourceKey] || {
+                title: 'Resource Preview',
+                content: 'Preview content is currently being prepared for this document.'
+            };
+
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = `<p>${data.content}</p>`;
+            modal.classList.add('active');
         }
+
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function downloadResource(resourceKey) {
+            alert('Starting download for: ' + resourceKey);
+        }
+
+        // Close modal when clicking on the dark backdrop
+        window.onclick = function(event) {
+            const modal = document.getElementById('previewModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
     </script>
 </body>
 </html>
