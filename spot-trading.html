@@ -1,223 +1,502 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spot Trading - SmartInvest</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <script src="/public/js/trading-charts.js"></script>
-    <link href="/public/css/trading-ui.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1a365d; --accent: #d4af37; --success: #38a169; --danger: #e53e3e;
-            --bg-dark: #1a1f2e; --bg-card: #2a2f3e; --text-light: #f1f3f6;
+    <title>ApexTrade | Modern Spot Trading Terminal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tradeDark: '#0B0E11',
+                        tradePanel: '#1E2329',
+                        tradeBorder: '#2B313A',
+                        buyGreen: '#0ECB81',
+                        buyGreenHover: '#03A66D',
+                        sellRed: '#F6465D',
+                        sellRedHover: '#CF304A',
+                        textMuted: '#848E9C'
+                    }
+                }
+            }
         }
-        body { background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); color: var(--text-light); }
-        .trading-layout { height: 100vh; display: grid; grid-template: "sidebar chart orderpanel" 1fr / 300px 1fr 350px; gap: 1px; background: var(--bg-dark); }
-        .panel { background: var(--bg-card); padding: 15px; overflow: auto; }
-        .trading-pair { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-        .orderbook { height: 400px; overflow: auto; }
-        .orderbook-row { display: flex; justify-content: space-between; padding: 8px 4px; cursor: pointer; border-radius: 4px; }
-        .orderbook-row:hover { background: rgba(255,255,255,0.05); }
-        .bid { color: var(--success); } .ask { color: var(--danger); }
-        .order-form input, .order-form select { background: #3a404c; border: 1px solid #4a505c; color: white; }
-        .order-btn { padding: 12px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; }
-        .buy-btn { background: var(--success); color: white; } .buy-btn:hover { background: #2f855a; }
-        .sell-btn { background: var(--danger); color: white; } .sell-btn:hover { background: #c53030; }
-        #tradingview { height: 500px; width: 100%; }
-        .ta-panel { position: sticky; top: 15px; z-index: 10; }
+    </script>
+    <!-- FontAwesome for Trading Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar for high-frequency trading panels */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #1E2329; }
+        ::-webkit-scrollbar-thumb { background: #363C4E; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #474D57; }
+        .orderbook-bg-bid { background: linear-gradient(to left, rgba(14, 203, 129, 0.15), transparent); }
+        .orderbook-bg-ask { background: linear-gradient(to left, rgba(246, 70, 93, 0.15), transparent); }
     </style>
 </head>
-<body>
-    <div class="trading-layout">
-        <!-- Left Sidebar: Orderbook -->
-        <div class="panel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5>Order Book <i class="fas fa-sync-alt" onclick="refreshOrderbook()"></i></h5>
-                <select id="symbolSelect" onchange="changeSymbol()" class="form-select form-select-sm">
-                    <option>BTC/USDT</option>
-                    <option>ETH/USDT</option>
-                    <option>SOL/USDT</option>
-                    <option>BNB/USDT</option>
-                    <option>XRP/USDT</option>
-                    <option>ADA/USDT</option>
-                    <option>DOGE/USDT</option>
-                    <option>LINK/USDT</option>
-                </select>
+<body class="bg-tradeDark text-gray-200 font-sans antialiased overflow-hidden h-screen flex flex-col select-none">
+
+    <!-- Top Navigation Header -->
+    <header class="h-14 bg-tradePanel border-b border-tradeBorder flex items-center justify-between px-4 shrink-0">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2 cursor-pointer">
+                <i class="fa-solid fa-chart-line text-buyGreen text-xl"></i>
+                <span class="font-bold text-lg tracking-wider text-white">APEX<span class="text-buyGreen">TRADE</span></span>
             </div>
-            <div class="orderbook" id="orderbook">
-                <!-- Dynamic orderbook -->
+            <nav class="hidden md:flex space-x-4 text-sm font-medium text-gray-400">
+                <a href="#" class="text-white hover:text-buyGreen transition">Spot</a>
+                <a href="#" class="hover:text-white transition">Futures</a>
+                <a href="#" class="hover:text-white transition">Margin</a>
+                <a href="#" class="hover:text-white transition">Markets</a>
+            </nav>
+        </div>
+
+        <!-- Ticker Info Bar -->
+        <div class="hidden xl:flex items-center space-x-6 text-xs">
+            <div class="flex items-center space-x-2">
+                <span class="text-white font-bold text-sm">BTC/USDT</span>
+                <span class="bg-tradeBorder text-gray-300 px-1.5 py-0.5 rounded text-[10px]">Spot</span>
+            </div>
+            <div>
+                <div class="text-buyGreen font-semibold text-sm" id="tickerPrice">$64,250.00</div>
+                <div class="text-textMuted">≈ $64,250.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Change</div>
+                <div class="text-buyGreen font-medium">+3.42%</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h High</div>
+                <div class="text-gray-200 font-medium">65,100.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Low</div>
+                <div class="text-gray-200 font-medium">62,800.00</div>
+            </div>
+            <div>
+                <div class="text-textMuted">24h Volume(BTC)</div>
+                <div class="text-gray-200 font-medium">18,420.52</div>
             </div>
         </div>
 
-        <!-- Center: Trading Chart with TA -->
-        <div class="panel" style="grid-area: chart; display: flex; flex-direction: column;">
-            <!-- TA Controls -->
-            <div class="ta-panel mb-3 p-3 border-bottom">
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control form-control-sm symbol-search" id="spotSymbol" placeholder="Search symbol..." value="BTCUSDT">
-                    </div>
-                    <div class="col-md-4">
-                        <div class="timeframe-bar" id="spotTimeframes"></div>
-                    </div>
-                    <div class="col-md-5">
-                        <div id="spotIndicators" class="d-flex flex-wrap gap-1"></div>
-                    </div>
+        <!-- User Controls -->
+        <div class="flex items-center space-x-3 text-sm">
+            <button class="bg-tradeBorder hover:bg-gray-700 text-white px-3 py-1.5 rounded text-xs transition">Deposit</button>
+            <i class="fa-regular fa-bell text-gray-400 hover:text-white cursor-pointer px-1"></i>
+            <i class="fa-solid fa-gear text-gray-400 hover:text-white cursor-pointer px-1"></i>
+            <div class="w-8 h-8 rounded-full bg-buyGreen/20 text-buyGreen flex items-center justify-center font-bold text-xs border border-buyGreen/40">
+                AP
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout Grid -->
+    <div class="flex-1 grid grid-cols-12 gap-1 p-1 bg-tradeDark overflow-hidden">
+
+        <!-- Column 1: Order Book & Trades (3 Cols) -->
+        <div class="col-span-12 lg:col-span-3 xl:col-span-2 bg-tradePanel rounded flex flex-col overflow-hidden border border-tradeBorder">
+            <div class="flex items-center justify-between border-b border-tradeBorder px-3 py-2 text-xs font-semibold text-textMuted">
+                <span>Order Book</span>
+                <div class="flex space-x-2 text-gray-400">
+                    <i class="fa-solid fa-bars text-buyGreen cursor-pointer" title="Default View"></i>
+                    <i class="fa-solid fa-bars text-sellRed cursor-pointer" title="Asks Only"></i>
                 </div>
             </div>
-            <div class="flex-grow-1">
-                <div class="d-flex justify-content-between align-items-center mb-3 p-2">
-                    <div>
-                        <div class="trading-pair" id="currentPair">BTC / USDT</div>
-                        <small id="priceChange" class="text-success">+2.34% (+$1,234.56)</small>
+
+            <!-- Order Book Headers -->
+            <div class="grid grid-cols-3 px-3 py-1 text-[11px] text-textMuted border-b border-tradeBorder">
+                <span>Price (USDT)</span>
+                <span class="text-right">Size (BTC)</span>
+                <span class="text-right">Total</span>
+            </div>
+
+            <!-- Asks (Sells) -->
+            <div class="flex-1 overflow-y-auto flex flex-col-reverse text-[11px]" id="asksContainer"></div>
+
+            <!-- Spread / Mid Price Indicator -->
+            <div class="py-2 px-3 my-1 bg-tradeDark/60 border-y border-tradeBorder flex items-center justify-between">
+                <div class="text-buyGreen font-bold text-sm flex items-center space-x-1" id="bookSpreadPrice">
+                    <span>64,250.00</span>
+                    <i class="fa-solid fa-arrow-up text-xs"></i>
+                </div>
+                <span class="text-textMuted text-[10px]">Spread 0.01</span>
+            </div>
+
+            <!-- Bids (Buys) -->
+            <div class="flex-1 overflow-y-auto text-[11px]" id="bidsContainer"></div>
+        </div>
+
+        <!-- Column 2: Chart Area & Open Orders (6 Cols) -->
+        <div class="col-span-12 lg:col-span-6 xl:col-span-7 flex flex-col gap-1 overflow-hidden">
+            
+            <!-- Trading Chart Container -->
+            <div class="flex-1 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden">
+                <!-- Chart Controls Bar -->
+                <div class="flex items-center justify-between border-b border-tradeBorder px-3 py-2 text-xs">
+                    <div class="flex items-center space-x-3 text-textMuted">
+                        <span class="hover:text-white cursor-pointer font-semibold text-white">Time</span>
+                        <span class="hover:text-white cursor-pointer">1m</span>
+                        <span class="hover:text-white cursor-pointer text-buyGreen font-bold">15m</span>
+                        <span class="hover:text-white cursor-pointer">1h</span>
+                        <span class="hover:text-white cursor-pointer">4h</span>
+                        <span class="hover:text-white cursor-pointer">1D</span>
+                        <span class="border-l border-tradeBorder h-3"></span>
+                        <span class="hover:text-white cursor-pointer"><i class="fa-solid fa-chart-candle"></i></span>
+                        <span class="hover:text-white cursor-pointer"><i class="fa-solid fa-sliders"></i></span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-textMuted text-[11px]">
+                        <span class="cursor-pointer hover:text-white"><i class="fa-solid fa-expand"></i></span>
                     </div>
                 </div>
-                <div id="tradingview" style="height: calc(100% - 80px);"></div>
+
+                <!-- Canvas Visualiser (Simulating Depth/Price Chart) -->
+                <div class="flex-1 relative w-full h-full bg-tradeDark/40">
+                    <canvas id="tradingChart" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Positions / Open Orders Panel -->
+            <div class="h-48 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden">
+                <div class="flex items-center border-b border-tradeBorder px-3 text-xs text-textMuted">
+                    <button class="py-2.5 px-3 border-b-2 border-buyGreen text-white font-medium">Open Orders (2)</button>
+                    <button class="py-2.5 px-3 hover:text-white">Order History</button>
+                    <button class="py-2.5 px-3 hover:text-white">Trade History</button>
+                    <button class="py-2.5 px-3 hover:text-white">Assets</button>
+                </div>
+                
+                <div class="flex-1 overflow-x-auto">
+                    <table class="w-full text-left text-[11px] text-gray-300">
+                        <thead class="bg-tradeDark/50 text-textMuted border-b border-tradeBorder">
+                            <tr>
+                                <th class="p-2.5">Time</th>
+                                <th class="p-2.5">Pair</th>
+                                <th class="p-2.5">Type</th>
+                                <th class="p-2.5">Side</th>
+                                <th class="p-2.5">Price</th>
+                                <th class="p-2.5">Amount</th>
+                                <th class="p-2.5">Filled</th>
+                                <th class="p-2.5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-tradeBorder/50">
+                            <tr class="hover:bg-tradeDark/30">
+                                <td class="p-2.5 text-textMuted">2026-09-12 11:20:14</td>
+                                <td class="p-2.5 font-bold">BTC/USDT</td>
+                                <td class="p-2.5">Limit</td>
+                                <td class="p-2.5 text-buyGreen font-semibold">BUY</td>
+                                <td class="p-2.5">63,800.00</td>
+                                <td class="p-2.5">0.5000 BTC</td>
+                                <td class="p-2.5 text-textMuted">0.00%</td>
+                                <td class="p-2.5 text-right"><button class="text-sellRed hover:underline">Cancel</button></td>
+                            </tr>
+                            <tr class="hover:bg-tradeDark/30">
+                                <td class="p-2.5 text-textMuted">2026-09-12 10:45:02</td>
+                                <td class="p-2.5 font-bold">BTC/USDT</td>
+                                <td class="p-2.5">Limit</td>
+                                <td class="p-2.5 text-sellRed font-semibold">SELL</td>
+                                <td class="p-2.5">65,500.00</td>
+                                <td class="p-2.5">0.2500 BTC</td>
+                                <td class="p-2.5 text-textMuted">0.00%</td>
+                                <td class="p-2.5 text-right"><button class="text-sellRed hover:underline">Cancel</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Right Panel: Order Form -->
-        <div class="panel">
-            <h6 class="mb-3">New Order</h6>
-            <div class="order-form">
-                <div class="mb-3">
-                    <label>Order Type</label>
-                    <select id="orderType" class="form-select form-select-sm" onchange="toggleOrderFields()">
-                        <option value="market">Market</option>
-                        <option value="limit">Limit</option>
-                        <option value="stop_limit">Stop Limit</option>
-                        <option value="oco">OCO</option>
-                    </select>
+        <!-- Column 3: Trade Placement Panel & Recent Trades (3 Cols) -->
+        <div class="col-span-12 lg:col-span-3 xl:col-span-3 flex flex-col gap-1 overflow-hidden">
+            
+            <!-- Execution Order Form -->
+            <div class="bg-tradePanel rounded border border-tradeBorder p-3 flex flex-col">
+                <!-- Order Mode Selection -->
+                <div class="flex bg-tradeDark rounded p-1 mb-3 text-xs font-semibold">
+                    <button id="tabLimit" onclick="setOrderType('limit')" class="flex-1 py-1.5 rounded text-center bg-tradePanel text-white shadow">Limit</button>
+                    <button id="tabMarket" onclick="setOrderType('market')" class="flex-1 py-1.5 rounded text-center text-textMuted hover:text-white">Market</button>
+                    <button id="tabStop" onclick="setOrderType('stop')" class="flex-1 py-1.5 rounded text-center text-textMuted hover:text-white">Stop-Limit</button>
                 </div>
-                <div class="mb-2"><input type="number" id="price" class="form-control form-control-sm" placeholder="Price" style="display:none;"></div>
-                <div class="mb-2"><input type="number" id="stopPrice" class="form-control form-control-sm" placeholder="Stop Price" style="display:none;"></div>
-                <div class="mb-3"><input type="number" id="amount" class="form-control form-control-sm" placeholder="Amount"></div>
-                <div class="mb-3"><input type="range" id="slider" min="0" max="100" value="25" class="form-range"></div>
-                <div>Total: <span id="total">$0.00</span></div>
-                <div class="d-grid gap-2 mt-3">
-                    <button class="order-btn buy-btn" onclick="placeOrder('buy')">BUY</button>
-                    <button class="order-btn sell-btn" onclick="placeOrder('sell')">SELL</button>
+
+                <!-- Buy/Sell Toggle Buttons -->
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button id="sideBuyBtn" onclick="setSide('buy')" class="py-2 bg-buyGreen text-white font-bold rounded text-xs shadow-lg transition">BUY BTC</button>
+                    <button id="sideSellBtn" onclick="setSide('sell')" class="py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white">SELL BTC</button>
+                </div>
+
+                <!-- Dynamic Form Controls -->
+                <div class="space-y-3 text-xs">
+                    <div class="flex justify-between text-[11px] text-textMuted">
+                        <span>Avail: <strong class="text-white">12,450.00 USDT</strong></span>
+                        <i class="fa-solid fa-wallet text-buyGreen cursor-pointer"></i>
+                    </div>
+
+                    <!-- Price Input Field -->
+                    <div id="priceInputWrapper" class="relative flex items-center">
+                        <span class="absolute left-3 text-textMuted">Price</span>
+                        <input type="number" id="orderPrice" value="64250.00" class="w-full bg-tradeDark border border-tradeBorder focus:border-buyGreen rounded py-2 pl-14 pr-12 text-right text-white font-medium outline-none">
+                        <span class="absolute right-3 text-textMuted text-[10px]">USDT</span>
+                    </div>
+
+                    <!-- Amount Input Field -->
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-textMuted">Amount</span>
+                        <input type="number" id="orderAmount" placeholder="0.00" oninput="calculateTotal()" class="w-full bg-tradeDark border border-tradeBorder focus:border-buyGreen rounded py-2 pl-16 pr-12 text-right text-white font-medium outline-none">
+                        <span class="absolute right-3 text-textMuted text-[10px]">BTC</span>
+                    </div>
+
+                    <!-- Proportion Slider / Preset % Chips -->
+                    <div class="grid grid-cols-4 gap-1 py-1">
+                        <button onclick="setPercentage(0.25)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">25%</button>
+                        <button onclick="setPercentage(0.50)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">50%</button>
+                        <button onclick="setPercentage(0.75)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">75%</button>
+                        <button onclick="setPercentage(1.00)" class="bg-tradeDark border border-tradeBorder hover:border-gray-500 py-1 rounded text-[10px] text-gray-300">100%</button>
+                    </div>
+
+                    <!-- Order Total Readout -->
+                    <div class="flex justify-between items-center py-2 border-t border-tradeBorder text-textMuted">
+                        <span>Order Total</span>
+                        <span class="text-white font-bold text-sm" id="orderTotal">0.00 USDT</span>
+                    </div>
+
+                    <!-- Action Submit Button -->
+                    <button id="submitOrderBtn" onclick="executeTrade()" class="w-full py-3 bg-buyGreen hover:bg-buyGreenHover text-white font-bold rounded text-sm transition shadow-lg">
+                        Buy BTC
+                    </button>
                 </div>
             </div>
-            <hr>
-            <h6>Open Orders (3)</h6>
-            <div id="openOrders"><!-- Dynamic --></div>
+
+            <!-- Recent Market Trades -->
+            <div class="flex-1 bg-tradePanel rounded border border-tradeBorder flex flex-col overflow-hidden">
+                <div class="border-b border-tradeBorder px-3 py-2 text-xs font-semibold text-textMuted">
+                    Market Trades
+                </div>
+                <div class="grid grid-cols-3 px-3 py-1 text-[11px] text-textMuted border-b border-tradeBorder">
+                    <span>Price (USDT)</span>
+                    <span class="text-right">Size (BTC)</span>
+                    <span class="text-right">Time</span>
+                </div>
+                <div class="flex-1 overflow-y-auto text-[11px]" id="marketTradesContainer"></div>
+            </div>
+
         </div>
     </div>
 
+    <!-- Real-time Engine Simulation Script -->
     <script>
-        let charts = [];
-        let currentSymbol = 'BTCUSDT';
-        let tvWidget; 
+        let currentPrice = 64250.00;
+        let selectedSide = 'buy';
+        let orderType = 'limit';
 
-        // Initialize TradingCharts
-        function initChart() {
-            const chart = new TradingCharts('tradingview', {
-                symbol: `BINANCE:${currentSymbol}`,
-                interval: '5',
-                studies: ['MASimple@tv-basicstudies']
-            });
-            charts.push(chart);
-            TradingCharts.syncCharts(charts);
-            initIndicatorToggles('#spotIndicators');
-            initTimeframes(['1', '5', '15', '60', '240', '1D'], '#spotTimeframes');
-            tvWidget = chart.tvWidget;
-        }
-
-        // Mock orderbook data
-        const mockOrderbook = {
-            BTCUSDT: {
-                bids: [[45000, 2.5], [44990, 1.8], [44980, 3.2], [44970, 0.9]],
-                asks: [[45010, 1.2], [45020, 2.1], [45030, 1.5], [45040, 0.8]]
-            }
-        };
-
-        function refreshOrderbook() {
-            const book = mockOrderbook[currentSymbol] || mockOrderbook.BTCUSDT;
-            const container = document.getElementById('orderbook');
-            let html = '<div class="mb-2 text-center fw-bold">24hr Volume: $1.2B</div>';
-            // Bids
-            book.bids.slice(0,10).forEach(([price, qty], i) => {
-                html += `<div class="orderbook-row bid"><span>${price.toLocaleString()}</span><span>${qty.toFixed(4)}</span></div>`;
-            });
-            html += '<div class="text-center py-2"><div class="trading-pair">45,000</div></div>';
-            // Asks
-            book.asks.slice(0,10).forEach(([price, qty]) => {
-                html += `<div class="orderbook-row ask"><span>${price.toLocaleString()}</span><span>${qty.toFixed(4)}</span></div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function placeOrder(side) {
-            const amount = document.getElementById('amount').value || 0;
-            if (!amount) return alert('Enter amount');
+        // Initialize Order Book Data Mocking
+        function generateOrderBook() {
+            const asksContainer = document.getElementById('asksContainer');
+            const bidsContainer = document.getElementById('bidsContainer');
             
-            // Mock API call
-            fetch('/.netlify/functions/crypto-trading/orders', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    symbol: currentSymbol,
-                    side,
-                    type: document.getElementById('orderType').value,
-                    quantity: parseFloat(amount)
-                })
-            }).then(r => r.json()).then(data => {
-                alert(`${side.toUpperCase()} order placed! ${data.data?.id}`);
-                loadOpenOrders();
-            });
+            asksContainer.innerHTML = '';
+            bidsContainer.innerHTML = '';
+
+            let cumulativeAsk = 0;
+            for (let i = 1; i <= 12; i++) {
+                const price = (currentPrice + (i * 2.5)).toFixed(2);
+                const size = (Math.random() * 0.8 + 0.05).toFixed(4);
+                cumulativeAsk += parseFloat(size);
+                
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-3 px-3 py-0.5 hover:bg-tradeDark/50 cursor-pointer relative orderbook-bg-ask';
+                row.style.backgroundSize = `${Math.min(cumulativeAsk * 15, 100)}% 100%`;
+                row.innerHTML = `
+                    <span class="text-sellRed font-medium">${price}</span>
+                    <span class="text-right text-gray-300">${size}</span>
+                    <span class="text-right text-textMuted">${cumulativeAsk.toFixed(2)}</span>
+                `;
+                asksContainer.appendChild(row);
+            }
+
+            let cumulativeBid = 0;
+            for (let i = 1; i <= 12; i++) {
+                const price = (currentPrice - (i * 2.5)).toFixed(2);
+                const size = (Math.random() * 0.8 + 0.05).toFixed(4);
+                cumulativeBid += parseFloat(size);
+                
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-3 px-3 py-0.5 hover:bg-tradeDark/50 cursor-pointer relative orderbook-bg-bid';
+                row.style.backgroundSize = `${Math.min(cumulativeBid * 15, 100)}% 100%`;
+                row.innerHTML = `
+                    <span class="text-buyGreen font-medium">${price}</span>
+                    <span class="text-right text-gray-300">${size}</span>
+                    <span class="text-right text-textMuted">${cumulativeBid.toFixed(2)}</span>
+                `;
+                bidsContainer.appendChild(row);
+            }
         }
 
-        function toggleOrderFields() {
-            const type = document.getElementById('orderType').value;
-            document.getElementById('price').style.display = type !== 'market' ? 'block' : 'none';
-            document.getElementById('stopPrice').style.display = type.includes('stop') ? 'block' : 'none';
-        }
+        // Mock Recent Trades Stream
+        function pushMarketTrade() {
+            const container = document.getElementById('marketTradesContainer');
+            const isBuy = Math.random() > 0.48;
+            const delta = (Math.random() * 2 - 1).toFixed(2);
+            currentPrice = parseFloat((currentPrice + parseFloat(delta)).toFixed(2));
+            
+            const size = (Math.random() * 0.4 + 0.01).toFixed(4);
+            const time = new Date().toLocaleTimeString().split(' ')[0];
 
-        function changeSymbol() {
-            const pair = document.getElementById('symbolSelect').value;
-            currentSymbol = pair.replace('/', '');
-            document.getElementById('currentPair').textContent = pair;
-            if (tvWidget) tvWidget.setSymbol(`BINANCE:${currentSymbol}`, '5');
-            refreshOrderbook();
-        }
-
-        function loadOpenOrders() {
-            // Mock
-            document.getElementById('openOrders').innerHTML = `
-                <div class="p-2 border-bottom small">
-                    <div>Market BUY 0.025 BTC @ $45,000 <span class="float-end text-success">FILLED</span></div>
-                </div>
-                <div class="p-2 border-bottom small">
-                    <div>Limit SELL 1.5 ETH @ $2,800 <span class="float-end text-warning">ACTIVE</span></div>
-                </div>
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-3 px-3 py-0.5 border-b border-tradeBorder/20';
+            row.innerHTML = `
+                <span class="${isBuy ? 'text-buyGreen' : 'text-sellRed'} font-medium">${currentPrice.toFixed(2)}</span>
+                <span class="text-right text-gray-300">${size}</span>
+                <span class="text-right text-textMuted">${time}</span>
             `;
+            
+            container.insertBefore(row, container.firstChild);
+            if (container.children.length > 25) container.removeChild(container.lastChild);
+
+            // Update ticker UI
+            document.getElementById('tickerPrice').innerText = `$${currentPrice.toFixed(2)}`;
+            document.getElementById('bookSpreadPrice').firstElementChild.innerText = currentPrice.toFixed(2);
         }
 
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            initChart();
-            refreshOrderbook();
-            loadOpenOrders();
-            document.getElementById('slider').oninput = (e) => {
-                document.getElementById('amount').value = (e.target.value / 100 * 0.1).toFixed(4);
-                updateTotal();
-            };
-            document.getElementById('amount').oninput = updateTotal;
-        });
+        // Form Logic
+        function setSide(side) {
+            selectedSide = side;
+            const buyBtn = document.getElementById('sideBuyBtn');
+            const sellBtn = document.getElementById('sideSellBtn');
+            const submitBtn = document.getElementById('submitOrderBtn');
 
-        function updateTotal() {
-            const price = 45000; // Mock
-            document.getElementById('total').textContent = `$${(parseFloat(document.getElementById('amount').value || 0) * price).toLocaleString()}`;
+            if (side === 'buy') {
+                buyBtn.className = 'py-2 bg-buyGreen text-white font-bold rounded text-xs shadow-lg transition';
+                sellBtn.className = 'py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white';
+                submitBtn.className = 'w-full py-3 bg-buyGreen hover:bg-buyGreenHover text-white font-bold rounded text-sm transition shadow-lg';
+                submitBtn.innerText = 'Buy BTC';
+            } else {
+                sellBtn.className = 'py-2 bg-sellRed text-white font-bold rounded text-xs shadow-lg transition';
+                buyBtn.className = 'py-2 bg-tradeDark text-textMuted font-bold rounded text-xs transition hover:text-white';
+                submitBtn.className = 'w-full py-3 bg-sellRed hover:bg-sellRedHover text-white font-bold rounded text-sm transition shadow-lg';
+                submitBtn.innerText = 'Sell BTC';
+            }
         }
 
-        function setInterval1h() { if (tvWidget) tvWidget.setResolution('60'); }
-        function setInterval4h() { if (tvWidget) tvWidget.setResolution('240'); }
-        function setInterval1d() { if (tvWidget) tvWidget.setResolution('1D'); }
+        function setOrderType(type) {
+            orderType = type;
+            ['limit', 'market', 'stop'].forEach(t => {
+                const tab = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === type) {
+                    tab.className = 'flex-1 py-1.5 rounded text-center bg-tradePanel text-white shadow font-bold';
+                } else {
+                    tab.className = 'flex-1 py-1.5 rounded text-center text-textMuted hover:text-white';
+                }
+            });
+
+            const priceWrapper = document.getElementById('priceInputWrapper');
+            if (type === 'market') {
+                priceWrapper.style.opacity = '0.4';
+                document.getElementById('orderPrice').disabled = true;
+                document.getElementById('orderPrice').value = 'Market Price';
+            } else {
+                priceWrapper.style.opacity = '1.0';
+                document.getElementById('orderPrice').disabled = false;
+                document.getElementById('orderPrice').value = currentPrice.toFixed(2);
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const amount = parseFloat(document.getElementById('orderAmount').value) || 0;
+            const price = orderType === 'market' ? currentPrice : (parseFloat(document.getElementById('orderPrice').value) || 0);
+            const total = (amount * price).toFixed(2);
+            document.getElementById('orderTotal').innerText = `${total} USDT`;
+        }
+
+        function setPercentage(pct) {
+            const availBalance = 12450.00;
+            const price = orderType === 'market' ? currentPrice : (parseFloat(document.getElementById('orderPrice').value) || currentPrice);
+            const targetUSDT = availBalance * pct;
+            const btcAmount = (targetUSDT / price).toFixed(4);
+            
+            document.getElementById('orderAmount').value = btcAmount;
+            calculateTotal();
+        }
+
+        function executeTrade() {
+            const amount = document.getElementById('orderAmount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            alert(`${selectedSide.toUpperCase()} Order Submitted: ${amount} BTC at ${orderType === 'market' ? 'Market Price' : document.getElementById('orderPrice').value + ' USDT'}`);
+            document.getElementById('orderAmount').value = '';
+            calculateTotal();
+        }
+
+        // Draw Interactive Mock Chart on Canvas
+        function drawChart() {
+            const canvas = document.getElementById('tradingChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Handle DPI resizing
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Background Grid
+            ctx.strokeStyle = '#2B313A';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < width; i += 60) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke();
+            }
+
+            // Draw Simulated Candlesticks
+            const candleWidth = 8;
+            const gap = 6;
+            const count = Math.floor(width / (candleWidth + gap));
+            let simPrice = currentPrice - 100;
+
+            for (let i = 0; i < count; i++) {
+                const x = i * (candleWidth + gap) + 20;
+                const open = simPrice + (Math.random() * 30 - 15);
+                const close = open + (Math.random() * 40 - 20);
+                const high = Math.max(open, close) + Math.random() * 15;
+                const low = Math.min(open, close) - Math.random() * 15;
+                simPrice = close;
+
+                const isGreen = close >= open;
+                const color = isGreen ? '#0ECB81' : '#F6465D';
+
+                // Map values to canvas scale
+                const mapY = (val) => height - ((val - (currentPrice - 200)) / 400) * height;
+
+                // Wick
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, mapY(high));
+                ctx.lineTo(x + candleWidth / 2, mapY(low));
+                ctx.stroke();
+
+                // Body
+                ctx.fillStyle = color;
+                ctx.fillRect(x, mapY(Math.max(open, close)), candleWidth, Math.max(2, Math.abs(mapY(open) - mapY(close))));
+            }
+        }
+
+        // Loop Initialization
+        window.onload = () => {
+            generateOrderBook();
+            setInterval(pushMarketTrade, 800);
+            setInterval(generateOrderBook, 2500);
+            drawChart();
+            window.addEventListener('resize', drawChart);
+        };
     </script>
 </body>
 </html>
-
