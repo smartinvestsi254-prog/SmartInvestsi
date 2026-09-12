@@ -4,7 +4,7 @@
   "dependencies": {
     "@netlify/functions": "^2.0.0",
     "@prisma/client": "^7.5.0",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "zod": "^3.24.2",
     "winston": "^3.13.1",
