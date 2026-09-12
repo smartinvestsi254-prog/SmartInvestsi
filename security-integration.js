@@ -4,18 +4,94 @@
  */
 
 // ========================================
+// DEPENDENCY & MODULE INITIALIZATIONS
+// ========================================
+// Note: Replace require/instance initializations with your application's actual module paths
+const chatManager = global.chatManager || {
+  createChat: () => {},
+  getUserChats: () => [],
+  getChat: () => null,
+  addMessage: () => null,
+  getOpenChats: () => [],
+  assignChat: () => false,
+  closeChat: () => false,
+  searchChats: () => [],
+  getStatistics: () => ({})
+};
+
+const breachPrevention = global.breachPrevention || {
+  auditLog: [],
+  breachAlerts: [],
+  getAuditLog: () => [],
+  getBreachAlerts: () => []
+};
+
+const firewall = global.firewall || {
+  blockedIPs: new Set(),
+  blockedEmails: new Set(),
+  blockIP: () => {},
+  unblockIP: () => {},
+  blockEmail: () => {},
+  unblockEmail: () => {}
+};
+
+const privacyControl = global.privacyControl || {
+  trackingDisabled: true
+};
+
+const cache = global.cache || {
+  cache: new Map()
+};
+
+class AccessRequest {
+  constructor(email, userId, action, reason) {
+    this.id = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    this.email = email;
+    this.userId = userId;
+    this.action = action;
+    this.reason = reason;
+    this.status = 'pending';
+    this.createdAt = new Date().toISOString();
+  }
+
+  approve(adminEmail) {
+    this.status = 'approved';
+    this.approvedBy = adminEmail;
+    this.approvedAt = new Date().toISOString();
+  }
+
+  deny() {
+    this.status = 'denied';
+    this.deniedAt = new Date().toISOString();
+  }
+
+  revoke(adminEmail) {
+    this.status = 'revoked';
+    this.revokedBy = adminEmail;
+    this.revokedAt = new Date().toISOString();
+  }
+}
+
+// ========================================
 // HELPER METHODS
 // ========================================
 
 /**
- * Validates admin user identity safely without hardcoded fallbacks
+ * Validates admin user identity safely without relying solely on environment variables
  */
-function getAdminIdentity() {
+function getAdminIdentity(req) {
+  if (req && req.user && req.user.email) {
+    return req.user.email.toLowerCase();
+  }
+  if (req && req.admin && req.admin.email) {
+    return req.admin.email.toLowerCase();
+  }
+  
   const adminUser = process.env.ADMIN_USER;
   if (!adminUser) {
     throw new Error('CRITICAL CONFIGURATION ERROR: ADMIN_USER environment variable is missing.');
   }
-  return adminUser;
+  return adminUser.toLowerCase();
 }
 
 /**
@@ -37,7 +113,7 @@ function initChatEndpoints(app, adminAuth, express) {
   // User: Create support chat
   app.post('/api/support/chat/create', express.json(), (req, res) => {
     try {
-      const email = getAuthenticatedUserEmail(req) || req.body.email;
+      const email = getAuthenticatedUserEmail(req);
       const { category = 'general' } = req.body;
 
       if (!email) {
@@ -61,7 +137,7 @@ function initChatEndpoints(app, adminAuth, express) {
       }
 
       const chats = chatManager.getUserChats(email);
-      const sanitized = chats.map(c => c.toJSON());
+      const sanitized = chats.map(c => (typeof c.toJSON === 'function' ? c.toJSON() : c));
       return res.json({ success: true, chats: sanitized });
     } catch (e) {
       console.error('get user chats error:', e.message);
@@ -83,7 +159,8 @@ function initChatEndpoints(app, adminAuth, express) {
       if (!chat) return res.status(404).json({ error: 'Conversation not found' });
       if (chat.email !== email) return res.status(403).json({ error: 'Access denied' });
 
-      return res.json({ success: true, chat: chat.toJSON(true) });
+      const output = typeof chat.toJSON === 'function' ? chat.toJSON(true) : chat;
+      return res.json({ success: true, chat: output });
     } catch (e) {
       console.error('get chat error:', e.message);
       return res.status(500).json({ error: 'Failed to retrieve conversation' });
@@ -118,7 +195,7 @@ function initChatEndpoints(app, adminAuth, express) {
   app.get('/api/support/admin/chats', adminAuth, (req, res) => {
     try {
       const chats = chatManager.getOpenChats();
-      const sanitized = chats.map(c => c.toJSON());
+      const sanitized = chats.map(c => (typeof c.toJSON === 'function' ? c.toJSON() : c));
       return res.json({ success: true, chats: sanitized, total: sanitized.length });
     } catch (e) {
       console.error('admin get chats error:', e.message);
@@ -130,7 +207,7 @@ function initChatEndpoints(app, adminAuth, express) {
   app.post('/api/support/admin/assign/:conversationId', adminAuth, express.json(), (req, res) => {
     try {
       const { conversationId } = req.params;
-      const adminEmail = getAdminIdentity();
+      const adminEmail = getAdminIdentity(req);
 
       const success = chatManager.assignChat(conversationId, adminEmail);
       if (!success) return res.status(404).json({ error: 'Conversation not found' });
@@ -185,7 +262,7 @@ function initChatEndpoints(app, adminAuth, express) {
       if (!q) return res.status(400).json({ error: 'Search query required' });
 
       const results = chatManager.searchChats(String(q));
-      const sanitized = results.map(c => c.toJSON());
+      const sanitized = results.map(c => (typeof c.toJSON === 'function' ? c.toJSON() : c));
       return res.json({ success: true, results: sanitized, total: sanitized.length });
     } catch (e) {
       console.error('search chats error:', e.message);
@@ -215,11 +292,15 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
   // User: Request access to their data
   app.post('/api/data/request-access', express.json(), (req, res) => {
     try {
-      const email = getAuthenticatedUserEmail(req) || req.body.email;
+      const email = getAuthenticatedUserEmail(req);
       const { dataType, reason = '' } = req.body;
 
-      if (!email || !dataType) {
-        return res.status(400).json({ error: 'email and dataType required' });
+      if (!email) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      if (!dataType) {
+        return res.status(400).json({ error: 'dataType required' });
       }
 
       const request = new AccessRequest(email, `user-${email}`, `access_${dataType}`, reason);
@@ -252,7 +333,7 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
   app.post('/api/data/admin/approve/:requestId', adminAuth, express.json(), (req, res) => {
     try {
       const { requestId } = req.params;
-      const adminEmail = getAdminIdentity();
+      const adminEmail = getAdminIdentity(req);
 
       const request = accessRequests.find(r => r.id === requestId);
       if (!request) return res.status(404).json({ error: 'Request not found' });
@@ -284,7 +365,7 @@ function initAccessRequestEndpoints(app, adminAuth, express) {
   app.post('/api/data/admin/revoke/:requestId', adminAuth, express.json(), (req, res) => {
     try {
       const { requestId } = req.params;
-      const adminEmail = getAdminIdentity();
+      const adminEmail = getAdminIdentity(req);
 
       const request = accessRequests.find(r => r.id === requestId);
       if (!request) return res.status(404).json({ error: 'Request not found' });
@@ -307,7 +388,7 @@ function initSecurityEndpoints(app, adminAuth, express) {
   app.get('/api/security/admin/audit-log', adminAuth, (req, res) => {
     try {
       const { limit = 1000 } = req.query;
-      const adminEmail = getAdminIdentity();
+      const adminEmail = getAdminIdentity(req);
       const log = breachPrevention.getAuditLog(adminEmail, Number(limit));
       return res.json({ success: true, auditLog: log });
     } catch (e) {
@@ -319,7 +400,7 @@ function initSecurityEndpoints(app, adminAuth, express) {
   // Admin: Get breach alerts
   app.get('/api/security/admin/breach-alerts', adminAuth, (req, res) => {
     try {
-      const adminEmail = getAdminIdentity();
+      const adminEmail = getAdminIdentity(req);
       const alerts = breachPrevention.getBreachAlerts(adminEmail);
       return res.json({ success: true, alerts });
     } catch (e) {
@@ -374,11 +455,11 @@ function initSecurityEndpoints(app, adminAuth, express) {
         status: {
           firewallActive: true,
           trackingDisabled: privacyControl.trackingDisabled,
-          cacheSize: cache.cache.size,
-          auditLogEntries: breachPrevention.auditLog.length,
-          breachAlerts: breachPrevention.breachAlerts.length,
-          blockedIPs: firewall.blockedIPs.size,
-          blockedEmails: firewall.blockedEmails.size
+          cacheSize: cache.cache ? cache.cache.size : 0,
+          auditLogEntries: breachPrevention.auditLog ? breachPrevention.auditLog.length : 0,
+          breachAlerts: breachPrevention.breachAlerts ? breachPrevention.breachAlerts.length : 0,
+          blockedIPs: firewall.blockedIPs ? firewall.blockedIPs.size : 0,
+          blockedEmails: firewall.blockedEmails ? firewall.blockedEmails.size : 0
         }
       });
     } catch (e) {
