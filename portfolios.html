@@ -1,27 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="canonical" href="https://smartinvestsi.netlify.app/portfolios.html">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio Management - SmartInvestsi</title>
+  <title>Portfolio Management - SmartInvest</title>
+  
+  <!-- PWA & Favicon -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="canonical" href="https://smartinvestsi.netlify.app/portfolios.html">
+
+  <!-- Frameworks & Styling -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-    .navbar { background: rgba(0,0,0,0.3) !important; backdrop-filter: blur(10px); }
-    .card { border: none; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
-    .portfolio-item { border-left: 5px solid #667eea; padding: 20px; margin-bottom: 15px; }
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --glass-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    body { 
+      background: var(--primary-gradient); 
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .navbar { 
+      background: rgba(0, 0, 0, 0.25) !important; 
+      backdrop-filter: blur(12px); 
+    }
+
+    .card { 
+      border: none; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); 
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-primary { 
+      background: var(--primary-gradient); 
+      border: none; 
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .portfolio-item { 
+      border-left: 5px solid #667eea; 
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .portfolio-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .val-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Navigation -->
   <nav class="navbar navbar-dark navbar-expand-lg mb-4">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/"><i class="fas fa-chart-line"></i> SmartInvest</a>
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/"><i class="fas fa-chart-line me-2"></i>SmartInvest</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -35,134 +91,228 @@
     </div>
   </nav>
 
-  <main class="container py-5">
+  <!-- Main Content Area -->
+  <main class="container py-4">
     <div class="row">
-      <div class="col-lg-12">
+      <div class="col-12">
+        
+        <!-- Main Portfolio Section -->
         <div class="card mb-4">
-          <div class="card-body">
+          <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2><i class="fas fa-briefcase"></i> My Portfolios</h2>
-              <button class="btn btn-primary" onclick="showCreatePortfolio()">
-                <i class="fas fa-plus"></i> New Portfolio
+              <h2 class="mb-0 fw-bold"><i class="fas fa-briefcase text-primary me-2"></i>My Portfolios</h2>
+              <button class="btn btn-primary px-3 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#portfolioModal" onclick="prepareModal('create')">
+                <i class="fas fa-plus me-1"></i> New Portfolio
               </button>
             </div>
 
+            <!-- Dynamic Portfolio List Container -->
             <div id="portfoliosList" class="row g-4">
-              <div class="col-md-6 col-lg-4">
-                <div class="card portfolio-item">
-                  <h5>Tech Growth Portfolio</h5>
-                  <p class="text-muted mb-2">Created: 30 days ago</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <small class="text-success"><i class="fas fa-arrow-up"></i> +12.5%</small>
-                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$24,500</p>
-                    </div>
-                    <div class="text-end">
-                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">8 Holdings</p>
-                      <small>Real-time tracking</small>
-                    </div>
-                  </div>
-                  <div class="btn-group mt-3 w-100" role="group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('1')">View</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('1')">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('1')">Delete</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div class="card portfolio-item">
-                  <h5>Dividend Income</h5>
-                  <p class="text-muted mb-2">Created: 60 days ago</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <small class="text-success"><i class="fas fa-arrow-up"></i> +8.3%</small>
-                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$42,300</p>
-                    </div>
-                    <div class="text-end">
-                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">15 Holdings</p>
-                      <small>Dividend focus</small>
-                    </div>
-                  </div>
-                  <div class="btn-group mt-3 w-100" role="group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('2')">View</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('2')">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('2')">Delete</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6 col-lg-4">
-                <div class="card portfolio-item">
-                  <h5>Emerging Markets</h5>
-                  <p class="text-muted mb-2">Created: 15 days ago</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <small class="text-danger"><i class="fas fa-arrow-down"></i> -3.2%</small>
-                      <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">$18,750</p>
-                    </div>
-                    <div class="text-end">
-                      <p class="mb-0" style="font-size: 0.9rem; color: #666;">12 Holdings</p>
-                      <small>High growth</small>
-                    </div>
-                  </div>
-                  <div class="btn-group mt-3 w-100" role="group">
-                    <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('3')">View</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('3')">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('3')">Delete</button>
-                  </div>
-                </div>
-              </div>
+              <!-- Content is rendered via renderPortfolios() in JS below -->
             </div>
           </div>
         </div>
 
+        <!-- Summary Widget -->
         <div class="card">
-          <div class="card-body">
-            <h5 class="card-title mb-4">Portfolio Summary</h5>
-            <div class="row text-center">
-              <div class="col-md-3">
-                <h6 class="text-muted">Total Value</h6>
-                <p style="font-size: 1.8rem; font-weight: bold; color: #667eea;">$85,550</p>
+          <div class="card-body p-4">
+            <h5 class="card-title mb-4 fw-bold text-secondary">Overall Portfolio Summary</h5>
+            <div class="row text-center g-3">
+              <div class="col-6 col-md-3">
+                <h6 class="text-muted mb-1">Total Value</h6>
+                <p class="stat-number text-primary mb-0" id="summaryTotalValue">$0.00</p>
               </div>
-              <div class="col-md-3">
-                <h6 class="text-muted">Total Return</h6>
-                <p style="font-size: 1.8rem; font-weight: bold; color: #28a745;">+$8,455 (11%)</p>
+              <div class="col-6 col-md-3">
+                <h6 class="text-muted mb-1">Total Return</h6>
+                <p class="stat-number text-success mb-0" id="summaryTotalReturn">+$0.00 (0%)</p>
               </div>
-              <div class="col-md-3">
-                <h6 class="text-muted">Avg Return</h6>
-                <p style="font-size: 1.8rem; font-weight: bold; color: #17a2b8;">+5.9%</p>
+              <div class="col-6 col-md-3">
+                <h6 class="text-muted mb-1">Avg Return</h6>
+                <p class="stat-number text-info mb-0" id="summaryAvgReturn">0.0%</p>
               </div>
-              <div class="col-md-3">
-                <h6 class="text-muted">Total Holdings</h6>
-                <p style="font-size: 1.8rem; font-weight: bold; color: #ffc107;">35</p>
+              <div class="col-6 col-md-3">
+                <h6 class="text-muted mb-1">Total Holdings</h6>
+                <p class="stat-number text-warning mb-0" id="summaryTotalHoldings">0</p>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </main>
 
+  <!-- Create / Edit Portfolio Modal -->
+  <div class="modal fade" id="portfolioModal" tabindex="-1" aria-labelledby="portfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="portfolioModalLabel">Create Portfolio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="portfolioForm">
+            <input type="hidden" id="portfolioId">
+            <div class="mb-3">
+              <label for="portfolioName" class="form-label">Portfolio Name</label>
+              <input type="text" class="form-required form-control" id="portfolioName" placeholder="e.g. Tech Growth" required>
+            </div>
+            <div class="mb-3">
+              <label for="portfolioStrategy" class="form-label">Strategy Focus</label>
+              <input type="text" class="form-control" id="portfolioStrategy" placeholder="e.g. Real-time tracking">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Save Portfolio</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/public/js/auth.js"></script>
+  
   <script>
-    (async () => {
-      await requireAuth('/login.html');
-    })();
-    function showCreatePortfolio() {
-      alert('Create new portfolio dialog would open here');
+    // Sample Initial Portfolio State
+    let portfolios = [
+      { id: '1', name: 'Tech Growth Portfolio', daysAgo: 30, returnPct: 12.5, value: 24500, holdings: 8, strategy: 'Real-time tracking' },
+      { id: '2', name: 'Dividend Income', daysAgo: 60, returnPct: 8.3, value: 42300, holdings: 15, strategy: 'Dividend focus' },
+      { id: '3', name: 'Emerging Markets', daysAgo: 15, returnPct: -3.2, value: 18750, holdings: 12, strategy: 'High growth' }
+    ];
+
+    // Bootstrap Modal Instance
+    let portfolioModal;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Execute Auth Guard if functional
+      if (typeof requireAuth === 'function') {
+        await requireAuth('/login.html');
+      }
+
+      portfolioModal = new bootstrap.Modal(document.getElementById('portfolioModal'));
+      renderPortfolios();
+    });
+
+    function renderPortfolios() {
+      const container = document.getElementById('portfoliosList');
+      container.innerHTML = '';
+
+      portfolios.forEach(item => {
+        const isPositive = item.returnPct >= 0;
+        const colorClass = isPositive ? 'text-success' : 'text-danger';
+        const iconClass = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
+
+        const cardHTML = `
+          <div class="col-md-6 col-lg-4" id="portfolio-card-${item.id}">
+            <div class="card portfolio-item h-100">
+              <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                  <h5 class="fw-bold">${item.name}</h5>
+                  <p class="text-muted small mb-3">Created: ${item.daysAgo} days ago</p>
+                  
+                  <div class="d-flex justify-content-between align-items-end mb-2">
+                    <div>
+                      <small class="${colorClass} fw-semibold"><i class="fas ${iconClass}"></i> ${item.returnPct > 0 ? '+' : ''}${item.returnPct}%</small>
+                      <p class="val-text mb-0">$${item.value.toLocaleString()}</p>
+                    </div>
+                    <div class="text-end">
+                      <p class="mb-0 fw-semibold text-secondary" style="font-size: 0.9rem;">${item.holdings} Holdings</p>
+                      <small class="text-muted">${item.strategy}</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="btn-group mt-3 w-100" role="group">
+                  <button class="btn btn-sm btn-outline-primary" onclick="viewPortfolioDetails('${item.id}')">View</button>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="editPortfolio('${item.id}')">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deletePortfolio('${item.id}')">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHTML);
+      });
+
+      calculateSummary();
     }
+
+    function calculateSummary() {
+      const totalVal = portfolios.reduce((sum, p) => sum + p.value, 0);
+      const totalHoldings = portfolios.reduce((sum, p) => sum + p.holdings, 0);
+      const avgReturn = portfolios.length ? (portfolios.reduce((sum, p) => sum + p.returnPct, 0) / portfolios.length).toFixed(1) : 0;
+
+      document.getElementById('summaryTotalValue').innerText = `$${totalVal.toLocaleString()}`;
+      document.getElementById('summaryAvgReturn').innerText = `${avgReturn > 0 ? '+' : ''}${avgReturn}%`;
+      document.getElementById('summaryTotalHoldings').innerText = totalHoldings;
+    }
+
+    function prepareModal(mode, id = null) {
+      const modalTitle = document.getElementById('portfolioModalLabel');
+      const nameInput = document.getElementById('portfolioName');
+      const strategyInput = document.getElementById('portfolioStrategy');
+      const idInput = document.getElementById('portfolioId');
+
+      if (mode === 'create') {
+        modalTitle.innerText = "Create New Portfolio";
+        idInput.value = '';
+        nameInput.value = '';
+        strategyInput.value = '';
+      } else if (mode === 'edit') {
+        const item = portfolios.find(p => p.id === id);
+        if (item) {
+          modalTitle.innerText = "Edit Portfolio";
+          idInput.value = item.id;
+          nameInput.value = item.name;
+          strategyInput.value = item.strategy;
+        }
+      }
+    }
+
+    document.getElementById('portfolioForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('portfolioId').value;
+      const name = document.getElementById('portfolioName').value;
+      const strategy = document.getElementById('portfolioStrategy').value;
+
+      if (id) {
+        // Edit Mode
+        const item = portfolios.find(p => p.id === id);
+        if (item) {
+          item.name = name;
+          item.strategy = strategy;
+        }
+      } else {
+        // Create Mode
+        const newPortfolio = {
+          id: Date.now().toString(),
+          name: name,
+          daysAgo: 0,
+          returnPct: 0.0,
+          value: 0,
+          holdings: 0,
+          strategy: strategy || 'Custom'
+        };
+        portfolios.push(newPortfolio);
+      }
+
+      portfolioModal.hide();
+      renderPortfolios();
+    });
+
     function viewPortfolioDetails(id) {
       window.location.href = `/portfolio-details.html?id=${id}`;
     }
+
     function editPortfolio(id) {
-      alert(`Edit portfolio ${id}`);
+      prepareModal('edit', id);
+      portfolioModal.show();
     }
+
     function deletePortfolio(id) {
       if (confirm('Are you sure you want to delete this portfolio?')) {
-        alert(`Portfolio ${id} deleted`);
-        location.reload();
+        portfolios = portfolios.filter(p => p.id !== id);
+        renderPortfolios();
       }
     }
   </script>
