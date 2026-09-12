@@ -1,9 +1,7 @@
-/**
- * Payments API for SmartInvest
- * Handles Stripe, PayPal, MPESA payments and subscriptions
- */
-
-
+import { Handler } from '@netlify/functions';
+import prisma from './lib/prisma';
+import logger from './logger';
+import CONFIG from '../../src/config';
 
 interface PaymentIntent {
   id: string;
@@ -25,10 +23,59 @@ interface Subscription {
   paymentMethod: string;
 }
 
-import { Handler } from '@netlify/functions';
-import prisma from './lib/prisma';
-import logger from './logger';
-import CONFIG from '../../src/config';
+/**
+ * Record fee transaction to DB
+ */
+async function recordAdminFee(feeData: Record<string, unknown>) {
+  try {
+    await prisma.adminFeeTransaction.create({
+      data: {
+        transactionId: String(feeData.transactionId),
+        userId: String(feeData.userId),
+        originalAmount: Number(feeData.originalAmount),
+        adminFee: Number(feeData.adminFee),
+        netAmount: Number(feeData.netAmount),
+        gateway: String(feeData.gateway),
+        ceoAccountId: String(feeData.ceoAccountId),
+      },
+    });
+    logger.info('Admin fee recorded to database', { transactionId: feeData.transactionId, adminFee: feeData.adminFee });
+  } catch (error: any) {
+    logger.error('Failed to record admin fee', { error: error.message, feeData });
+  }
+}
+
+/** 
+ * Deduct and record admin platform fee 
+ */
+async function processAdminFeeTransaction(
+  originalAmount: number, 
+  userId: string, 
+  transactionId: string, 
+  gateway: string
+): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }> {
+  const ADMIN_FEE_PERCENT = 2.5; // 2.5% transaction fee
+  const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || CONFIG.CEO_ACCOUNT_ID;
+
+  const adminFee = originalAmount * (ADMIN_FEE_PERCENT / 100);
+  const netAmount = originalAmount - adminFee;
+
+  // Record admin fee transaction (CEO receives)
+  await recordAdminFee({
+    transactionId,
+    userId,
+    originalAmount,
+    adminFee,
+    netAmount,
+    gateway,
+    ceoAccountId: CEO_ACCOUNT_ID,
+    timestamp: new Date().toISOString()
+  });
+
+  logger.info('Admin fee deducted', { transactionId, userId, adminFee: adminFee.toFixed(2), ceoAccountId: CEO_ACCOUNT_ID });
+  
+  return { adminFee, netAmount, ceoAccountId: CEO_ACCOUNT_ID };
+}
 
 /**
  * Create or update subscription on payment success
@@ -91,7 +138,7 @@ async function createOrUpdateSubscription(userId: string, plan: 'PREMIUM' | 'ENT
 
     logger.info('Subscription created/updated', { userId, plan, subscriptionId: subscription.id });
     return subscription;
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Subscription create/update error', { error: error.message, userId, plan });
     throw error;
   }
@@ -100,35 +147,9 @@ async function createOrUpdateSubscription(userId: string, plan: 'PREMIUM' | 'ENT
 /** 
  * Process Stripe payment 
  */
-async function processAdminFeeTransaction(originalAmount: number, userId: string, transactionId: string, gateway: string): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }> {
-  const ADMIN_FEE_PERCENT = 2.5; // 2.5% transaction fee
-  const CEO_ACCOUNT_ID = process.env.CEO_ACCOUNT_ID || CONFIG.CEO_ACCOUNT_ID;
-  async function processAdminFeeTransaction(...): Promise<{ adminFee: number; netAmount: number; ceoAccountId: string }>
-  
-  const adminFee = originalAmount * (ADMIN_FEE_PERCENT / 100);
-  const netAmount = originalAmount - adminFee;
-
-  // Record admin fee transaction (CEO receives)
-  await recordAdminFee({
-    transactionId,
-    userId,
-    originalAmount,
-    adminFee,
-    netAmount,
-    gateway,
-    ceoAccountId: CEO_ACCOUNT_ID,
-    timestamp: new Date().toISOString()
-  });
-
-  logger.info('Admin fee deducted', { transactionId, userId, adminFee: adminFee.toFixed(2), ceoAccountId: CEO_ACCOUNT_ID });
-  
-  return { adminFee, netAmount, ceoAccountId: CEO_ACCOUNT_ID };
-}
-
 async function processStripePayment(data: any): Promise<any> {
   try {
-    // Admin fee logic for every transaction
-    const { paymentMethodId, amount, currency, userId } = data;
+    const { amount, currency, userId } = data;
     const transactionId = `stripe_${Date.now()}`;
     
     const feeResult = await processAdminFeeTransaction(Number(amount), userId, transactionId, 'stripe');
@@ -148,28 +169,9 @@ async function processStripePayment(data: any): Promise<any> {
     logger.info('Stripe payment processed with admin fee', { transactionId, userId, adminFee: feeResult.adminFee.toFixed(2) });
 
     return { success: true, data: paymentRecord, adminFee: feeResult.adminFee };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Stripe payment error', { error: error.message });
     return { success: false, error: error.message };
-  }
-}
-
-async function recordAdminFee(feeData: Record<string, unknown>) {
-  try {
-    await prisma.adminFeeTransaction.create({
-      data: {
-        transactionId: String(feeData.transactionId),
-        userId: String(feeData.userId),
-        originalAmount: Number(feeData.originalAmount),
-        adminFee: Number(feeData.adminFee),
-        netAmount: Number(feeData.netAmount),
-        gateway: String(feeData.gateway),
-        ceoAccountId: String(feeData.ceoAccountId),
-      },
-    });
-    logger.info('Admin fee recorded to database', { transactionId: feeData.transactionId, adminFee: feeData.adminFee });
-  } catch (error: any) {
-    logger.error('Failed to record admin fee', { error: error.message, feeData });
   }
 }
 
@@ -193,7 +195,7 @@ async function createStripeIntent(data: any): Promise<any> {
     });
 
     return { success: true, data: { clientSecret: `pi_${paymentRecord.id}`, paymentId: paymentRecord.id } };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Create Stripe intent error', { error: error.message });
     return { success: false, error: error.message };
   }
@@ -221,14 +223,14 @@ async function processPayPalPayment(data: any): Promise<any> {
     logger.info('PayPal payment processed', { orderId, userId });
 
     return { success: true, data: paymentRecord };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('PayPal payment error', { error: error.message });
     return { success: false, error: error.message };
   }
 }
 
 /**
- * Process MPESA payment
+ * Process MPESA payment helpers
  */
 async function getMpesaAccessToken(): Promise<string> {
   const consumerKey = process.env.MPESA_CONSUMER_KEY;
@@ -238,12 +240,15 @@ async function getMpesaAccessToken(): Promise<string> {
   }
 
   const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
-  const response = await fetch(process.env.MPESA_ENV === 'production' ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials' : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Basic ${auth}`
+  const response = await fetch(
+    process.env.MPESA_ENV === 'production' 
+      ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials' 
+      : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', 
+    {
+      method: 'GET',
+      headers: { 'Authorization': `Basic ${auth}` }
     }
-  });
+  );
 
   const data = await response.json();
   if (!data.access_token) throw new Error('Token fetch failed');
@@ -270,7 +275,6 @@ async function processMpesaPayment(data: any): Promise<any> {
 
     const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
     const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
-
     const token = await getMpesaAccessToken();
 
     const stkBody = {
@@ -287,14 +291,19 @@ async function processMpesaPayment(data: any): Promise<any> {
       TransactionDesc: transactionDesc
     };
 
-    const response = await fetch(process.env.MPESA_ENV === 'production' ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/push' : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/push', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(stkBody)
-    });
+    const response = await fetch(
+      process.env.MPESA_ENV === 'production' 
+        ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/push' 
+        : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/push', 
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(stkBody)
+      }
+    );
 
     const result = await response.json();
 
@@ -315,7 +324,7 @@ async function processMpesaPayment(data: any): Promise<any> {
     logger.info('M-PESA STK Push sent', { checkoutRequestId: result.CheckoutRequestID, userId, amount });
 
     return { success: true, data: { checkoutRequestId: result.CheckoutRequestID, paymentId: payment.id } };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('MPESA payment error', { error: error.message });
     return { success: false, error: error.message };
   }
@@ -333,22 +342,28 @@ async function checkMpesaStatus(checkoutRequestId: string): Promise<any> {
     if (!payment) return { success: false, error: 'Payment not found' };
 
     const token = await getMpesaAccessToken();
+    const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
 
     const queryBody = {
       BusinessShortCode: shortcode,
-      Password: Buffer.from(`${shortcode}${process.env.MPESA_PASSKEY || ''}${new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3)}`).toString('base64'),
-      Timestamp: new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3),
+      Password: Buffer.from(`${shortcode}${process.env.MPESA_PASSKEY || ''}${timestamp}`).toString('base64'),
+      Timestamp: timestamp,
       CheckoutRequestID: checkoutRequestId
     };
 
-    const response = await fetch(process.env.MPESA_ENV === 'production' ? 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query' : 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(queryBody)
-    });
+    const response = await fetch(
+      process.env.MPESA_ENV === 'production' 
+        ? 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query' 
+        : 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query', 
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(queryBody)
+      }
+    );
 
     const result = await response.json();
 
@@ -356,11 +371,12 @@ async function checkMpesaStatus(checkoutRequestId: string): Promise<any> {
       return { success: false, error: 'Query failed' };
     }
 
-    const resultCode = result.Body.stkCallback?.ResultCode;
+    const resultCode = result.Body?.stkCallback?.ResultCode;
     if (resultCode === 0) {
-      const amount = result.Body.stkCallback.CallbackMetadata.Item.find((item: any) => item.Name === 'Amount').Value;
-      const receipt = result.Body.stkCallback.CallbackMetadata.Item.find((item: any) => item.Name === 'MpesaReceiptNumber').Value;
-      const phone = result.Body.stkCallback.CallbackMetadata.Item.find((item: any) => item.Name === 'PhoneNumber').Value;
+      const metadata = result.Body.stkCallback.CallbackMetadata.Item;
+      const amount = metadata.find((item: any) => item.Name === 'Amount')?.Value;
+      const receipt = metadata.find((item: any) => item.Name === 'MpesaReceiptNumber')?.Value;
+      const phone = metadata.find((item: any) => item.Name === 'PhoneNumber')?.Value;
 
       await prisma.payment.update({
         where: { id: payment.id },
@@ -378,7 +394,7 @@ async function checkMpesaStatus(checkoutRequestId: string): Promise<any> {
         data: { subscriptionTier: 'PREMIUM' }
       });
 
-      // Create notification via api (or direct)
+      // Send notification
       await fetch(`${process.env.NETLIFY_FUNCTIONS_BASE_PATH || '/.netlify/functions'}/notifications-api/notifications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -401,7 +417,7 @@ async function checkMpesaStatus(checkoutRequestId: string): Promise<any> {
       });
       return { success: true, data: { status: 'failed' } };
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Check MPESA status error', { checkoutRequestId, error: error.message });
     return { success: false, error: error.message };
   }
@@ -419,7 +435,7 @@ async function getPaymentHistory(userId: string, limit = 20, offset = 0): Promis
       orderBy: { createdAt: 'desc' }
     });
     return { success: true, data: userPayments };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Get payment history error', { error: error.message });
     return { success: false, error: error.message };
   }
@@ -431,10 +447,10 @@ async function getPaymentHistory(userId: string, limit = 20, offset = 0): Promis
 async function createSubscription(data: any): Promise<any> {
   try {
     const { userId, plan, paymentMethodId } = data;
-    const subscription = await createOrUpdateSubscription(userId, plan as any, paymentMethodId || 'unknown', 10); // default amount
+    const subscription = await createOrUpdateSubscription(userId, plan as any, paymentMethodId || 'unknown', 10);
     logger.info('Subscription created', { subscriptionId: subscription.id, userId, plan });
     return { success: true, data: subscription };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Create subscription error', { error: error.message });
     return { success: false, error: error.message };
   }
@@ -449,7 +465,7 @@ async function getUserSubscriptions(userId: string): Promise<any> {
       where: { userId }
     });
     return { success: true, data: userSubs };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Get subscriptions error', { error: error.message });
     return { success: false, error: error.message };
   }
@@ -469,25 +485,47 @@ async function cancelSubscription(subscriptionId: string, userId: string): Promi
     }
     logger.info('Subscription cancelled', { subscriptionId, userId });
     return { success: true, data: { id: subscriptionId, status: 'cancelled' } };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cancel subscription error', { error: error.message });
     return { success: false, error: error.message };
   }
 }
 
+/**
+ * Primary Netlify Function Handler
+ */
 export const handler: Handler = async (event) => {
-  const { httpMethod, path, body } = event;
+  const { httpMethod, path, body, headers } = event;
+
+  // Handle CORS origins cleanly
+  const requestOrigin = headers.origin || headers.Origin || '';
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim());
+  const corsOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : '';
+
+  const responseHeaders = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
+
+  // Preflight check
+  if (httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: responseHeaders, body: '' };
+  }
 
   try {
     if (httpMethod !== 'POST') {
       return {
         statusCode: 405,
+        headers: responseHeaders,
         body: JSON.stringify({ success: false, error: 'Method not allowed' })
       };
     }
 
     const data = JSON.parse(body || '{}');
-    const userId = data.userId || 'anonymous'; // In production, get from auth token
+    const userId = data.userId || 'anonymous'; // Retrieve from JWT/Auth in production
 
     let result;
 
@@ -514,26 +552,22 @@ export const handler: Handler = async (event) => {
     } else {
       return {
         statusCode: 404,
+        headers: responseHeaders,
         body: JSON.stringify({ success: false, error: 'Endpoint not found' })
       };
     }
 
     return {
       statusCode: result.success ? 200 : 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).includes(event.headers['origin'] || '') ? event.headers['origin']! : '',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
+      headers: responseHeaders,
       body: JSON.stringify(result)
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Payments API error', { error: error.message });
 
     return {
       statusCode: 500,
+      headers: responseHeaders,
       body: JSON.stringify({ success: false, error: 'Internal server error' })
     };
   }
