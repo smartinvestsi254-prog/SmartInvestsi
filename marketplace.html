@@ -3,842 +3,962 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Marketplace - SmartInvestsi</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <meta name="description" content="Browse, compare, and invest in curated investment opportunities. SmartInvest Marketplace gives you access to diverse portfolio options.">
-    <link rel="canonical" href="https://smartinvestsi.netlify.app/marketplace.html">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Futures Marketplace Pro</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://s3.tradingview.com/tv.js"></script>
+
     <style>
         :root {
-            --primary-corporate: #0B1F33;
-            --primary-light: #1a365d;
-            --accent-gold: #D4AF37;
-            --accent-light-gold: #f4d03f;
-            --accent-teal: #0891b2;
-            --text-light: #f8fafc;
-            --border-color: #1e3a5f;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --bg-darkest: #0b0e11;
+            --bg-panel: #181a20;
+            --bg-card: #2b313a;
+            --bg-input: #2b313a;
+            --border-color: #2b313a;
+            --text-primary: #eaecef;
+            --text-secondary: #848e9c;
+            
+            --color-long: #0ecb81;
+            --color-long-hover: #0bb371;
+            --color-short: #f6465d;
+            --color-short-hover: #d93d52;
+            --color-accent: #f0b90b;
+            --color-accent-hover: #d9a708;
+            
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        
-        * { font-family: 'Inter', sans-serif; }
-        
-        /* Top Navigation Bar */
-        .navbar-marketplace {
-            background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .navbar-brand-marketplace {
-            color: var(--accent-gold) !important;
-            font-weight: 800;
-            font-size: 1.5rem;
-        }
-        
-        .search-container {
-            flex: 1;
-            margin: 0 2rem;
-        }
-        
-        .search-box {
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid var(--accent-gold);
-            border-radius: 24px;
-            padding: 8px 16px;
-            width: 100%;
-            font-size: 0.9rem;
-        }
-        
-        .search-box:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-        }
-        
-        .nav-icons {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-        
-        .nav-icon-item {
-            color: white;
-            text-decoration: none;
-            position: relative;
-            transition: color 0.3s;
-            font-size: 1.2rem;
-        }
-        
-        .nav-icon-item:hover {
-            color: var(--accent-gold);
-        }
-        
-        .nav-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        
-        /* Sidebar Categories */
-        .sidebar-categories {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            max-height: fit-content;
-            position: sticky;
-            top: 100px;
-        }
-        
-        .category-title {
-            font-weight: 700;
-            color: var(--primary-corporate);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-        
-        .category-item {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .category-item:hover, .category-item.active {
-            background: var(--accent-gold);
-            color: var(--primary-corporate);
-            font-weight: 600;
-            transform: translateX(4px);
-        }
-        
-        .category-icon {
-            font-size: 1.1rem;
-        }
-        
-        /* Filter Panel */
-        .filter-group {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .filter-group:last-child {
-            border-bottom: none;
-        }
-        
-        .filter-title {
-            font-weight: 600;
-            color: var(--primary-corporate);
-            margin-bottom: 0.75rem;
-        }
-        
-        .filter-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        
-        .filter-item input[type="checkbox"] {
-            margin-right: 0.5rem;
-            cursor: pointer;
-            accent-color: var(--accent-gold);
-        }
-        
-        .filter-item label {
-            cursor: pointer;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            flex: 1;
+            padding: 0;
         }
-        
-        /* Main Product Grid */
-        .products-grid {
+
+        body {
+            background-color: var(--bg-darkest);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            height: 100vh;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        .app-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-rows: 48px 1fr 220px;
+            grid-template-columns: 280px 1fr 310px;
+            grid-template-areas:
+                "header header header"
+                "orderbook chart orderpanel"
+                "positions positions orderpanel";
+            height: 100vh;
+            gap: 1px;
+            background-color: #000000;
         }
-        
-        .product-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid #e2e8f0;
+
+        /* Top Navigation & Marketplace Selector */
+        .top-header {
+            grid-area: header;
+            background-color: var(--bg-panel);
             display: flex;
-            flex-direction: column;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-            border-color: var(--accent-gold);
-        }
-        
-        .product-image-container {
+            align-items: center;
+            padding: 0 16px;
+            gap: 24px;
+            border-bottom: 1px solid var(--border-color);
             position: relative;
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            z-index: 100;
+        }
+
+        .market-dropdown-container {
+            position: relative;
+        }
+
+        .market-selector-btn {
             display: flex;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .product-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: var(--accent-gold);
-            color: var(--primary-corporate);
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-primary);
             font-weight: 700;
-            text-transform: uppercase;
+            font-size: 13px;
         }
-        
-        .product-badge.premium {
-            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+
+        .market-selector-btn:hover {
+            border-color: var(--color-accent);
         }
-        
-        .product-badge.hot {
-            background: var(--danger);
-            color: white;
+
+        .market-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            width: 320px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            z-index: 1000;
+            padding: 8px;
         }
-        
-        .product-content {
-            padding: 1rem;
-            flex: 1;
+
+        .market-menu.show {
+            display: block;
+        }
+
+        .market-search {
+            width: 100%;
+            padding: 6px 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .market-item:hover {
+            background-color: var(--bg-card);
+        }
+
+        .ticker-stat {
             display: flex;
             flex-direction: column;
+            gap: 2px;
         }
-        
-        .product-category {
-            font-size: 0.75rem;
-            color: var(--accent-teal);
-            text-transform: uppercase;
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .stat-value {
             font-weight: 600;
-            margin-bottom: 0.5rem;
         }
-        
-        .product-title {
-            font-weight: 600;
-            color: var(--primary-corporate);
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
-            min-height: 2.8em;
-        }
-        
-        .product-rating {
+
+        /* Order Book */
+        .orderbook-panel {
+            grid-area: orderbook;
+            background-color: var(--bg-panel);
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
+            flex-direction: column;
+            overflow: hidden;
         }
-        
-        .stars {
-            color: #f59e0b;
-        }
-        
-        .rating-count {
-            color: #64748b;
-            font-size: 0.85rem;
-        }
-        
-        .product-description {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 0.75rem;
-            flex: 1;
-        }
-        
-        .product-price-section {
-            border-top: 1px solid #e2e8f0;
-            padding-top: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .price-current {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary-corporate);
-        }
-        
-        .price-original {
-            font-size: 0.9rem;
-            color: #999;
-            text-decoration: line-through;
-            margin-left: 0.5rem;
-        }
-        
-        .price-discount {
-            font-size: 0.85rem;
-            color: var(--danger);
-            margin-left: 0.5rem;
+
+        .panel-header {
+            padding: 10px 12px;
             font-weight: 600;
-        }
-        
-        .product-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn-add-cart {
-            flex: 1;
-            background: var(--accent-gold);
-            color: var(--primary-corporate);
-            border: none;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-add-cart:hover {
-            background: var(--accent-light-gold);
-            transform: scale(1.02);
-        }
-        
-        .btn-wishlist {
-            width: 40px;
-            height: 40px;
-            border: 2px solid var(--accent-gold);
-            background: transparent;
-            color: var(--accent-gold);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-wishlist:hover, .btn-wishlist.active {
-            background: var(--accent-gold);
-            color: var(--primary-corporate);
-        }
-        
-        /* Toolbar */
-        .marketplace-toolbar {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        
-        .sort-control {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .sort-select {
-            padding: 0.5rem 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .results-count {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar-categories {
-                display: none;
-            }
-            
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 1rem;
-            }
-            
-            .search-container {
-                margin: 0 1rem;
-            }
-            
-            .nav-icons {
-                gap: 1rem;
-            }
-        }
-        
-        /* Modal styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+
+        .orderbook-table {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            border-collapse: collapse;
         }
-        
-        .modal-overlay.active {
-            display: flex;
+
+        .orderbook-table th, .orderbook-table td {
+            padding: 3px 12px;
+            text-align: right;
+            font-size: 11px;
+            font-family: monospace;
+            position: relative;
         }
-        
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+
+        .orderbook-table th {
+            color: var(--text-secondary);
+            font-weight: 400;
         }
-        
-        .modal-close {
+
+        .orderbook-table th:first-child, .orderbook-table td:first-child {
+            text-align: left;
+        }
+
+        .depth-bg {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .asks .depth-bg { background-color: var(--color-short); }
+        .bids .depth-bg { background-color: var(--color-long); }
+
+        .asks tr { color: var(--color-short); }
+        .bids tr { color: var(--color-long); }
+
+        .price-mark {
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--bg-darkest);
+        }
+
+        /* Chart */
+        .chart-panel {
+            grid-area: chart;
+            background-color: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chart-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-darkest);
+        }
+
+        .tf-btn {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
             cursor: pointer;
-            color: #999;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .tf-btn.active, .tf-btn:hover {
+            color: var(--color-accent);
+            background-color: var(--bg-card);
+        }
+
+        #tradingviewF {
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* Positions & Orders Tabs */
+        .positions-panel {
+            grid-area: positions;
+            background-color: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-headers {
+            display: flex;
+            background-color: var(--bg-darkest);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--color-accent);
+            background-color: var(--bg-panel);
+        }
+
+        .tab-content {
+            display: none;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .pos-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .pos-table th {
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pos-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge-long {
+            background-color: rgba(14, 203, 129, 0.15);
+            color: var(--color-long);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .badge-short {
+            background-color: rgba(246, 70, 93, 0.15);
+            color: var(--color-short);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Order Panel */
+        .order-panel {
+            grid-area: orderpanel;
+            background-color: var(--bg-panel);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .margin-type-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background-color: var(--bg-darkest);
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .leverage-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .lev-btn {
+            background-color: var(--bg-input);
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            padding: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .lev-btn.active, .lev-btn:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background-color: rgba(240, 185, 11, 0.1);
+        }
+
+        .order-type-tabs {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .order-type-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .order-type-btn.active {
+            color: var(--color-accent);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-input);
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 6px 10px;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--color-accent);
+        }
+
+        .input-box input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            outline: none;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .input-suffix {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .pct-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .pct-btn {
+            background-color: var(--bg-input);
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .pct-btn:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-card);
+        }
+
+        .trade-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-trade {
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-long { background-color: var(--color-long); color: #ffffff; }
+        .btn-short { background-color: var(--color-short); color: #ffffff; }
+
+        .summary-card {
+            background-color: var(--bg-darkest);
+            border-radius: 4px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .summary-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: monospace;
         }
     </style>
 </head>
-<body style="background: #f8fafc;">
-    <!-- Top Navigation -->
-    <nav class="navbar-marketplace d-flex align-items-center px-4 py-3">
-        <a href="/" class="navbar-brand-marketplace" style="white-space: nowrap;">
-            <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>SmartInvest
-        </a>
-        
-        <div class="search-container">
-            <input type="text" class="search-box" id="searchInput" placeholder="Search investments, funds, opportunities...">
-        </div>
-        
-        <div class="nav-icons">
-            <a href="#" class="nav-icon-item" title="My Account">
-                <i class="fas fa-user-circle"></i>
-            </a>
-            <a href="#" class="nav-icon-item" title="Watchlist">
-                <i class="fas fa-heart"></i>
-                <div class="nav-badge" id="wishlistBadge" style="display: none;">0</div>
-            </a>
-            <a href="#" class="nav-icon-item" title="Shopping Cart">
-                <i class="fas fa-shopping-cart"></i>
-                <div class="nav-badge" id="cartBadge" style="display: none;">0</div>
-            </a>
-        </div>
-    </nav>
+<body>
 
-    <div class="container-fluid" style="padding: 2rem 1rem;">
-        <div class="row">
-            <!-- Sidebar Categories -->
-            <div class="col-lg-2 col-md-3 mb-4">
-                <div class="sidebar-categories">
-                    <div class="category-title">
-                        <i class="fas fa-th-large" style="margin-right: 0.5rem;"></i>Categories
+<div class="app-container">
+    <!-- Marketplace Header -->
+    <header class="top-header">
+        <div class="market-dropdown-container">
+            <button class="market-selector-btn" onclick="toggleMarketMenu()">
+                <i class="fas fa-coins text-warning"></i>
+                <span id="activePairLabel">BTCUSDT Perpetual</span>
+                <i class="fas fa-chevron-down text-muted ms-1"></i>
+            </button>
+            <div class="market-menu" id="marketMenu">
+                <input type="text" class="market-search" placeholder="Search Markets..." oninput="filterMarkets(this.value)">
+                <div id="marketList">
+                    <div class="market-item" onclick="selectMarket('BTCUSDT', 45200.00, '+2.34%')">
+                        <span><strong>BTCUSDT</strong> Perpetual</span>
+                        <span class="text-success">$45,200.00 (+2.34%)</span>
                     </div>
-                    <div class="category-item active" data-category="all">
-                        All Products
+                    <div class="market-item" onclick="selectMarket('ETHUSDT', 2856.50, '+1.85%')">
+                        <span><strong>ETHUSDT</strong> Perpetual</span>
+                        <span class="text-success">$2,856.50 (+1.85%)</span>
                     </div>
-                    <div class="category-item" data-category="stocks">
-                        <i class="fas fa-chart-pie category-icon"></i>
-                        Individual Stocks
+                    <div class="market-item" onclick="selectMarket('SOLUSDT', 142.30, '-0.95%')">
+                        <span><strong>SOLUSDT</strong> Perpetual</span>
+                        <span class="text-danger">$142.30 (-0.95%)</span>
                     </div>
-                    <div class="category-item" data-category="funds">
-                        <i class="fas fa-building category-icon"></i>
-                        Mutual Funds
-                    </div>
-                    <div class="category-item" data-category="bonds">
-                        <i class="fas fa-certificate category-icon"></i>
-                        Bonds & Fixed Income
-                    </div>
-                    <div class="category-item" data-category="etf">
-                        <i class="fas fa-layer-group category-icon"></i>
-                        ETFs
-                    </div>
-                    <div class="category-item" data-category="crypto">
-                        <i class="fas fa-coins category-icon"></i>
-                        Cryptocurrencies
-                    </div>
-                    <div class="category-item" data-category="commodities">
-                        <i class="fas fa-oil-can category-icon"></i>
-                        Commodities
-                    </div>
-                    <div class="category-item" data-category="real-estate">
-                        <i class="fas fa-home category-icon"></i>
-                        Real Estate
-                    </div>
-                    
-                    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
-                        <div class="category-title">Filters</div>
-                        
-                        <div class="filter-group">
-                            <div class="filter-title">Price Range</div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Under 1,000 KES</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> 1,000 - 10,000 KES</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> 10,000 - 50,000 KES</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Over 50,000 KES</label>
-                            </div>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <div class="filter-title">Risk Level</div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Low Risk</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Medium Risk</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> High Risk</label>
-                            </div>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <div class="filter-title">Asset Type</div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Dividend Payers</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Growth Stocks</label>
-                            </div>
-                            <div class="filter-item">
-                                <label><input type="checkbox"> Value Stocks</label>
-                            </div>
-                        </div>
+                    <div class="market-item" onclick="selectMarket('XRPUSDT', 0.5840, '+5.12%')">
+                        <span><strong>XRPUSDT</strong> Perpetual</span>
+                        <span class="text-success">$0.5840 (+5.12%)</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Main Content -->
-            <div class="col-lg-10 col-md-9">
-                <!-- Toolbar -->
-                <div class="marketplace-toolbar">
-                    <div class="results-count">
-                        Showing <span id="resultCount">0</span> results
-                    </div>
-                    <div class="sort-control">
-                        <label style="margin: 0; color: #64748b;">Sort by:</label>
-                        <select class="sort-select" id="sortSelect">
-                            <option value="featured">Featured</option>
-                            <option value="newest">Newest</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Highest Rated</option>
-                            <option value="popular">Most Popular</option>
-                        </select>
-                    </div>
-                </div>
+        <div class="ticker-stat">
+            <span class="stat-label">Mark Price</span>
+            <span class="stat-value text-success" id="markPriceHeader">45,200.00</span>
+        </div>
+        <div class="ticker-stat">
+            <span class="stat-label">24h Change</span>
+            <span class="stat-value text-success" id="changeHeader">+2.34%</span>
+        </div>
+        <div class="ticker-stat">
+            <span class="stat-label">24h High</span>
+            <span class="stat-value" id="highHeader">46,120.00</span>
+        </div>
+        <div class="ticker-stat">
+            <span class="stat-label">24h Low</span>
+            <span class="stat-value" id="lowHeader">44,100.50</span>
+        </div>
+    </header>
 
-                <!-- Products Grid -->
-                <div class="products-grid" id="productsGrid">
-                    <!-- Products will be loaded here -->
-                </div>
+    <!-- Order Book (Depth Visualization) -->
+    <section class="orderbook-panel">
+        <div class="panel-header">
+            <span>Order Book</span>
+            <i class="fas fa-sliders-h text-muted"></i>
+        </div>
+        <table class="orderbook-table">
+            <thead>
+                <tr>
+                    <th>Price</th>
+                    <th>Size</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody class="asks">
+                <tr><td>45,215.00</td><td>0.450</td><td>20.34</td><div class="depth-bg" style="width: 45%;"></div></tr>
+                <tr><td>45,210.50</td><td>1.200</td><td>19.89</td><div class="depth-bg" style="width: 70%;"></div></tr>
+                <tr><td>45,205.00</td><td>0.150</td><td>18.69</td><div class="depth-bg" style="width: 20%;"></div></tr>
+                <tr><td>45,202.00</td><td>0.890</td><td>18.54</td><div class="depth-bg" style="width: 60%;"></div></tr>
+            </tbody>
+        </table>
+        <div class="price-mark">
+            <span class="text-success" id="currentMarkPrice">45,200.00 ↑</span>
+            <span class="text-muted" style="font-size:10px; font-weight:normal;">Index: 45,198.20</span>
+        </div>
+        <table class="orderbook-table">
+            <tbody class="bids">
+                <tr><td>45,198.00</td><td>0.540</td><td>0.54</td><div class="depth-bg" style="width: 35%;"></div></tr>
+                <tr><td>45,195.50</td><td>2.100</td><td>2.64</td><div class="depth-bg" style="width: 85%;"></div></tr>
+                <tr><td>45,190.00</td><td>0.050</td><td>2.69</td><div class="depth-bg" style="width: 10%;"></div></tr>
+                <tr><td>45,185.00</td><td>1.450</td><td>4.14</td><div class="depth-bg" style="width: 65%;"></div></tr>
+            </tbody>
+        </table>
+    </section>
 
-                <!-- Empty State -->
-                <div id="emptyState" style="display: none; text-align: center; padding: 3rem;">
-                    <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
-                    <p style="color: #64748b; font-size: 1.1rem;">No products found. Try adjusting your filters.</p>
-                </div>
+    <!-- Chart Panel -->
+    <section class="chart-panel">
+        <div class="chart-toolbar">
+            <button class="tf-btn active" onclick="setChartInterval('5', this)">5m</button>
+            <button class="tf-btn" onclick="setChartInterval('15', this)">15m</button>
+            <button class="tf-btn" onclick="setChartInterval('60', this)">1h</button>
+            <button class="tf-btn" onclick="setChartInterval('240', this)">4h</button>
+            <button class="tf-btn" onclick="setChartInterval('D', this)">1D</button>
+        </div>
+        <div id="tradingviewF"></div>
+    </section>
+
+    <!-- Interactive Positions & Orders Tabs Panel -->
+    <section class="positions-panel">
+        <div class="tab-headers">
+            <button class="tab-btn active" onclick="switchTab('positionsTab', this)">Positions (<span id="posCount">2</span>)</button>
+            <button class="tab-btn" onclick="switchTab('ordersTab', this)">Open Orders (<span id="ordersCount">1</span>)</button>
+            <button class="tab-btn" onclick="switchTab('historyTab', this)">Order History</button>
+        </div>
+        
+        <div id="positionsTab" class="tab-content active">
+            <table class="pos-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Size</th>
+                        <th>Entry Price</th>
+                        <th>Mark Price</th>
+                        <th>Est. Liq Price</th>
+                        <th>PNL (ROE%)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="positionsTableBody">
+                    <tr>
+                        <td><strong>BTCUSDT</strong> <span class="badge-long">Long 20x</span></td>
+                        <td>0.250 BTC</td>
+                        <td>44,250.00</td>
+                        <td>45,200.00</td>
+                        <td>43,150.00</td>
+                        <td class="text-success">+$237.50 (+10.73%)</td>
+                        <td><button class="pct-btn" onclick="closePosition(this)" style="padding:3px 6px;">Market Close</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ETHUSDT</strong> <span class="badge-short">Short 10x</span></td>
+                        <td>1.500 ETH</td>
+                        <td>2,890.00</td>
+                        <td>2,856.00</td>
+                        <td>3,120.00</td>
+                        <td class="text-success">+$51.00 (+1.76%)</td>
+                        <td><button class="pct-btn" onclick="closePosition(this)" style="padding:3px 6px;">Market Close</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="ordersTab" class="tab-content">
+            <table class="pos-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Side</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr>
+                        <td>10:42:15</td>
+                        <td><strong>BTCUSDT</strong></td>
+                        <td>Limit</td>
+                        <td class="text-success">BUY</td>
+                        <td>44,800.00</td>
+                        <td>0.100 BTC</td>
+                        <td><button class="pct-btn text-danger" onclick="cancelOrder(this)">Cancel</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="historyTab" class="tab-content">
+            <table class="pos-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Symbol</th>
+                        <th>Side</th>
+                        <th>Executed Price</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>09:15:02</td>
+                        <td><strong>BTCUSDT</strong></td>
+                        <td class="text-success">BUY</td>
+                        <td>44,250.00</td>
+                        <td>0.250 BTC</td>
+                        <td>Filled</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Order Execution Sidebar Panel -->
+    <section class="order-panel">
+        <div class="margin-type-toggle">
+            <button class="toggle-btn active" onclick="setMarginMode('Cross', this)">Cross</button>
+            <button class="toggle-btn" onclick="setMarginMode('Isolated', this)">Isolated</button>
+        </div>
+
+        <div class="leverage-grid">
+            <button class="lev-btn" onclick="setLeverage(3, event)">3x</button>
+            <button class="lev-btn active" onclick="setLeverage(5, event)">5x</button>
+            <button class="lev-btn" onclick="setLeverage(10, event)">10x</button>
+            <button class="lev-btn" onclick="setLeverage(20, event)">20x</button>
+            <button class="lev-btn" onclick="setLeverage(50, event)">50x</button>
+        </div>
+
+        <div class="order-type-tabs">
+            <button class="order-type-btn active" onclick="setOrderType('Limit', this)">Limit</button>
+            <button class="order-type-btn" onclick="setOrderType('Market', this)">Market</button>
+        </div>
+
+        <div class="input-group" id="priceInputGroup">
+            <div class="input-label"><span>Price</span><span>USDT</span></div>
+            <div class="input-box">
+                <input type="number" id="futuresPrice" value="45200.00" step="0.1" oninput="calculateMargin()">
+                <span class="input-suffix">USDT</span>
             </div>
         </div>
-    </div>
 
-    <script>
-        const productsGrid = document.getElementById('productsGrid');
-        const emptyState = document.getElementById('emptyState');
-        const resultCount = document.getElementById('resultCount');
-        const searchInput = document.getElementById('searchInput');
-        const sortSelect = document.getElementById('sortSelect');
-        const categoryItems = document.querySelectorAll('.category-item');
-        
-        let currentCategory = 'all';
-        let wishlistItems = JSON.parse(localStorage.getItem('wishlist')) || [];
-        let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-        
-        // Mock product data
-        const mockProducts = [
-            {
-                id: 1,
-                title: 'Tech Growth Fund 2024',
-                category: 'funds',
-                price: 15000,
-                originalPrice: 18000,
-                rating: 4.8,
-                reviews: 324,
-                image: '🏢',
-                badge: 'PREMIUM',
-                description: 'High-growth tech-focused investment fund',
-                risk: 'high'
-            },
-            {
-                id: 2,
-                title: 'Safaricom Limited Shares',
-                category: 'stocks',
-                price: 28.50,
-                originalPrice: 30.00,
-                rating: 4.6,
-                reviews: 1205,
-                image: '📱',
-                badge: 'HOT',
-                description: 'Leading telco in East Africa',
-                risk: 'medium'
-            },
-            {
-                id: 3,
-                title: 'Bond Portfolio Bundle',
-                category: 'bonds',
-                price: 50000,
-                originalPrice: null,
-                rating: 4.9,
-                reviews: 432,
-                image: '📄',
-                description: 'Mixed government and corporate bonds',
-                risk: 'low'
-            },
-            {
-                id: 4,
-                title: 'African Equity ETF',
-                category: 'etf',
-                price: 12500,
-                originalPrice: 14000,
-                rating: 4.5,
-                reviews: 876,
-                image: '📊',
-                badge: 'PREMIUM',
-                description: 'Diversified African market exposure',
-                risk: 'medium'
-            },
-            {
-                id: 5,
-                title: 'Bitcoin Trading Account',
-                category: 'crypto',
-                price: 5000,
-                originalPrice: null,
-                rating: 4.3,
-                reviews: 654,
-                image: '₿',
-                badge: 'NEW',
-                description: 'Secure crypto investment platform',
-                risk: 'high'
-            },
-            {
-                id: 6,
-                title: 'Gold Commodity Fund',
-                category: 'commodities',
-                price: 8500,
-                originalPrice: null,
-                rating: 4.7,
-                reviews: 321,
-                image: '🏆',
-                description: 'Hedge against inflation',
-                risk: 'medium'
-            },
-            {
-                id: 7,
-                title: 'Real Estate Trust Fund',
-                category: 'real-estate',
-                price: 25000,
-                originalPrice: 28000,
-                rating: 4.9,
-                reviews: 543,
-                image: '🏠',
-                badge: 'POPULAR',
-                description: 'Residential and commercial properties',
-                risk: 'low'
-            },
-            {
-                id: 8,
-                title: 'Blue Chip Fund',
-                category: 'funds',
-                price: 20000,
-                originalPrice: null,
-                rating: 4.8,
-                reviews: 712,
-                image: '💎',
-                description: 'Established large-cap companies',
-                risk: 'low'
-            }
-        ];
-        
-        function renderProducts(products) {
-            if (products.length === 0) {
-                productsGrid.style.display = 'none';
-                emptyState.style.display = 'block';
-                resultCount.textContent = '0';
-                return;
-            }
-            
-            productsGrid.style.display = 'grid';
-            emptyState.style.display = 'none';
-            resultCount.textContent = products.length;
-            
-            productsGrid.innerHTML = products.map(product => `
-                <div class="product-card">
-                    <div class="product-image-container">
-                        <div style="font-size: 4rem;">${product.image}</div>
-                        ${product.badge ? `<div class="product-badge ${product.badge.toLowerCase()}">${product.badge}</div>` : ''}
-                    </div>
-                    <div class="product-content">
-                        <div class="product-category">${product.category}</div>
-                        <div class="product-title">${product.title}</div>
-                        <div class="product-rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="rating-count">${product.rating} (${product.reviews})</span>
-                        </div>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-price-section">
-                            <div class="price-current">
-                                KES ${product.price.toLocaleString()}
-                                ${product.originalPrice ? `<span class="price-original">KES ${product.originalPrice.toLocaleString()}</span>` : ''}
-                                ${product.originalPrice ? `<span class="price-discount">-${Math.round((1 - product.price/product.originalPrice) * 100)}%</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(${product.id}, '${product.title}')">
-                                <i class="fas fa-shopping-cart" style="margin-right: 0.5rem;"></i> Add
-                            </button>
-                            <button class="btn-wishlist ${wishlistItems.includes(product.id) ? 'active' : ''}" onclick="toggleWishlist(${product.id})">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function filterProducts() {
-            let filtered = mockProducts;
-            
-            if (currentCategory !== 'all') {
-                filtered = filtered.filter(p => p.category === currentCategory);
-            }
-            
-            const searchTerm = searchInput.value.toLowerCase();
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    p.title.toLowerCase().includes(searchTerm) || 
-                    p.description.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            // Sort
-            const sortValue = sortSelect.value;
-            if (sortValue === 'price-low') {
-                filtered.sort((a, b) => a.price - b.price);
-            } else if (sortValue === 'price-high') {
-                filtered.sort((a, b) => b.price - a.price);
-            } else if (sortValue === 'rating') {
-                filtered.sort((a, b) => b.rating - a.rating);
-            } else if (sortValue === 'newest') {
-                filtered.reverse();
-            }
-            
-            renderProducts(filtered);
-        }
-        
-        function addToCart(id, title) {
-            if (!cartItems.find(item => item.id === id)) {
-                cartItems.push({ id, title, quantity: 1 });
-            }
-            localStorage.setItem('cart', JSON.stringify(cartItems));
-            updateCartBadge();
-            alert(`Added "${title}" to cart!`);
-        }
-        
-        function toggleWishlist(id) {
-            const index = wishlistItems.indexOf(id);
-            if (index > -1) {
-                wishlistItems.splice(index, 1);
-            } else {
-                wishlistItems.push(id);
-            }
-            localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
-            updateWishlistBadge();
-            filterProducts();
-        }
-        
-        function updateCartBadge() {
-            const badge = document.getElementById('cartBadge');
-            if (cartItems.length > 0) {
-                badge.textContent = cartItems.length;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-        
-        function updateWishlistBadge() {
-            const badge = document.getElementById('wishlistBadge');
-            if (wishlistItems.length > 0) {
-                badge.textContent = wishlistItems.length;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-        
-        // Event Listeners
-        categoryItems.forEach(item => {
-            item.addEventListener('click', function() {
-                categoryItems.forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-                currentCategory = this.dataset.category;
-                filterProducts();
-            });
+        <div class="input-group">
+            <div class="input-label"><span>Size</span><span id="qtyUnitLabel">BTC</span></div>
+            <div class="input-box">
+                <input type="number" id="futuresQty" placeholder="0.00" step="0.01" oninput="calculateMargin()">
+                <span class="input-suffix" id="qtySuffix">BTC</span>
+            </div>
+        </div>
+
+        <div class="pct-buttons">
+            <button class="pct-btn" onclick="setQtyPercent(0.25)">25%</button>
+            <button class="pct-btn" onclick="setQtyPercent(0.50)">50%</button>
+            <button class="pct-btn" onclick="setQtyPercent(0.75)">75%</button>
+            <button class="pct-btn" onclick="setQtyPercent(1.00)">100%</button>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Avail. Balance</span>
+                <span class="summary-value">$12,450.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Initial Margin</span>
+                <span class="summary-value" id="marginReq">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Est. Liq Price</span>
+                <span class="summary-value" id="liqPrice">43,250.00</span>
+            </div>
+        </div>
+
+        <div class="trade-actions">
+            <button class="btn-trade btn-long" onclick="placeFuturesOrder('long')">Open Long</button>
+            <button class="btn-trade btn-short" onclick="placeFuturesOrder('short')">Open Short</button>
+        </div>
+    </section>
+</div>
+
+<script>
+    let futuresTvWidget;
+    let currentLeverage = 5;
+    let currentPrice = 45200;
+    let currentSymbol = 'BTCUSDT';
+    let orderType = 'Limit';
+    const availableBalance = 12450;
+
+    function initFuturesChart(symbol = "BINANCE:BTCUSDT.P") {
+        document.getElementById("tradingviewF").innerHTML = "";
+        futuresTvWidget = new TradingView.widget({
+            container_id: "tradingviewF",
+            width: "100%",
+            height: "100%",
+            symbol: symbol,
+            interval: "5",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            enable_publishing: false,
+            hide_top_toolbar: true,
+            hide_legend: false,
+            backgroundColor: "#181a20",
+            gridColor: "rgba(43, 49, 58, 0.5)"
         });
+    }
+
+    /* Marketplace Pair Selector */
+    function toggleMarketMenu() {
+        document.getElementById('marketMenu').classList.toggle('show');
+    }
+
+    function selectMarket(pair, price, change) {
+        currentSymbol = pair;
+        currentPrice = price;
+        document.getElementById('activePairLabel').textContent = `${pair} Perpetual`;
+        document.getElementById('markPriceHeader').textContent = price.toFixed(2);
+        document.getElementById('currentMarkPrice').textContent = `${price.toFixed(2)} ↑`;
+        document.getElementById('changeHeader').textContent = change;
+        document.getElementById('futuresPrice').value = price.toFixed(2);
         
-        searchInput.addEventListener('input', filterProducts);
-        sortSelect.addEventListener('change', filterProducts);
+        const baseAsset = pair.replace('USDT', '');
+        document.getElementById('qtyUnitLabel').textContent = baseAsset;
+        document.getElementById('qtySuffix').textContent = baseAsset;
+
+        document.getElementById('marketMenu').classList.remove('show');
+        initFuturesChart(`BINANCE:${pair}.P`);
+        updateLiquidationPrice();
+        calculateMargin();
+    }
+
+    function filterMarkets(query) {
+        const items = document.querySelectorAll('.market-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query.toLowerCase()) ? 'flex' : 'none';
+        });
+    }
+
+    /* Order Execution Logic */
+    function setLeverage(lv, evt) {
+        currentLeverage = lv;
+        document.querySelectorAll('.lev-btn').forEach(btn => btn.classList.remove('active'));
+        if (evt && evt.target) evt.target.classList.add('active');
+        updateLiquidationPrice();
+        calculateMargin();
+    }
+
+    function setOrderType(type, element) {
+        orderType = type;
+        document.querySelectorAll('.order-type-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('priceInputGroup').style.display = type === 'Market' ? 'none' : 'flex';
+        calculateMargin();
+    }
+
+    function setMarginMode(mode, element) {
+        document.querySelectorAll('.margin-type-toggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function updateLiquidationPrice() {
+        const mmr = 0.005;
+        const liq = currentPrice * (1 - (1 / currentLeverage) + mmr);
+        document.getElementById('liqPrice').textContent = Math.max(0, liq).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculateMargin() {
+        const qty = parseFloat(document.getElementById('futuresQty').value) || 0;
+        const price = orderType === 'Market' ? currentPrice : (parseFloat(document.getElementById('futuresPrice').value) || currentPrice);
+        const notionalValue = qty * price;
+        const initialMargin = notionalValue / currentLeverage;
+        document.getElementById('marginReq').textContent = `$${initialMargin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function setQtyPercent(pct) {
+        const maxNotional = availableBalance * currentLeverage;
+        const price = orderType === 'Market' ? currentPrice : (parseFloat(document.getElementById('futuresPrice').value) || currentPrice);
+        const notional = maxNotional * pct;
+        const qty = notional / price;
+        document.getElementById('futuresQty').value = qty.toFixed(3);
+        calculateMargin();
+    }
+
+    function placeFuturesOrder(direction) {
+        const qty = document.getElementById('futuresQty').value;
+        if (!qty || parseFloat(qty) <= 0) return alert('Enter a valid quantity');
         
-        // Initial render
-        renderProducts(mockProducts);
-        updateCartBadge();
-        updateWishlistBadge();
-    </script>
+        const price = orderType === 'Market' ? 'Market' : document.getElementById('futuresPrice').value;
+
+        if (orderType === 'Limit') {
+            const tbody = document.getElementById('ordersTableBody');
+            const row = document.createElement('tr');
+            const now = new Date().toTimeString().split(' ')[0];
+            const baseAsset = currentSymbol.replace('USDT', '');
+            
+            row.innerHTML = `
+                <td>${now}</td>
+                <td><strong>${currentSymbol}</strong></td>
+                <td>Limit</td>
+                <td class="${direction === 'long' ? 'text-success' : 'text-danger'}">${direction.toUpperCase()}</td>
+                <td>${parseFloat(price).toFixed(2)}</td>
+                <td>${qty} ${baseAsset}</td>
+                <td><button class="pct-btn text-danger" onclick="cancelOrder(this)">Cancel</button></td>
+            `;
+            tbody.appendChild(row);
+            updateCounts();
+            alert(`Limit Order Placed: ${direction.toUpperCase()} ${qty} ${currentSymbol} @ ${price}`);
+        } else {
+            alert(`Market Order Executed: ${direction.toUpperCase()} ${qty} ${currentSymbol}`);
+        }
+    }
+
+    function cancelOrder(btn) {
+        btn.closest('tr').remove();
+        updateCounts();
+    }
+
+    function closePosition(btn) {
+        btn.closest('tr').remove();
+        updateCounts();
+    }
+
+    function updateCounts() {
+        document.getElementById('posCount').textContent = document.querySelectorAll('#positionsTableBody tr').length;
+        document.getElementById('ordersCount').textContent = document.querySelectorAll('#ordersTableBody tr').length;
+    }
+
+    /* Tab Controls */
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function setChartInterval(interval, btnElement) {
+        if (futuresTvWidget && typeof futuresTvWidget.setResolution === 'function') {
+            futuresTvWidget.setResolution(interval);
+        }
+        if (btnElement) {
+            document.querySelectorAll('.chart-toolbar .tf-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+    }
+
+    // Close dropdown on outside click
+    window.onclick = function(event) {
+        if (!event.target.closest('.market-dropdown-container')) {
+            document.getElementById('marketMenu').classList.remove('show');
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initFuturesChart();
+        updateLiquidationPrice();
+        calculateMargin();
+    });
+</script>
 </body>
 </html>
