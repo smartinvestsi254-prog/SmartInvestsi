@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Market Data</title>
+    <title>Crypto Market Data - CoinGecko</title>
     <style>
-        /* Base Styles simulating TradingView's clean interface */
+        /* Base Styles */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f8f9fa; 
@@ -78,7 +78,6 @@
             border-bottom: 1px solid #e0e3eb; 
             white-space: nowrap;
         }
-        /* Left-align the first column (Asset name) */
         th:first-child, td:first-child { text-align: left; }
         
         th { 
@@ -95,10 +94,8 @@
             color: #131722;
         }
         
-        /* Hover effect for rows */
         tbody tr:hover { background-color: #f8f9fa; transition: background-color 0.2s ease; }
 
-        /* Custom cell formatting */
         .coin-name { 
             display: flex; 
             align-items: center; 
@@ -109,7 +106,17 @@
         .positive { color: #089981; }
         .negative { color: #f23645; }
         
-        .loading { padding: 60px; text-align: center; color: #787b86; font-size: 15px;}
+        .loading { padding: 60px; text-align: center; color: #787b86; font-size: 15px; }
+        .error-message { padding: 40px; text-align: center; color: #f23645; font-size: 14px; }
+        .retry-btn { 
+            margin-top: 12px; 
+            padding: 8px 16px; 
+            background: #131722; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
     </style>
 </head>
 <body>
@@ -120,7 +127,7 @@
             <h2>Cryptocurrency Coverage</h2>
             <p>Real-time top assets by market capitalization</p>
         </div>
-        <div class="live-indicator">
+        <div class="live-indicator" id="liveIndicator">
             <div class="dot"></div>
             LIVE DATA
         </div>
@@ -144,29 +151,61 @@
 </div>
 
 <script>
-    // Configuration
-    const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1&sparkline=false';
-    const REFRESH_INTERVAL = 60000; // Refresh data every 60 seconds
+    // CONFIGURATION
+    // Optional: Paste your free CoinGecko Demo Key here if you have one.
+    // If left empty, it uses public access with built-in retry handling.
+    const COINGECKO_DEMO_KEY = ''; 
 
-    // Fetch data from CoinGecko
-    async function fetchCryptoData() {
+    const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1&sparkline=false';
+    const REFRESH_INTERVAL = 60000; // Refresh every 60 seconds to comply with rate limits
+
+    async function fetchCryptoData(isRetry = false) {
+        const tbody = document.getElementById('crypto-table-body');
+        
+        // Show loading state only on initial load or manual retry
+        if (tbody.children.length === 1 && tbody.children[0].children[0].classList.contains('loading')) {
+            tbody.innerHTML = `<tr><td colspan="5" class="loading">Fetching real-time market data...</td></tr>`;
+        }
+
         try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Network response was not ok');
+            // Build custom headers for CoinGecko authorization
+            const headers = { 'Accept': 'application/json' };
+            if (COINGECKO_DEMO_KEY) {
+                headers['x-cg-demo-api-key'] = COINGECKO_DEMO_KEY;
+            }
+
+            const response = await fetch(API_URL, { headers });
+
+            // Handle rate limits (429 Too Many Requests)
+            if (response.status === 429) {
+                throw new Error('Rate limit exceeded (429). Waiting for next cycle...');
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error Status: ${response.status}`);
+            }
+
             const data = await response.json();
             renderTable(data);
         } catch (error) {
-            console.error('Error fetching data:', error);
-            document.getElementById('crypto-table-body').innerHTML = `
-                <tr><td colspan="5" style="text-align: center; color: #f23645; padding: 40px;">
-                    Failed to load data from CoinGecko. Please try again later.
-                </td></tr>`;
+            console.error('CoinGecko API Error:', error.message);
+            
+            // Render error message in table if table is empty or on failure
+            if (!document.querySelectorAll('#crypto-table-body tr.coin-row').length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="error-message">
+                            Failed to load data from CoinGecko (${error.message}).<br>
+                            <button class="retry-btn" onclick="fetchCryptoData(true)">Retry Now</button>
+                        </td>
+                    </tr>`;
+            }
         }
     }
 
     // Format numbers to clean currency strings
     function formatCurrency(value) {
-        // Use more decimal places for very cheap coins
+        if (value === null || value === undefined) return '$0.00';
         const minDecimals = value < 1 ? 4 : 2;
         const maxDecimals = value < 1 ? 6 : 2;
         return new Intl.NumberFormat('en-US', { 
@@ -179,6 +218,7 @@
 
     // Format large numbers (e.g. Billions, Millions)
     function formatCompact(value) {
+        if (value === null || value === undefined) return '$0.00';
         return new Intl.NumberFormat('en-US', { 
             style: 'currency', 
             currency: 'USD', 
@@ -187,24 +227,24 @@
         }).format(value);
     }
 
-    // Render the table HTML
+    // Render the table HTML safely
     function renderTable(coins) {
         const tbody = document.getElementById('crypto-table-body');
-        tbody.innerHTML = ''; // Clear loading text
+        tbody.innerHTML = ''; // Clear loading/error text
 
         coins.forEach(coin => {
-            // Determine colors and signs for 24h change
-            const isPositive = coin.price_change_percentage_24h >= 0;
+            const rawChange = coin.price_change_percentage_24h;
+            const isPositive = rawChange >= 0;
             const priceChangeClass = isPositive ? 'positive' : 'negative';
             const priceChangeSign = isPositive ? '+' : '';
-            const priceChange = coin.price_change_percentage_24h ? coin.price_change_percentage_24h.toFixed(2) : '0.00';
+            const priceChange = rawChange ? rawChange.toFixed(2) : '0.00';
 
-            // Create table row
             const row = document.createElement('tr');
+            row.className = 'coin-row';
             row.innerHTML = `
                 <td>
                     <div class="coin-name">
-                        <img src="${coin.image}" alt="${coin.name} logo">
+                        <img src="${coin.image}" alt="${coin.name} logo" loading="lazy">
                         <strong>${coin.name}</strong>
                         <span class="symbol">${coin.symbol}</span>
                     </div>
@@ -219,8 +259,10 @@
     }
 
     // Initialize fetching and set auto-refresh interval
-    fetchCryptoData();
-    setInterval(fetchCryptoData, REFRESH_INTERVAL);
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchCryptoData();
+        setInterval(fetchCryptoData, REFRESH_INTERVAL);
+    });
 </script>
 
 </body>
