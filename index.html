@@ -28,7 +28,7 @@
     
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23d4af37'/%3E%3Cstop offset='100%25' style='stop-color:%23c4a02f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='url(%23g)' stroke-width='3'/%3E%3Cpath d='M30 55 L40 45 L50 60 L70 35' stroke='url(%23g)' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 
-    <!-- Google AdSense -->
+    <!-- Google AdSense Main Tag -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8251495052020406" crossorigin="anonymous"></script>
     
     <!-- Organization Structured Data for SEO -->
@@ -71,7 +71,6 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="/wwwroot/css/corporate-theme.css" rel="stylesheet">
     
     <style>
         :root {
@@ -88,57 +87,55 @@
         body {
             font-family: 'Inter', sans-serif;
             color: var(--primary-corporate);
+            background-color: #f8fafc;
+            overflow-x: hidden;
         }
         
+        /* Navigation */
         .navbar {
             background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1rem;
         }
         
         .navbar-brand {
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             color: var(--accent-gold) !important;
         }
         
         .navbar .nav-link {
             color: rgba(255, 255, 255, 0.85) !important;
-            transition: color 0.3s ease;
-            margin: 0 8px;
+            transition: all 0.25s ease-in-out;
+            margin: 0 4px;
             font-weight: 500;
         }
         
-        .navbar .nav-link:hover {
+        .navbar .nav-link:hover, .navbar .nav-link.active {
             color: var(--accent-gold) !important;
         }
-        
-        .navbar .nav-link.active {
-            color: var(--accent-gold) !important;
-            border-block-end: 2px solid var(--accent-gold);
-        }
-        
-        .btn-admin {
+
+        .btn-gold {
             background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-light-gold) 100%);
             border: none;
             color: var(--primary-corporate);
             font-weight: 700;
-            padding: 8px 20px;
-            border-radius: 6px;
+            padding: 10px 24px;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            margin-inline-start: 12px;
-            white-space: nowrap;
         }
-        
-        .btn-admin:hover {
+
+        .btn-gold:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.35);
             color: var(--primary-corporate);
         }
-        
+
+        /* Hero */
         .hero-banner {
             background: linear-gradient(135deg, var(--primary-corporate) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 100px 0 80px;
+            padding: 90px 0 70px;
             position: relative;
             overflow: hidden;
         }
@@ -146,12 +143,9 @@
         .hero-banner::before {
             content: '';
             position: absolute;
-            inset-block-start: 0;
-            inset-inline-start: 0;
-            inset-inline-end: 0;
-            inset-block-end: 0;
-            background: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"%3E%3Cpath d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100" height="100" fill="url(%23grid)" /%3E%3C/svg%3E');
-            opacity: 0.5;
+            inset: 0;
+            background: url('data:image/svg+xml,%3Csvg width="40" height="40" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/%3E%3C/svg%3E');
+            opacity: 0.6;
         }
         
         .hero-content {
@@ -160,156 +154,134 @@
         }
         
         .hero-title {
-            font-size: 3.5rem;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
             font-weight: 800;
-            margin-block-end: 1.5rem;
-            line-height: 1.2;
+            margin-bottom: 1.25rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
         }
         
         .hero-subtitle {
-            font-size: 1.5rem;
+            font-size: clamp(1rem, 2vw, 1.25rem);
             font-weight: 400;
-            opacity: 0.95;
-            margin-block-end: 2rem;
-        }
-        
-        .feature-card {
-            transition: all 0.3s ease;
-            block-size: 100%;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-icon {
-            inline-size: 64px;
-            block-size: 64px;
-            background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            margin-block-end: 1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
+        .trust-badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Stats Section */
         .stats-section {
-            background: linear-gradient(180deg, #f8fafc 0%, #e8ecf1 100%);
-            padding: 60px 0;
-            border-block-start: 1px solid var(--border-color);
+            background: #ffffff;
+            padding: 50px 0;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .stat-card {
             text-align: center;
-            padding: 30px 20px;
-            background: white;
+            padding: 24px 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
         }
         
         .stat-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
             transform: translateY(-4px);
+            border-color: var(--accent-gold);
         }
         
         .stat-number {
-            font-size: 3rem;
+            font-size: clamp(2rem, 4vw, 2.75rem);
             font-weight: 800;
             background: linear-gradient(135deg, var(--accent-gold) 0%, var(--primary-light) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-block-end: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         
         .stat-label {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #64748b;
             font-weight: 600;
         }
-        
+
+        /* Feature Cards */
         .feature-card {
             transition: all 0.3s ease;
-            block-size: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
             background: white;
         }
         
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.08);
             border-color: var(--accent-gold);
         }
         
         .feature-icon {
-            inline-size: 64px;
-            block-size: 64px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, var(--accent-teal) 0%, #06b6d4 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 2rem;
-            margin-block-end: 1rem;
+            font-size: 1.75rem;
         }
 
+        /* Ad Banner Container */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            overflow: hidden;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        /* Diplomacy Panel */
         .diplomacy-panel {
-            background: linear-gradient(135deg, #0b3d2e 0%, #0f1a2b 100%);
+            background: linear-gradient(135deg, var(--primary-corporate) 0%, #05111e 100%);
             color: white;
-            border-radius: 16px;
-            padding: 32px;
+            border-radius: 20px;
+            padding: 40px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
         .diplomacy-panel::after {
             content: '';
             position: absolute;
-            inset-block-start: -30px;
-            inset-inline-end: -30px;
-            inline-size: 140px;
-            block-size: 140px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, rgba(212, 175, 55, 0) 70%);
-        }
-
-        .diplomacy-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            transition: transform 0.3s ease;
-        }
-
-        .diplomacy-card:hover {
-            transform: translateY(-4px);
-        }
-
-        .diplomacy-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: 12px;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0) 70%);
         }
     </style>
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <!-- market ticker bar -->
-        <div id="market-ticker" class="w-100 bg-secondary text-white text-center py-1 small">
-            <span>Loading market stats...</span>
-        </div>
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="/">
                 <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -324,11 +296,11 @@
                 </svg>
                 SmartInvestsi
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-lg-center">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
                     <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="/calculator.html">Calculator</a></li>
@@ -338,30 +310,45 @@
                     <li class="nav-item"><a class="nav-link" href="/diplomacy/index.html">Diplomacy</a></li>
                     <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
                     <li class="nav-item ms-lg-2"><a class="nav-link" href="/login.html">Sign In</a></li>
-                    <li class="nav-item"><a class="btn btn-primary btn-sm" href="/signup.html">Get Started</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-gold btn-sm" href="/signup.html">Get Started</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Top Responsive Ad Unit -->
+    <div class="container mt-3">
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8251495052020406"
+                 data-ad-slot="auto"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero-banner">
         <div class="container hero-content">
-            <div class="row align-items-center">
+            <div class="row align-items-center g-4">
                 <div class="col-lg-7">
                     <h1 class="hero-title">Start Your Investment Business Today</h1>
-                    <p class="hero-subtitle">SmartInvest empowers individual entrepreneurs and investors worldwide with professional tools, secure banking, and expert guidance to build and grow their wealth confidently.</p>
+                    <p class="hero-subtitle">SmartInvestsi empowers individual entrepreneurs and investors worldwide with professional tools, secure banking, and expert guidance to build and grow their wealth confidently.</p>
 
                     <div class="d-flex flex-wrap gap-3 mb-4">
-                        <a href="/signup.html" class="btn btn-light btn-lg px-4">
-                            <span class="me-2">🚀</span> Start Free Today
+                        <a href="/signup.html" class="btn btn-light btn-lg fw-bold px-4">
+                            🚀 Start Free Today
                         </a>
                         <a href="/calculator.html" class="btn btn-gold btn-lg px-4">
-                            <span class="me-2">🧮</span> Try Investment Calculator
+                            🧮 Try Investment Calculator
                         </a>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2 mt-4">
+                    <div class="d-flex flex-wrap gap-2 pt-2">
                         <span class="trust-badge">👥 10,247+ Active Investors</span>
                         <span class="trust-badge">🛡️ POPIA & GDPR Compliant</span>
                         <span class="trust-badge">💰 $50M+ Assets Managed</span>
@@ -370,20 +357,20 @@
                     </div>
                 </div>
                 <div class="col-lg-5 d-none d-lg-block text-center">
-                    <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="100%" height="280" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="chartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.8"/>
                                 <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.8"/>
                             </linearGradient>
                         </defs>
-                        <rect x="50" y="50" width="300" height="200" rx="15" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-                        <polyline points="80,200 120,180 160,140 200,160 240,100 280,120 320,80" 
+                        <rect x="20" y="30" width="360" height="240" rx="15" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+                        <polyline points="60,210 110,180 160,140 210,160 260,100 310,120 350,70" 
                                   fill="none" stroke="url(#chartGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="80" cy="200" r="6" fill="#d4af37"/>
-                        <circle cx="160" cy="140" r="6" fill="#d4af37"/>
-                        <circle cx="240" cy="100" r="6" fill="#d4af37"/>
-                        <circle cx="320" cy="80" r="6" fill="#d4af37"/>
+                        <circle cx="60" cy="210" r="5" fill="#d4af37"/>
+                        <circle cx="160" cy="140" r="5" fill="#d4af37"/>
+                        <circle cx="260" cy="100" r="5" fill="#d4af37"/>
+                        <circle cx="350" cy="70" r="5" fill="#d4af37"/>
                     </svg>
                 </div>
             </div>
@@ -393,7 +380,7 @@
     <!-- Stats Section -->
     <section class="stats-section">
         <div class="container">
-            <div class="row">
+            <div class="row g-3">
                 <div class="col-md-3 col-6">
                     <div class="stat-card">
                         <div class="stat-number">10K+</div>
@@ -403,7 +390,7 @@
                 <div class="col-md-3 col-6">
                     <div class="stat-card">
                         <div class="stat-number">$50M+</div>
-                        <div class="stat-label">Assets Under Management</div>
+                        <div class="stat-label">Assets Managed</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
@@ -423,107 +410,130 @@
     </section>
 
     <!-- Features Section -->
-    <section class="container my-5 py-5">
+    <section class="container my-5 py-3">
         <div class="text-center mb-5">
-            <h2 class="section-title">Everything You Need to Start & Grow Your Investment Business</h2>
-            <p class="text-muted fs-5">From registration to wealth management - professional tools for individual investors and entrepreneurs</p>
+            <h2 class="fw-bold display-6 mb-2">Everything You Need to Start & Grow Your Business</h2>
+            <p class="text-muted fs-5">Professional tools crafted for individual investors and global entrepreneurs</p>
         </div>
 
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">📊</div>
-                    <h5 class="card-title mb-3">Investment Dashboard</h5>
-                    <p class="card-text text-muted">Real-time portfolio tracking with advanced analytics and performance metrics.</p>
+                    <h5 class="fw-bold mb-2">Investment Dashboard</h5>
+                    <p class="text-muted mb-0">Real-time portfolio tracking with advanced analytics and performance metrics.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">🔒</div>
-                    <h5 class="card-title mb-3">Secure Banking</h5>
-                    <p class="card-text text-muted">Bank-grade encryption and multi-factor authentication for complete security.</p>
+                    <h5 class="fw-bold mb-2">Secure Banking</h5>
+                    <p class="text-muted mb-0">Bank-grade encryption and multi-factor authentication for complete security.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">🎓</div>
-                    <h5 class="card-title mb-3">Learning Academy</h5>
-                    <p class="card-text text-muted">Expert-led courses and resources to master investment strategies.</p>
+                    <h5 class="fw-bold mb-2">Learning Academy</h5>
+                    <p class="text-muted mb-0">Expert-led courses and resources to master investment strategies.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">🤖</div>
-                    <h5 class="card-title mb-3">Robo Advisor</h5>
-                    <p class="card-text text-muted">AI-powered investment recommendations tailored to your goals.</p>
+                    <h5 class="fw-bold mb-2">Robo Advisor</h5>
+                    <p class="text-muted mb-0">AI-powered investment recommendations tailored to your goals.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">🌍</div>
-                    <h5 class="card-title mb-3">Global Markets</h5>
-                    <p class="card-text text-muted">Access to international stocks, crypto, and emerging opportunities.</p>
+                    <h5 class="fw-bold mb-2">Global Markets</h5>
+                    <p class="text-muted mb-0">Access to international stocks, crypto, and emerging opportunities.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100 p-4">
+                <div class="card feature-card p-4">
                     <div class="feature-icon mb-3">💼</div>
-                    <h5 class="card-title mb-3">Professional Tools</h5>
-                    <p class="card-text text-muted">Advanced charting, analysis, and reporting for serious investors.</p>
+                    <h5 class="fw-bold mb-2">Professional Tools</h5>
+                    <p class="text-muted mb-0">Advanced charting, analysis, and reporting for serious investors.</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- In-Content Ad Unit -->
+    <div class="container my-4">
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block; text-align:center;"
+                 data-ad-layout="in-article"
+                 data-ad-format="fluid"
+                 data-ad-client="ca-pub-8251495052020406"
+                 data-ad-slot="auto"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
     <!-- CTA Section -->
-    <section class="diplomacy-panel mx-auto mb-5" style="max-width: 900px;">
-        <h3 class="text-white mb-4">Ready to Transform Your Investment Journey?</h3>
-        <p class="text-white opacity-90 mb-4">Join thousands of investors worldwide who are building wealth with SmartInvestsi. Start free today with no credit card required.</p>
-        <div class="d-flex flex-wrap gap-3">
-            <a href="/signup.html" class="btn btn-light btn-lg px-4">
-                <span class="me-2">🚀</span> Get Started Free
-            </a>
-            <a href="/contact.html" class="btn btn-outline-light btn-lg px-4">
-                <span class="me-2">💬</span> Contact Sales
-            </a>
+    <section class="container mb-5">
+        <div class="diplomacy-panel mx-auto">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <h3 class="text-white fw-bold mb-3">Ready to Transform Your Investment Journey?</h3>
+                    <p class="text-white opacity-90 mb-0">Join thousands of investors worldwide who are building wealth with SmartInvestsi. Start free today with no credit card required.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+                        <a href="/signup.html" class="btn btn-light btn-lg fw-bold px-4">
+                            🚀 Get Started Free
+                        </a>
+                        <a href="/contact.html" class="btn btn-outline-light btn-lg px-4">
+                            💬 Contact Sales
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5 mt-5">
+    <footer class="bg-dark text-white py-5">
         <div class="container">
-            <div class="row mb-4">
-                <div class="col-md-4 mb-3">
-                    <h6 class="fw-bold mb-3">SmartInvestsi</h6>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3 text-gold" style="color: var(--accent-gold);">SmartInvestsi</h6>
                     <p class="text-muted small">Democratizing investment knowledge, tools and opportunities worldwide.</p>
                 </div>
-                <div class="col-md-2 mb-3">
+                <div class="col-md-2 col-6">
                     <h6 class="fw-bold mb-3">Product</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="/calculator.html" class="text-decoration-none text-muted">Calculator</a></li>
-                        <li><a href="/pricing.html" class="text-decoration-none text-muted">Pricing</a></li>
-                        <li><a href="/faq.html" class="text-decoration-none text-muted">FAQ</a></li>
+                        <li class="mb-2"><a href="/calculator.html" class="text-decoration-none text-muted">Calculator</a></li>
+                        <li class="mb-2"><a href="/pricing.html" class="text-decoration-none text-muted">Pricing</a></li>
+                        <li class="mb-2"><a href="/faq.html" class="text-decoration-none text-muted">FAQ</a></li>
                     </ul>
                 </div>
-                <div class="col-md-2 mb-3">
+                <div class="col-md-2 col-6">
                     <h6 class="fw-bold mb-3">Company</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="/about.html" class="text-decoration-none text-muted">About</a></li>
-                        <li><a href="/contact.html" class="text-decoration-none text-muted">Contact</a></li>
-                        <li><a href="/privacy.html" class="text-decoration-none text-muted">Privacy</a></li>
+                        <li class="mb-2"><a href="/about.html" class="text-decoration-none text-muted">About</a></li>
+                        <li class="mb-2"><a href="/contact.html" class="text-decoration-none text-muted">Contact</a></li>
+                        <li class="mb-2"><a href="/privacy.html" class="text-decoration-none text-muted">Privacy</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-4">
                     <h6 class="fw-bold mb-3">Connect</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="https://twitter.com/SmartInvestsi" class="text-decoration-none text-muted" target="_blank">Twitter</a></li>
-                        <li><a href="https://linkedin.com/company/smartinvestsi" class="text-decoration-none text-muted" target="_blank">LinkedIn</a></li>
+                        <li class="mb-2"><a href="https://twitter.com/SmartInvestsi" class="text-decoration-none text-muted" target="_blank" rel="noopener">Twitter / X</a></li>
+                        <li class="mb-2"><a href="https://linkedin.com/company/smartinvestsi" class="text-decoration-none text-muted" target="_blank" rel="noopener">LinkedIn</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="border-secondary">
+            <hr class="border-secondary my-4">
             <div class="text-center text-muted small">
-                <p>&copy; 2026 SmartInvestsi. All rights reserved. | FSB Licensed | POPIA, GDPR, NDPR, Kenya DPA Compliant</p>
+                <p class="mb-0">&copy; 2026 SmartInvestsi. All rights reserved. | FSB Licensed | POPIA, GDPR, NDPR, Kenya DPA Compliant</p>
             </div>
         </div>
     </footer>
