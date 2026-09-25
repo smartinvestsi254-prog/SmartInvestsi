@@ -221,20 +221,24 @@
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <script src="/public/js/auth.js"></script>
     <script>
-        // Redirect if already authenticated
-        (async () => {
-            try {
-                if (typeof getCurrentUser === 'function') {
-                    const user = await getCurrentUser();
-                    if (user) {
-                        window.location.href = user.isAdmin ? '/admin.html' : '/dashboard.html';
-                    }
-                }
-            } catch (err) {
-                console.error('Auth check error:', err);
-            }
-        })();
+        // Redirect if already authenticated, unless requested to clear session or register new user
+(async () => {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceSignup = urlParams.get('new') === 'true';
 
+    if (!forceSignup && typeof getCurrentUser === 'function') {
+      const user = await getCurrentUser();
+      if (user) {
+        // Logged-in users get sent to dashboard
+        window.location.href = user.isAdmin ? '/admin.html' : '/dashboard.html';
+      }
+    }
+  } catch (err) {
+    console.error('Auth check error:', err);
+  }
+})();
+        
         // Handle Form Submission
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
