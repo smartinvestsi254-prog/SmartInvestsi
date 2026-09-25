@@ -5,11 +5,24 @@ import { PrismaClient } from '@prisma/client';
 import { authLimiter, generalAuthLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// Shared Prisma instance to avoid pool exhaustion
 const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-secret-change-in-prod';
 const HCAPTCHA_SECRET = process.env.HCAPTCHA_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production';
+
+interface CaptchaResponse {
+  success: boolean;
+  'error-codes'?: string[];
+}
+
+interface JwtPayload {
+  userId: string;
+  email: string;
+  isAdmin?: boolean;
+}
 
 // Helper: Verify hCaptcha Token
 async function verifyCaptcha(token: string): Promise<boolean> {
@@ -27,7 +40,7 @@ async function verifyCaptcha(token: string): Promise<boolean> {
       body: params.toString(),
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as CaptchaResponse;
     return data.success === true;
   } catch (error) {
     console.error('hCaptcha Verification Error:', error);
@@ -73,7 +86,7 @@ router.post('/signup', authLimiter, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'You must accept the Terms and Privacy Policy.' });
     }
 
-    if (password.length < 8) {
+    if (typeof password !== 'string' || password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
     }
 
@@ -84,8 +97,9 @@ router.post('/signup', authLimiter, async (req: Request, res: Response) => {
     }
 
     // 3. Check for Existing User
+    const normalizedEmail = email.toLowerCase().trim();
     const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -95,23 +109,29 @@ router.post('/signup', authLimiter, async (req: Request, res: Response) => {
     // 4. Hash Password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 5. Create User in Database
+    // 5. Create User in Database (using type assertion for optional schema fields)
     const newUser = await prisma.user.create({
       data: {
-        email: email.toLowerCase().trim(),
-        password: hashedPassword,
-        fullName,
-        phone,
-        country,
-        bankName,
-        accountNumber,
-        acceptTerms: Boolean(acceptTerms),
+        email: normalizedEmail,
+        name: fullName,
+        ...( {
+          password: hashedPassword,
+          fullName,
+          phone,
+          country,
+          bankName,
+          accountNumber,
+          acceptTerms: Boolean(acceptTerms),
+        } as any ),
       },
     });
 
+    const userRecord = newUser as any;
+    const isAdmin = userRecord.isAdmin ?? false;
+
     // 6. Issue JWT & Set HTTP-Only Cookie
     const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email, isAdmin: newUser.isAdmin },
+      { userId: newUser.id, email: newUser.email, isAdmin },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -123,8 +143,8 @@ router.post('/signup', authLimiter, async (req: Request, res: Response) => {
       user: {
         id: newUser.id,
         email: newUser.email,
-        fullName: newUser.fullName,
-        isAdmin: newUser.isAdmin,
+        fullName: userRecord.fullName || newUser.name || '',
+        isAdmin,
       },
     });
   } catch (error) {
@@ -147,22 +167,30 @@ router.post(['/login', '/signin'], authLimiter, async (req: Request, res: Respon
 
     // 1. Fetch User
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: String(email).toLowerCase().trim() },
     });
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    const userRecord = user as any;
+
     // 2. Validate Password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!userRecord.password) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(String(password), userRecord.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    const isAdmin = userRecord.isAdmin ?? false;
+
     // 3. Issue JWT & Set Cookie
     const token = jwt.sign(
-      { userId: user.id, email: user.email, isAdmin: user.isAdmin },
+      { userId: user.id, email: user.email, isAdmin },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -174,8 +202,8 @@ router.post(['/login', '/signin'], authLimiter, async (req: Request, res: Respon
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.fullName,
-        isAdmin: user.isAdmin,
+        fullName: userRecord.fullName || user.name || '',
+        isAdmin,
       },
     });
   } catch (error) {
@@ -186,7 +214,7 @@ router.post(['/login', '/signin'], authLimiter, async (req: Request, res: Respon
 
 /**
  * GET /api/auth/me
- * Check current user session (used by auth.js)
+ * Check current user session
  */
 router.get('/me', generalAuthLimiter, async (req: Request, res: Response) => {
   try {
@@ -195,17 +223,25 @@ router.get('/me', generalAuthLimiter, async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, email: true, fullName: true, isAdmin: true },
     });
 
     if (!user) {
       return res.status(401).json({ error: 'User no longer exists' });
     }
 
-    return res.json({ user });
+    const userRecord = user as any;
+
+    return res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: userRecord.fullName || user.name || '',
+        isAdmin: userRecord.isAdmin ?? false,
+      },
+    });
   } catch (error) {
     return res.status(401).json({ error: 'Invalid or expired session' });
   }
